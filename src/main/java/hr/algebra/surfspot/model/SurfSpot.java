@@ -1,8 +1,6 @@
 package hr.algebra.surfspot.model;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class SurfSpot {
     private Long id;
@@ -11,8 +9,8 @@ public class SurfSpot {
     private WaveDetails waveDetails;
     private Integer windDirectionDegrees;
     private DifficultyLevel difficulty;
-    private List<Month> bestSeason = new ArrayList<>();
-    private List<Instructor> instructors = new ArrayList<>();
+    private Set<Month> bestSeason = EnumSet.noneOf(Month.class);
+    private Set<Instructor> instructors = new HashSet<>();
 
     public SurfSpot() {
     }
@@ -35,8 +33,8 @@ public class SurfSpot {
         private WaveDetails waveDetails;
         private Integer windDirectionDegrees;
         private DifficultyLevel difficulty;
-        private List<Month> bestSeason = new ArrayList<>();
-        private List<Instructor> instructors = new ArrayList<>();
+        private Set<Month> bestSeason = EnumSet.noneOf(Month.class);
+        private Set<Instructor> instructors = new HashSet<>();
 
         public Builder id(Long id) {
             this.id = id;
@@ -68,12 +66,12 @@ public class SurfSpot {
             return this;
         }
 
-        public Builder bestSeason(List<Month> bestSeason) {
+        public Builder bestSeason(Set<Month> bestSeason) {
             this.bestSeason = bestSeason;
             return this;
         }
 
-        public Builder instructor(List<Instructor> instructors) {
+        public Builder instructor(Set<Instructor> instructors) {
             this.instructors = instructors;
             return this;
         }
@@ -131,19 +129,19 @@ public class SurfSpot {
         this.difficulty = difficulty;
     }
 
-    public List<Month> getBestSeason() {
+    public Set<Month> getBestSeason() {
         return bestSeason;
     }
 
-    public void setBestSeason(List<Month> bestSeason) {
+    public void setBestSeason(Set<Month> bestSeason) {
         this.bestSeason = bestSeason;
     }
 
-    public List<Instructor> getInstructors() {
+    public Set<Instructor> getInstructors() {
         return instructors;
     }
 
-    public void setInstructor(List<Instructor> instructors) {
+    public void setInstructor(Set<Instructor> instructors) {
         this.instructors = instructors;
     }
 
@@ -154,21 +152,21 @@ public class SurfSpot {
     @Override
     public String toString() {
         return String.format(
-                "Surf Spot [ID %d]:%n" +
-                        "Naziv: %s%n" +
-                        "Lokacija: %s%n" +
-                        "Tip valova: %s%n" +
-                        "Smjer vjetra: %s%n" +
-                        "Tezina: %s%n" +
-                        "Mjeseci sezone: %s%n" +
-                        "Instruktori: %s%n",
-                id,
-                name,
-                (location != null ? location.getCoast().getName() : "Nije uneseno"),
-                (waveDetails != null ? waveDetails.getWaveType().getDisplayValue() : "Nije uneseno"),
-                windDirectionDegrees,
-                (difficulty != null ? difficulty.getDisplayValue() : "Nije uneseno"),
-                (!bestSeason.isEmpty() ? bestSeason.toString() : "Nije uneseno"),
-                (!instructors.isEmpty() ? instructors.toString() : "Nije uneseno"));
+            "Surf Spot [ID %d]:%n" +
+            "Naziv: %s%n" +
+            "Lokacija: %s%n" +
+            "Tip valova: %s%n" +
+            "Smjer vjetra: %s%n" +
+            "Tezina: %s%n" +
+            "Mjeseci sezone: %s%n" +
+            "Instruktori: %s%n",
+            id,
+            name,
+            (location != null ? location.getCoast().getName() : "Nije uneseno"),
+            (waveDetails != null ? waveDetails.getWaveType().getDisplayValue() : "Nije uneseno"),
+            windDirectionDegrees,
+            (difficulty != null ? difficulty.getDisplayValue() : "Nije uneseno"),
+            (!bestSeason.isEmpty() ? bestSeason.toString() : "Nije uneseno"),
+            (!instructors.isEmpty() ? instructors.toString() : "Nije uneseno"));
     }
 }

@@ -34,3 +34,6 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Database & Secrets ###
+src/main/resources/db.properties

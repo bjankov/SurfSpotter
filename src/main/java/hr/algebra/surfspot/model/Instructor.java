@@ -1,5 +1,7 @@
 package hr.algebra.surfspot.model;
 
+import java.util.Objects;
+
 public class Instructor {
     private Long id;
     private String firstName;
@@ -55,5 +57,20 @@ public class Instructor {
                 "Prezime: %s%n" +
                 "Škola: %s%n",
                 id, firstName, lastName, (school != null ? school.getName() : "Samostalan"));
+    }
+
+    // TODO: Provjeri validnost equals metode
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Instructor that = (Instructor) o;
+        if (id == null || that.id == null) return false;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

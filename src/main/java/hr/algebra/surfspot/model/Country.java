@@ -1,34 +1,22 @@
 package hr.algebra.surfspot.model;
 
-public class Country {
-    private Long id;
-    private String name;
+public record Country (String code, String name){
 
-    public Country(String name) {
-        this.name = name;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    public Country {
+        if (code == null || code.length() != 2) {
+            throw new IllegalArgumentException("Country code length must be 2");
+        }
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Country name cannot be blank");
+        }
+        code = code.toUpperCase();
     }
 
     @Override
     public String toString() {
         return String.format(
-                "Država [ID: %d]%n" +
+                "Država [ID: %s]%n" +
                 "Naziv: %s%n",
-                id, name);
+                code, name);
     }
 }
