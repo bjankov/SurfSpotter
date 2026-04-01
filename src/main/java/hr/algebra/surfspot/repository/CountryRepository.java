@@ -1,33 +1,26 @@
 package hr.algebra.surfspot.repository;
 
 import hr.algebra.surfspot.model.Country;
-import hr.algebra.surfspot.util.DataSourceUtils;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
-public class CountryRepository {
-    public Optional<Country> findByCode(final String code) {
-        String sql = "SELECT code, name FROM countries WHERE code = ? ";
+public class CountryRepository extends BaseRepository<Country> {
+    public Optional<Country> findByCode(String code) {
+        String query = "SELECT * FROM countries WHERE code = ?";
+        return findSingleResult(query, this::mapRowToCountry, code);
+    }
 
-        try (Connection connection = DataSourceUtils.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, code.toUpperCase());
+    public Optional<Country> findByName(String name) {
+        String query = "SELECT * FROM countries WHERE name = ?";
+        return findSingleResult(query, this::mapRowToCountry, name);
+    }
 
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    return Optional.of(new Country(
-                            resultSet.getString("code"),
-                            resultSet.getString("name")
-                    ));
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-        return Optional.empty();
+    private Country mapRowToCountry(ResultSet rs) throws SQLException {
+        return new Country(
+                rs.getString("code"),
+                rs.getString("name")
+        );
     }
 }

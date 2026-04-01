@@ -11,10 +11,15 @@ public class Instructor {
     public Instructor() {
     }
 
-    public Instructor(String firstName, String lastName, SurfingSchool school) {
+    public Instructor(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.school = school;
+    }
+
+    public Instructor(Long id, String firstName, String lastName) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
     public Long getId() {

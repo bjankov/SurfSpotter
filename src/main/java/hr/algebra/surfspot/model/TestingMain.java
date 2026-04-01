@@ -18,7 +18,6 @@ public class TestingMain {
         Country croatia = countryRepository.findByCode("HR").orElse(null);
         System.out.println(croatia);
 
-        /*
         SurfSpot spot = new SurfSpot.Builder()
                 .id(1L)
                 .name("Pen Gu")
@@ -34,7 +33,5 @@ public class TestingMain {
 
         SurfSpotRepository surfSpotRepository =  new SurfSpotRepository();
         surfSpotRepository.save(spot);
-
-         */
     }
 }

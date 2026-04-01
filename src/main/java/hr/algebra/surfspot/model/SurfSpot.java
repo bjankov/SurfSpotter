@@ -12,6 +12,10 @@ public class SurfSpot {
     private Set<Month> bestSeason = EnumSet.noneOf(Month.class);
     private Set<Instructor> instructors = new HashSet<>();
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public SurfSpot() {
     }
 
@@ -73,6 +77,18 @@ public class SurfSpot {
 
         public Builder instructor(Set<Instructor> instructors) {
             this.instructors = instructors;
+            return this;
+        }
+
+        public Builder from(SurfSpot surfSpot) {
+            this.id = surfSpot.id;
+            this.name = surfSpot.name;
+            this.location = surfSpot.location;
+            this.waveDetails = surfSpot.waveDetails;
+            this.windDirectionDegrees = surfSpot.windDirectionDegrees;
+            this.difficulty = surfSpot.difficulty;
+            this.bestSeason = surfSpot.bestSeason;
+            this.instructors = surfSpot.instructors;
             return this;
         }
 
