@@ -22,6 +22,12 @@ public class Instructor {
         this.lastName = lastName;
     }
 
+    public Instructor(String firstName, String lastName, SurfingSchool school) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.school = school;
+    }
+
     public Long getId() {
         return id;
     }

@@ -7,6 +7,15 @@ import java.sql.*;
 import java.util.Optional;
 
 public class CoastRepository extends BaseRepository<Coast> {
+    public Coast save(final Coast coast) {
+        String query = "INSERT INTO coasts (name, country_code) VALUES (?, ?)";
+        Long generatedId = insertAndGetId(query, coast.getName(), coast.getCountry().code());
+
+        return new Coast(
+            generatedId, coast.getName(), coast.getCountry()
+        );
+    }
+
     public Optional<Coast> findById(final Long id) {
         String query = """
                 SELECT

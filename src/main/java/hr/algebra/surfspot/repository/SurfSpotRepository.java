@@ -1,52 +1,110 @@
 package hr.algebra.surfspot.repository;
 
-import hr.algebra.surfspot.model.SurfSpot;
+import hr.algebra.surfspot.model.*;
 import hr.algebra.surfspot.util.DataSourceUtils;
 
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.util.*;
 
 // TODO: Refactor SurfSpotRepository to extend BaseRespository
-public class SurfSpotRepository {
-    public SurfSpot save(SurfSpot surfSpot) {
-        String sql = """
-                INSERT INTO surf_spot (name, latitude, longitude, country_code, coast_id, wave_type, difficulty)"
-                "VALUES (?, ?, ?, ?, ?, ?, ?)
+public class SurfSpotRepository extends BaseRepository<SurfSpot> {
+    public Optional<SurfSpot> findById(Long id) {
+        String query = "SELECT * FROM surf_spots WHERE id = ?";
+        return findSingleResult(query, this::mapSurfSpot, id);
+    }
+
+    public SurfSpot save(SurfSpot spot) {
+        final String surf_spot_insert_query = """
+                INSERT INTO surf_spots (
+                    name,
+                    latitude,
+                    longitude,
+                    country_code,
+                    coast_id,
+                    wave_type,
+                    wave_height,
+                    difficulty,
+                    wind_direction
+                    )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
-        try (Connection connection = DataSourceUtils.getConnection();
-            PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            preparedStatement.setString(1, surfSpot.getName());
-            preparedStatement.setBigDecimal(2, surfSpot.getLocation().getCoordinates().latitude());
-            preparedStatement.setBigDecimal(3, surfSpot.getLocation().getCoordinates().longitude());
-            preparedStatement.setLong(4, surfSpot.getLocation().getCoast().getId());
-            preparedStatement.setLong(5, surfSpot.getLocation().getCoast().getId());
-            preparedStatement.setString(6, surfSpot.getWaveDetails().getWaveType().name());
-            preparedStatement.setString(7, surfSpot.getDifficulty().name());
+        Long generatedId = insertAndGetId(
+                surf_spot_insert_query,
+                spot.getName(),
+                spot.getLocation().getCoordinates().latitude(),
+                spot.getLocation().getCoordinates().longitude(),
+                spot.getLocation().getCoast().getCountry().code(),
+                spot.getLocation().getCoast().getId(),
+                spot.getWaveDetails().getWaveType().name(),
+                spot.getWaveDetails().getWaveHeight(),
+                spot.getDifficulty().name(),
+                spot.getWindDirectionDegrees()
+        );
 
-            int affectedRows = preparedStatement.executeUpdate();
-            if (affectedRows == 0) {
-                System.err.println("Neuspjesno spremanje surf spota u bazu podataka.");
-            }
+        if (generatedId != null) {
+            saveMonths(generatedId, spot.getBestSeason());
 
-            try (ResultSet resultSet = preparedStatement.getGeneratedKeys()) {
-                if (resultSet.next()) {
-                    Long newId = resultSet.getLong(1);
+            return SurfSpot.builder()
+                    .id(generatedId)
+                    .name(spot.getName())
+                    .location(spot.getLocation())
+                    .bestSeason(spot.getBestSeason())
+                    .difficulty(spot.getDifficulty())
+                    .windDirectionDegrees(spot.getWindDirectionDegrees())
+                    .waveDetails(spot.getWaveDetails())
+                    .build();
+        }
+        throw new RuntimeException("Could not save surf spot");
+    }
 
-                    System.out.println("Surf spot uspješno spremljen u bazu podataka.");
+    private SurfSpot mapSurfSpot(ResultSet resultSet) throws SQLException {
+        Location location = new Location();
+        Coordinates coordinates = new Coordinates(
+                resultSet.getBigDecimal("latitude"),
+                resultSet.getBigDecimal("longitude")
+        );
+        WaveDetails waveDetails = new WaveDetails(
+                WaveType.valueOf(resultSet.getString("wave_type")),
+                resultSet.getDouble("wave_height")
+        );
 
-                    return SurfSpot.builder()
-                            .from(surfSpot)
-                            .id(newId)
-                            .build();
-                } else {
-                    throw new SQLException("Stvaranje surf spota nije uspjelo, ID nije dobiven");
-                }
-            }
+        return SurfSpot.builder()
+                .id(resultSet.getLong("id"))
+                .name(resultSet.getString("name"))
+                .location(location)
+                .waveDetails(waveDetails)
+                .windDirectionDegrees(resultSet.getInt("wind_direction"))
+                .difficulty(DifficultyLevel.valueOf(resultSet.getString("difficulty")))
+                .bestSeason(fetchMonthsForSpot(resultSet.getLong("id")))
+                .build();
+    }
 
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            return null;
+    private EnumSet<Month> fetchMonthsForSpot(Long surfSpotId) {
+        String query = "SELECT month_name FROM surf_spot_months WHERE id = ?";
+
+        List<Month> months = findAll(
+                query,
+                resultSet -> Month.valueOf(resultSet.getString("month_name")),
+                surfSpotId);
+
+        if (months.isEmpty()) {
+            return EnumSet.noneOf(Month.class);
+        }
+        return EnumSet.copyOf(months);
+    }
+
+    private void saveMonths(Long surfSpotId, Set<Month> months) {
+        String months_insert_query = "INSERT INTO surf_spot_months (surf_spot_id, month_name) VALUES (?, ?)";
+
+        if (months == null || months.isEmpty()) {
+            return;
+        }
+
+        for (final Month month : months) {
+            executeUpdate(months_insert_query, surfSpotId, month.name());
         }
     }
 }

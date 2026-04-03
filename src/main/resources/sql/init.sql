@@ -52,3 +52,14 @@ CREATE TABLE surf_spots (
     FOREIGN KEY (coast_id)
     REFERENCES coasts(id)
 );
+
+CREATE TABLE surf_spot_months (
+    surf_spot_id BIGINT NOT NULL,
+    month_name TEXT NOT NULL,
+
+    PRIMARY KEY (surf_spot_id, month_name),
+
+    CONSTRAINT fk_surf_spot
+    FOREIGN KEY (surf_spot_id)
+    REFERENCES surf_spots(id)
+);

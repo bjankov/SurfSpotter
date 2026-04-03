@@ -1,5 +1,6 @@
 package hr.algebra.surfspot.model;
 
+import hr.algebra.surfspot.repository.CoastRepository;
 import hr.algebra.surfspot.repository.CountryRepository;
 import hr.algebra.surfspot.repository.SurfSpotRepository;
 
@@ -12,14 +13,16 @@ public class TestingMain {
         SurfingSchool school = new SurfingSchool("Surfing School");
         Instructor instructor = new Instructor("Ivo", "Ivic", school);
 
-        System.out.println(instructor);
         CountryRepository countryRepository = new CountryRepository();
 
         Country croatia = countryRepository.findByCode("HR").orElse(null);
-        System.out.println(croatia);
+        Coast obala =  new Coast("Obala", croatia);
+        CoastRepository coastRepository = new CoastRepository();
+        obala = coastRepository.save(obala);
 
-        SurfSpot spot = new SurfSpot.Builder()
-                .id(1L)
+        WaveDetails details = new WaveDetails(WaveType.BEACH_BREAK, 1.0);
+
+        SurfSpot spot = SurfSpot.builder()
                 .name("Pen Gu")
                 .difficulty(DifficultyLevel.EXPERT)
                 .windDirectionDegrees(270)
@@ -27,7 +30,8 @@ public class TestingMain {
                         new Location(
                             new Coordinates(
                                 new BigDecimal("31.252354"), new BigDecimal("14.345235")),
-                                new Coast("Obala", croatia)))
+                                obala))
+                .waveDetails(details)
                 .build();
         System.out.println(spot);
 

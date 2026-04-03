@@ -17,10 +17,10 @@ public class CountryRepository extends BaseRepository<Country> {
         return findSingleResult(query, this::mapRowToCountry, name);
     }
 
-    private Country mapRowToCountry(ResultSet rs) throws SQLException {
+    private Country mapRowToCountry(ResultSet resultSet) throws SQLException {
         return new Country(
-                rs.getString("code"),
-                rs.getString("name")
+                resultSet.getString("code"),
+                resultSet.getString("name")
         );
     }
 }
