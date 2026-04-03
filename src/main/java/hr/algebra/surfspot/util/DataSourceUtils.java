@@ -13,6 +13,9 @@ public class DataSourceUtils {
 
     static {
         try (InputStream is = DataSourceUtils.class.getResourceAsStream(PROPERTIES_FILE)) {
+            if  (is == null) {
+                throw new RuntimeException("Properties file " + PROPERTIES_FILE + " not found");
+            }
             PROPERTIES.load(is);
         } catch (IOException e) {
             System.out.println(e.getMessage());

@@ -172,7 +172,7 @@ public class SurfSpot {
             "Naziv: %s%n" +
             "Lokacija: %s%n" +
             "Tip valova: %s%n" +
-            "Smjer vjetra: %s%n" +
+            "Smjer vjetra: %s (%s)%n" +
             "Tezina: %s%n" +
             "Mjeseci sezone: %s%n" +
             "Instruktori: %s%n",
@@ -180,7 +180,7 @@ public class SurfSpot {
             name,
             (location != null ? location.getCoast().getName() : "Nije uneseno"),
             (waveDetails != null ? waveDetails.getWaveType().getDisplayValue() : "Nije uneseno"),
-            windDirectionDegrees,
+            windDirectionDegrees, WindDirection.fromDegrees(windDirectionDegrees),
             (difficulty != null ? difficulty.getDisplayValue() : "Nije uneseno"),
             (!bestSeason.isEmpty() ? bestSeason.toString() : "Nije uneseno"),
             (!instructors.isEmpty() ? instructors.toString() : "Nije uneseno"));

@@ -16,16 +16,16 @@ public class TestingMain {
         CountryRepository countryRepository = new CountryRepository();
 
         Country croatia = countryRepository.findByCode("HR").orElse(null);
-        Coast obala =  new Coast("Obala", croatia);
+        Coast obala =  new Coast("Spanish Coast", croatia);
         CoastRepository coastRepository = new CoastRepository();
         obala = coastRepository.save(obala);
 
         WaveDetails details = new WaveDetails(WaveType.BEACH_BREAK, 1.0);
 
         SurfSpot spot = SurfSpot.builder()
-                .name("Pen Gu")
-                .difficulty(DifficultyLevel.EXPERT)
-                .windDirectionDegrees(270)
+                .name("Malvarossa")
+                .difficulty(DifficultyLevel.EASY)
+                .windDirectionDegrees(45)
                 .location(
                         new Location(
                             new Coordinates(

@@ -23,10 +23,9 @@ public class InstructorRepository extends BaseRepository<Instructor> {
     }
 
     private Instructor mapRowToInstructor(ResultSet resultSet) throws SQLException {
-        return new Instructor(
-                resultSet.getLong("id"),
-                resultSet.getString("first_name"),
-                resultSet.getString("last_name")
-        );
+        return Instructor.builder()
+                .firstName(resultSet.getString("first_name"))
+                .lastName(resultSet.getString("last_name"))
+                .build();
     }
 }
