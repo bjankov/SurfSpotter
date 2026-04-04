@@ -7,14 +7,15 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 public class CountryRepository extends BaseRepository<Country> {
+    private static final String FIND_BY_CODE_QUERY = "SELECT * FROM countries WHERE code = ?";
+    private static final String FIND_BY_NAME_QUERY = "SELECT * FROM countries WHERE name = ?";
+
     public Optional<Country> findByCode(String code) {
-        String query = "SELECT * FROM countries WHERE code = ?";
-        return findSingleResult(query, this::mapRowToCountry, code);
+        return findSingleResult(FIND_BY_CODE_QUERY, this::mapRowToCountry, code);
     }
 
     public Optional<Country> findByName(String name) {
-        String query = "SELECT * FROM countries WHERE name = ?";
-        return findSingleResult(query, this::mapRowToCountry, name);
+        return findSingleResult(FIND_BY_NAME_QUERY, this::mapRowToCountry, name);
     }
 
     private Country mapRowToCountry(ResultSet resultSet) throws SQLException {

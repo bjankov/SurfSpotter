@@ -1,5 +1,7 @@
 package hr.algebra.surfspot.repository;
 
+import hr.algebra.surfspot.exception.EntityNotFoundException;
+import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.util.DataSourceUtils;
 
 import java.sql.*;
@@ -44,7 +46,7 @@ public abstract class BaseRepository<T> {
             }
 
         } catch (SQLException e) {
-            System.err.println("Greska u bazi:" + e.getMessage());
+            throw new RepositoryException("Greska u bazi:" + e.getMessage());
         }
         return results;
     }
@@ -63,10 +65,10 @@ public abstract class BaseRepository<T> {
                 if (generatedKeys.next()) {
                     return generatedKeys.getLong(1);
                 }
-                throw new SQLException("No rows affected");
+                throw new EntityNotFoundException("No rows affected");
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Greska u bazi: " + query + ": " + e.getMessage());
+            throw new RepositoryException("Greska u bazi: " + query + ": " + e.getMessage());
         }
     }
 
@@ -81,7 +83,7 @@ public abstract class BaseRepository<T> {
             return preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException("Greska u bazi:" + query + ": " + e.getMessage());
+            throw new RepositoryException("Greska u bazi:" + query + ": " + e.getMessage());
         }
     }
 }

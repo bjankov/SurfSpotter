@@ -7,17 +7,8 @@ import java.sql.*;
 import java.util.Optional;
 
 public class CoastRepository extends BaseRepository<Coast> {
-    public Coast save(final Coast coast) {
-        String query = "INSERT INTO coasts (name, country_code) VALUES (?, ?)";
-        Long generatedId = insertAndGetId(query, coast.getName(), coast.getCountry().code());
-
-        return new Coast(
-            generatedId, coast.getName(), coast.getCountry()
-        );
-    }
-
-    public Optional<Coast> findById(final Long id) {
-        String query = """
+    private static final String SAVE_QUERY = "INSERT INTO coasts (name, country_code) VALUES (?, ?)";
+    private static final String FIND_BY_ID_QUERY = """
                 SELECT
                     coasts.id AS coast_id,
                     coasts.name AS coast_name,
@@ -28,12 +19,22 @@ public class CoastRepository extends BaseRepository<Coast> {
                 JOIN countries
                 ON  coasts.country_code = countries.code
                 """;
-        return findSingleResult(query, this::mapRowToCoast, id);
+    private static final String FIND_BY_NAME_QUERY = "SELECT * FROM coast WHERE name = ?";
+
+    public Coast save(final Coast coast) {
+        Long generatedId = insertAndGetId(SAVE_QUERY, coast.getName(), coast.getCountry().code());
+
+        return new Coast(
+            generatedId, coast.getName(), coast.getCountry()
+        );
+    }
+
+    public Optional<Coast> findById(final Long id) {
+        return findSingleResult(FIND_BY_ID_QUERY, this::mapRowToCoast, id);
     }
 
     public Optional<Coast> findByName(String name) {
-        String query = "SELECT * FROM coast WHERE name = ?";
-        return findSingleResult(query, this::mapRowToCoast, name);
+        return findSingleResult(FIND_BY_NAME_QUERY, this::mapRowToCoast, name);
     }
 
     private Coast mapRowToCoast(ResultSet resultSet) throws SQLException {
@@ -41,10 +42,10 @@ public class CoastRepository extends BaseRepository<Coast> {
                 resultSet.getString("country_code"),
                 resultSet.getString("country_name")
         );
-        return new Coast(
-                resultSet.getLong("coast_id"),
-                resultSet.getString("name"),
-                country
-        );
+        return  Coast.builder()
+                .id(resultSet.getLong("id"))
+                .name(resultSet.getString("name"))
+                .country(country)
+                .build();
     }
 }

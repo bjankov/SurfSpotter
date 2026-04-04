@@ -10,13 +10,24 @@ public class TestingMain {
     static void main(String[] args) {
         // System.out.println(WindDirection.fromDegrees(Integer.parseInt(args[0])));
 
-        SurfingSchool school = new SurfingSchool("Surfing School");
-        Instructor instructor = new Instructor("Ivo", "Ivic", school);
+        SurfingSchool school = SurfingSchool.builder()
+                .name("Skola Surfanja")
+                .build();
+
+        Instructor instructor = Instructor.builder()
+                .firstName("Pingvin")
+                .lastName("BigZ")
+                .build();
 
         CountryRepository countryRepository = new CountryRepository();
 
         Country croatia = countryRepository.findByCode("HR").orElse(null);
-        Coast obala =  new Coast("Spanish Coast", croatia);
+
+        Coast obala = Coast.builder()
+                .name("Obala")
+                .country(croatia)
+                .build();
+
         CoastRepository coastRepository = new CoastRepository();
         obala = coastRepository.save(obala);
 

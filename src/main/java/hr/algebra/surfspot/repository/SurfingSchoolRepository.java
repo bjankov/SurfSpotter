@@ -7,21 +7,21 @@ import java.sql.SQLException;
 import java.util.Optional;
 
 public class SurfingSchoolRepository extends BaseRepository<SurfingSchool> {
+    private static final String FIND_BY_ID_QUERY = "SELECT * FROM surfing_schools WHERE id = ?";
+    private static final String FIND_BY_NAME_QUERY = "SELECT * FROM surfing_schools WHERE name = ?";
+
     public Optional<SurfingSchool> findById(Long id) {
-        String query = "SELECT * FROM surfing_school WHERE id = ?";
-        return findSingleResult(query, this::mapRowToSurfingSchool, id);
+        return findSingleResult(FIND_BY_ID_QUERY, this::mapRowToSurfingSchool, id);
     }
 
     public Optional<SurfingSchool> findByName(String name) {
-        String query = "SELECT * FROM surfing_school WHERE name = ?";
-        return findSingleResult(query, this::mapRowToSurfingSchool, name);
+        return findSingleResult(FIND_BY_NAME_QUERY, this::mapRowToSurfingSchool, name);
     }
 
     private SurfingSchool mapRowToSurfingSchool(ResultSet resultSet) throws SQLException {
-        return new SurfingSchool(
-                resultSet.getLong("id"),
-                resultSet.getString("name")
-        );
-
+        return SurfingSchool.builder()
+                .id(resultSet.getLong("id"))
+                .name(resultSet.getString("name"))
+                .build();
     }
 }

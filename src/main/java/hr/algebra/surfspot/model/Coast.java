@@ -5,6 +5,48 @@ public class Coast {
     private String name;
     private Country country;
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public Coast(Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.country = builder.country;
+    }
+
+    public static class Builder {
+        private Long id;
+        private String name;
+        private Country country;
+
+        public Builder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder country(Country country) {
+            this.country  = country;
+            return this;
+        }
+
+        public Builder from(Coast coast) {
+            this.id = coast.id;
+            this.name = coast.name;
+            this.country = coast.country;
+            return this;
+        }
+
+        public Coast build() {
+            return new Coast(this);
+        }
+    }
+
     public Coast() {
     }
 

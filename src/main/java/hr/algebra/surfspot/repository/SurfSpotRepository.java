@@ -9,30 +9,32 @@ import java.util.*;
 
 // TODO: Refactor SurfSpotRepository to extend BaseRespository
 public class SurfSpotRepository extends BaseRepository<SurfSpot> {
+    private static final String FIND_BY_ID_QUERY = "SELECT * FROM surf_spots WHERE id = ?";
+    private static final String INSERT_SURF_SPOT_QUERY = """
+        INSERT INTO surf_spots (
+            name,
+            latitude,
+            longitude,
+            country_code,
+            coast_id,
+            wave_type,
+            wave_height,
+            difficulty,
+            wind_direction
+            )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+     """;
+    private static final String FIND_ALL_QUERY = "SELECT month_name FROM surf_spot_months WHERE id = ?";
+    private static final String INSERT_MONTHS_QUERY = "INSERT INTO surf_spot_months (surf_spot_id, month_name) VALUES (?, ?)";
+
     public Optional<SurfSpot> findById(Long id) {
-        String query = "SELECT * FROM surf_spots WHERE id = ?";
-        return findSingleResult(query, this::mapSurfSpot, id);
+        return findSingleResult(FIND_BY_ID_QUERY, this::mapSurfSpot, id);
     }
 
     public SurfSpot save(SurfSpot spot) {
-        final String surf_spot_insert_query = """
-                INSERT INTO surf_spots (
-                    name,
-                    latitude,
-                    longitude,
-                    country_code,
-                    coast_id,
-                    wave_type,
-                    wave_height,
-                    difficulty,
-                    wind_direction
-                    )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """;
-
 
         Long generatedId = insertAndGetId(
-                surf_spot_insert_query,
+                INSERT_SURF_SPOT_QUERY,
                 spot.getName(),
                 spot.getLocation().getCoordinates().latitude(),
                 spot.getLocation().getCoordinates().longitude(),
@@ -83,10 +85,9 @@ public class SurfSpotRepository extends BaseRepository<SurfSpot> {
     }
 
     private EnumSet<Month> fetchMonthsForSpot(Long surfSpotId) {
-        String query = "SELECT month_name FROM surf_spot_months WHERE id = ?";
 
         List<Month> months = findAll(
-                query,
+                FIND_ALL_QUERY,
                 resultSet -> Month.valueOf(resultSet.getString("month_name")),
                 surfSpotId);
 
@@ -97,14 +98,13 @@ public class SurfSpotRepository extends BaseRepository<SurfSpot> {
     }
 
     private void saveMonths(Long surfSpotId, Set<Month> months) {
-        String months_insert_query = "INSERT INTO surf_spot_months (surf_spot_id, month_name) VALUES (?, ?)";
 
         if (months == null || months.isEmpty()) {
             return;
         }
 
         for (final Month month : months) {
-            executeUpdate(months_insert_query, surfSpotId, month.name());
+            executeUpdate(INSERT_MONTHS_QUERY, surfSpotId, month.name());
         }
     }
 }

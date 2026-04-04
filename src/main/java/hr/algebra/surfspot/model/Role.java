@@ -1,5 +1,6 @@
 package hr.algebra.surfspot.model;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
@@ -25,7 +26,7 @@ public class Role {
     }
 
     public Set<Permission> getPermissions() {
-        return permissions;
+        return Collections.unmodifiableSet(permissions);
     }
 
     public void setPermissions(Set<Permission> permissions) {
