@@ -15,12 +15,9 @@ public class User {
         this.id = builder.id;
         this.username = builder.username;
         this.passwordHash = builder.passwordHash;
-        if (builder.roles != null) {
-            this.roles = builder.roles;
-        }
+        this.email = builder.email;
+        this.roles = builder.roles;
     }
-
-    public User() {}
 
     public static Builder builder() {
         return new Builder();
@@ -31,8 +28,7 @@ public class User {
         private String username;
         private String passwordHash;
         private String email;
-        // TODO: Treba li ovo biti set, ili User moze imati samo jedan Role koji ima set Permissiona?
-        private Set<Role> roles;
+        private Set<Role> roles = new HashSet<>();
 
         public Builder id(Long id) {
             this.id = id;
@@ -98,19 +94,13 @@ public class User {
         return passwordHash;
     }
 
-    public Boolean hasPermission(String permissionName) {
+    public Boolean hasPermission(Permission permission) {
         return roles.stream()
                 .flatMap(role -> role.getPermissions().stream())
-                .anyMatch(p -> p.getName().equals(permissionName));
+                .anyMatch(p -> p == permission);
     }
 
     public Set<Role> getRoles() {
         return Collections.unmodifiableSet(roles);
-    }
-
-    public void addRole(Role role) {
-        if (role != null) {
-            this.roles.add(role);
-        }
     }
 }

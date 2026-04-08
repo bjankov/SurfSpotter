@@ -8,7 +8,6 @@ import hr.algebra.surfspot.service.AuthService;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
-import java.util.HashSet;
 
 public class TestingMain {
     static void main() {

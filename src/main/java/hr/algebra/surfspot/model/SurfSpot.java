@@ -109,10 +109,6 @@ public class SurfSpot {
         return id;
     }
 
-    private void setId(Long id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
