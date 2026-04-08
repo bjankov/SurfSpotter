@@ -1,5 +1,7 @@
 package hr.algebra.surfspot.model;
 
+import java.util.Objects;
+
 public class Coast {
     private Long id;
     private String name;
@@ -83,5 +85,26 @@ public class Coast {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String toString() {
+        return "Coast{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", country=" + country +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Coast coast = (Coast) o;
+        return Objects.equals(id, coast.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

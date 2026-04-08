@@ -7,7 +7,7 @@ public enum DifficultyLevel {
     EXPERT("Expert"),
     PROFESSIONAL("Professional");
 
-    private String displayValue;
+    private final String displayValue;
 
     DifficultyLevel(String displayValue) {
         this.displayValue = displayValue;
@@ -15,9 +15,5 @@ public enum DifficultyLevel {
 
     public String getDisplayValue() {
         return displayValue;
-    }
-
-    public void setDisplayValue(String displayValue) {
-        this.displayValue = displayValue;
     }
 }

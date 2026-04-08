@@ -9,6 +9,52 @@ public class Role {
     private String name;
     private Set<Permission> permissions;
 
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public Role(Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+    }
+
+    public static class Builder {
+        private Long id;
+        private String name;
+        private Set<Permission> permissions;
+
+        public Builder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder addPermission(Permission permission) {
+            this.permissions.add(permission);
+            return this;
+        }
+
+        public Builder permissions(Set<Permission> permissions) {
+            this.permissions = permissions;
+            return this;
+        }
+
+        public Builder from(Role role) {
+            this.id = role.id;
+            this.name = role.name;
+            this.permissions = role.permissions;
+            return this;
+        }
+
+        public Role build() {
+            return new Role(this);
+        }
+    }
+
     public Long getId() {
         return id;
     }

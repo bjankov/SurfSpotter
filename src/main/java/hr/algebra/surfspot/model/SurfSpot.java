@@ -11,6 +11,7 @@ public class SurfSpot {
     private DifficultyLevel difficulty;
     private Set<Month> bestSeason = EnumSet.noneOf(Month.class);
     private Set<Instructor> instructors = new HashSet<>();
+    private String imagePath;
 
     public static Builder builder() {
         return new Builder();
@@ -39,6 +40,7 @@ public class SurfSpot {
         private DifficultyLevel difficulty;
         private Set<Month> bestSeason = EnumSet.noneOf(Month.class);
         private Set<Instructor> instructors = new HashSet<>();
+        private Coordinates coordinates;
 
         public Builder id(Long id) {
             this.id = id;
@@ -80,6 +82,11 @@ public class SurfSpot {
             return this;
         }
 
+        public Builder coordinates(Coordinates coordinates) {
+            this.coordinates = coordinates;
+            return this;
+        }
+
         public Builder from(SurfSpot surfSpot) {
             this.id = surfSpot.id;
             this.name = surfSpot.name;
@@ -89,6 +96,7 @@ public class SurfSpot {
             this.difficulty = surfSpot.difficulty;
             this.bestSeason = surfSpot.bestSeason;
             this.instructors = surfSpot.instructors;
+            this.coordinates = surfSpot.location.getCoordinates();
             return this;
         }
 
@@ -157,12 +165,20 @@ public class SurfSpot {
         return instructors;
     }
 
-    public void setInstructor(Set<Instructor> instructors) {
+    public void setInstructors(Set<Instructor> instructors) {
         this.instructors = instructors;
     }
 
     public void addInstructor(Instructor instructor) {
         this.instructors.add(instructor);
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     @Override
@@ -175,14 +191,16 @@ public class SurfSpot {
             "Smjer vjetra: %s (%s)%n" +
             "Tezina: %s%n" +
             "Mjeseci sezone: %s%n" +
-            "Instruktori: %s%n",
+            "Instruktori: %s%n" +
+            "Path fotografije: %s",
             id,
             name,
             (location != null ? location.getCoast().getName() : "Nije uneseno"),
             (waveDetails != null ? waveDetails.getWaveType().getDisplayValue() : "Nije uneseno"),
-            windDirectionDegrees, WindDirection.fromDegrees(windDirectionDegrees),
+            windDirectionDegrees, WindDirection.fromDegrees(windDirectionDegrees).getDisplayValue(),
             (difficulty != null ? difficulty.getDisplayValue() : "Nije uneseno"),
             (!bestSeason.isEmpty() ? bestSeason.toString() : "Nije uneseno"),
-            (!instructors.isEmpty() ? instructors.toString() : "Nije uneseno"));
+            (!instructors.isEmpty() ? instructors.toString() : "Nije uneseno"),
+            imagePath);
     }
 }

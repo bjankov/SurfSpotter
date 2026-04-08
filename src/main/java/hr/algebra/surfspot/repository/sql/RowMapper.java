@@ -1,4 +1,4 @@
-package hr.algebra.surfspot.repository;
+package hr.algebra.surfspot.repository.sql;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

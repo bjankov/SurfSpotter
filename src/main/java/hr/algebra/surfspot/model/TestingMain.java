@@ -1,14 +1,28 @@
 package hr.algebra.surfspot.model;
 
-import hr.algebra.surfspot.repository.CoastRepository;
-import hr.algebra.surfspot.repository.CountryRepository;
-import hr.algebra.surfspot.repository.SurfSpotRepository;
+import hr.algebra.surfspot.context.RepositoryRegistry;
+import hr.algebra.surfspot.repository.*;
+import hr.algebra.surfspot.repository.sql.*;
+import hr.algebra.surfspot.security.BCryptPasswordService;
+import hr.algebra.surfspot.service.AuthService;
 
+import javax.sql.DataSource;
 import java.math.BigDecimal;
+import java.util.HashSet;
 
 public class TestingMain {
-    static void main(String[] args) {
-        // System.out.println(WindDirection.fromDegrees(Integer.parseInt(args[0])));
+    static void main() {
+        DataSource dataSource = DataSourceSingleton.getInstance();
+        RepositoryRegistry repositoryRegistry = new RepositoryRegistry(dataSource);
+
+        UserRepository userRepository = repositoryRegistry.getRepository(UserRepository.class);
+        AuthService authService = new AuthService(userRepository, new BCryptPasswordService());
+
+        User adminUser = User.builder()
+                .username("lolek")
+                .passwordHash("admin")
+                .build();
+        authService.register(adminUser.getUsername(), adminUser.getPasswordHash());
 
         SurfingSchool school = SurfingSchool.builder()
                 .name("Skola Surfanja")
@@ -19,16 +33,15 @@ public class TestingMain {
                 .lastName("BigZ")
                 .build();
 
-        CountryRepository countryRepository = new CountryRepository();
-
-        Country croatia = countryRepository.findByCode("HR").orElse(null);
+        CountryRepository countryRepository = repositoryRegistry.getRepository(CountryRepository.class);
+        Country croatia = countryRepository.findById("HR").orElse(null);
 
         Coast obala = Coast.builder()
                 .name("Obala")
                 .country(croatia)
                 .build();
 
-        CoastRepository coastRepository = new CoastRepository();
+        CoastRepository coastRepository = repositoryRegistry.getRepository(CoastRepository.class);
         obala = coastRepository.save(obala);
 
         WaveDetails details = new WaveDetails(WaveType.BEACH_BREAK, 1.0);
@@ -46,7 +59,7 @@ public class TestingMain {
                 .build();
         System.out.println(spot);
 
-        SurfSpotRepository surfSpotRepository =  new SurfSpotRepository();
+        SurfSpotRepository surfSpotRepository = repositoryRegistry.getRepository(SurfSpotRepository.class);
         surfSpotRepository.save(spot);
     }
 }

@@ -1,22 +1,25 @@
-package hr.algebra.surfspot.repository;
+package hr.algebra.surfspot.repository.sql;
 
 import hr.algebra.surfspot.exception.EntityNotFoundException;
 import hr.algebra.surfspot.exception.RepositoryException;
-import hr.algebra.surfspot.util.DataSourceUtils;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class BaseRepository<T> {
+public abstract class BaseSqlRepository<T> {
+    protected final DataSource dataSource;
+
+    protected BaseSqlRepository(final DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
     protected Optional<T> findSingleResult(String query, RowMapper<T> mapper, Object ... params) {
-        try (Connection connection = DataSourceUtils.getConnection();
+        try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
-            for (int i = 0; i < params.length; i += 1) {
-                preparedStatement.setObject(i + 1, params[i]);
-            }
+            setParams(preparedStatement, params);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
@@ -24,7 +27,7 @@ public abstract class BaseRepository<T> {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Greska u bazi:" + e.getMessage());
+            throw new RepositoryException("Greska u bazi:" + e.getMessage());
         }
         return Optional.empty();
     }
@@ -32,12 +35,10 @@ public abstract class BaseRepository<T> {
     protected <R> List<R> findAll(String query, RowMapper<R> mapper, Object... params) {
         List<R> results = new ArrayList<>();
 
-        try (Connection connection = DataSourceUtils.getConnection();
+        try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query)){
 
-            for (int i = 0; i < params.length; i += 1) {
-                preparedStatement.setObject(i + 1, params[i]);
-            }
+            setParams(preparedStatement, params);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
@@ -52,12 +53,10 @@ public abstract class BaseRepository<T> {
     }
 
     protected Long insertAndGetId(String query, Object... params) {
-        try (Connection connection = DataSourceUtils.getConnection();
+        try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
-            for (int i = 0; i < params.length; i++) {
-                preparedStatement.setObject(i + 1, params[i]);
-            }
+            setParams(preparedStatement, params);
 
             preparedStatement.executeUpdate();
 
@@ -73,17 +72,20 @@ public abstract class BaseRepository<T> {
     }
 
     protected int executeUpdate(String query, Object... params) {
-        try (Connection connection = DataSourceUtils.getConnection();
+        try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
-            for (int i = 0; i < params.length; i++) {
-                preparedStatement.setObject(i + 1, params[i]);
-            }
-
+            setParams(preparedStatement, params);
             return preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
             throw new RepositoryException("Greska u bazi:" + query + ": " + e.getMessage());
+        }
+    }
+
+    private void setParams(PreparedStatement preparedStatement, Object... params) throws SQLException {
+        for (int i = 0; i < params.length; i++) {
+            preparedStatement.setObject(i + 1, params[i]);
         }
     }
 }

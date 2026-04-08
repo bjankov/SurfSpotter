@@ -2,6 +2,7 @@ package hr.algebra.surfspot.model;
 
 import java.util.Objects;
 
+// TODO: Ovo mozda moze biti record
 public class Permission {
     private Long id;
     private String name;
