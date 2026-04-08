@@ -1,5 +1,6 @@
 package hr.algebra.surfspot.repository.sql;
 
+import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.Permission;
 import hr.algebra.surfspot.repository.PermissionRepository;
 
@@ -38,7 +39,10 @@ public class SqlPermissionRepository extends BaseSqlRepository<Permission> imple
     @Override
     public Permission save(Permission permission) {
         Long generatedId = insertAndGetId(SAVE_QUERY, permission);
-        return new Permission(generatedId, permission.getName());
+        if (generatedId != null) {
+            return new Permission(generatedId, permission.getName());
+        }
+        throw new RepositoryException("Role could not be saved");
     }
 
     @Override

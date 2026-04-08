@@ -7,6 +7,7 @@ import java.util.Set;
 public class User {
     private Long id;
     private String username;
+    private String email;
     private String passwordHash;
     private Set<Role> roles = new HashSet<>();
 
@@ -29,6 +30,8 @@ public class User {
         private Long id;
         private String username;
         private String passwordHash;
+        private String email;
+        // TODO: Treba li ovo biti set, ili User moze imati samo jedan Role koji ima set Permissiona?
         private Set<Role> roles;
 
         public Builder id(Long id) {
@@ -38,6 +41,11 @@ public class User {
 
         public Builder username(String username) {
             this.username = username;
+            return this;
+        }
+
+        public Builder email(String email) {
+            this.email = email;
             return this;
         }
 
@@ -68,6 +76,7 @@ public class User {
             this.id = user.id;
             this.username = user.username;
             this.passwordHash = user.passwordHash;
+            this.email = user.email;
             this.roles = new HashSet<>(user.roles);
             return this;
         }

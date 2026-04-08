@@ -84,11 +84,13 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
     }
 
     private SurfSpot mapSurfSpot(ResultSet resultSet) throws SQLException {
-        Location location = new Location();
         Coordinates coordinates = new Coordinates(
                 resultSet.getBigDecimal("latitude"),
                 resultSet.getBigDecimal("longitude")
         );
+        // TODO: Properly map the objects
+        Coast coast = new Coast();
+        Location location = new Location(coordinates, coast);
         WaveDetails waveDetails = new WaveDetails(
                 WaveType.valueOf(resultSet.getString("wave_type")),
                 resultSet.getDouble("wave_height")
@@ -127,5 +129,81 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
         for (final Month month : months) {
             executeUpdate(INSERT_MONTHS_QUERY, surfSpotId, month.name());
         }
+    }
+
+    // TODO: Finish implementation
+    @Override
+    public boolean existsByName(String name) {
+        return false;
+    }
+
+    @Override
+    public boolean existsById(String code) {
+        return false;
+    }
+
+    @Override
+    public long countByCountryCode(String countryCode) {
+        return 0;
+    }
+
+    @Override
+    public long countByDifficultyLevel(DifficultyLevel difficultyLevel) {
+        return 0;
+    }
+
+    @Override
+    public long countByWaveType(WaveType waveType) {
+        return 0;
+    }
+
+    @Override
+    public long countByCoast(Coast coast) {
+        return 0;
+    }
+
+    @Override
+    public List<SurfSpot> findByCountryName(String countryName) {
+        return List.of();
+    }
+
+    @Override
+    public List<SurfSpot> findByDifficulty(DifficultyLevel difficultyLevel) {
+        return List.of();
+    }
+
+    @Override
+    public List<SurfSpot> findByInstructor(Instructor instructor) {
+        return List.of();
+    }
+
+    @Override
+    public List<SurfSpot> findByWaveType(WaveType waveType) {
+        return List.of();
+    }
+
+    @Override
+    public List<SurfSpot> findByMonthInBestSeason(Month month) {
+        return List.of();
+    }
+
+    @Override
+    public List<SurfSpot> findByMonthsInBestSeason(Set<Month> months) {
+        return List.of();
+    }
+
+    @Override
+    public List<SurfSpot> findByWindDirection(WindDirection windDirection) {
+        return List.of();
+    }
+
+    @Override
+    public List<SurfSpot> findBySchool(SurfingSchool surfingSchool) {
+        return List.of();
+    }
+
+    @Override
+    public List<SurfSpot> findByCoast(Coast coast) {
+        return List.of();
     }
 }

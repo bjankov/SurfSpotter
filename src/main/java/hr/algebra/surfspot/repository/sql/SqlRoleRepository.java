@@ -1,5 +1,6 @@
 package hr.algebra.surfspot.repository.sql;
 
+import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.Role;
 import hr.algebra.surfspot.repository.RoleRepository;
 
@@ -38,10 +39,14 @@ public class SqlRoleRepository extends BaseSqlRepository<Role> implements RoleRe
     @Override
     public Role save(Role role) {
         Long generatedId = insertAndGetId(SAVE_QUERY);
-        return Role.builder()
-                .from(role)
-                .id(generatedId)
-                .build();
+
+        if (generatedId != null) {
+            return Role.builder()
+                    .from(role)
+                    .id(generatedId)
+                    .build();
+        }
+        throw  new RepositoryException("Role could not be saved");
     }
 
     @Override

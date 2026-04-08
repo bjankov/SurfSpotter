@@ -34,6 +34,7 @@ public class TestingMain {
                 .build();
 
         CountryRepository countryRepository = repositoryRegistry.getRepository(CountryRepository.class);
+        // TODO: Pravilno rijesi null vrijednosti
         Country croatia = countryRepository.findById("HR").orElse(null);
 
         Coast obala = Coast.builder()

@@ -1,5 +1,6 @@
 package hr.algebra.surfspot.repository.sql;
 
+import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.repository.SurfingSchoolRepository;
 
@@ -35,10 +36,14 @@ public class SqlSurfingSchoolRepository extends BaseSqlRepository<SurfingSchool>
 
     public SurfingSchool save(SurfingSchool surfingSchool) {
         Long generatedId = insertAndGetId(SAVE_QUERY, surfingSchool);
-        return SurfingSchool.builder()
-                .from(surfingSchool)
-                .id(generatedId)
-                .build();
+
+        if (generatedId != null) {
+            return SurfingSchool.builder()
+                    .from(surfingSchool)
+                    .id(generatedId)
+                    .build();
+        }
+        throw new RepositoryException(String.format("Surfing school with id %d already exists", generatedId));
     }
 
     @Override

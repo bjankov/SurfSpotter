@@ -17,6 +17,7 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
 
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
     private static final String FIND_BY_USERNAME_QUERY = "SELECT * FROM users WHERE username = ?";
+    private static final String FIND_BY_EMAIL_QUERY = "SELECT * FROM users WHERE email = ?";
     private static final String FIND_ALL_QUERY = "SELECT * FROM users";
     private static final String INSERT_USER_QUERY = "INSERT INTO users (username, password_hash) VALUES (?, ?)";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM users WHERE id = ?";
@@ -33,13 +34,16 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
     }
 
     @Override
+    public Optional<User> findByEmail(String email) {
+        return findSingleResult(FIND_BY_EMAIL_QUERY, this::mapRowToUser, email);
+    }
+
+    @Override
     public List<User> findAll() {
         return findAll(FIND_ALL_QUERY, this::mapRowToUser);
     }
 
     public User save (final User user) {
-        // TODO: Dodaj provjeru za postojece usere u bazi podataka
-
         Long generatedId = insertAndGetId(
                 INSERT_USER_QUERY,
                 user.getUsername(),
@@ -62,6 +66,7 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
     }
 
     private User mapRowToUser(final ResultSet resultSet) throws SQLException {
+        // TODO: Add role
         return User.builder()
                 .username(resultSet.getString("username"))
                 .passwordHash(resultSet.getString("password_hash"))

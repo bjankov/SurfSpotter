@@ -1,5 +1,6 @@
 package hr.algebra.surfspot.repository.sql;
 
+import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.Instructor;
 import hr.algebra.surfspot.repository.InstructorRepository;
 
@@ -44,10 +45,14 @@ public class SqlInstructorRepository extends BaseSqlRepository<Instructor> imple
     @Override
     public Instructor save(Instructor instructor) {
         Long generatedId = insertAndGetId(SAVE_QUERY, instructor);
-        return Instructor.builder()
-                .from(instructor)
-                .id(generatedId)
-                .build();
+
+        if  (generatedId != null) {
+            return Instructor.builder()
+                    .from(instructor)
+                    .id(generatedId)
+                    .build();
+        }
+        throw new RepositoryException("Could not save instructor");
     }
 
     @Override
