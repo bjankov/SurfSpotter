@@ -3,6 +3,8 @@ package hr.algebra.surfspot.repository.sql;
 import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.User;
 import hr.algebra.surfspot.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -11,6 +13,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class SqlUserRepository extends BaseSqlRepository<User> implements UserRepository {
+    private static final Logger log = LoggerFactory.getLogger(SqlUserRepository.class);
+
     public SqlUserRepository(DataSource dataSource) {
         super(dataSource);
     }
@@ -21,7 +25,8 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
     private static final String FIND_ALL_QUERY = "SELECT * FROM users";
     private static final String INSERT_USER_QUERY = "INSERT INTO users (username, password_hash) VALUES (?, ?)";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM users WHERE id = ?";
-    private static final String DELETE_BY_NAME_QUERY = "DELETE FROM users WHERE username = ?";
+    private static final String DELETE_BY_USERNAME_QUERY = "DELETE FROM users WHERE username = ?";
+    private static final String DELETE_BY_EMAIL_QUERY = "DELETE FROM users WHERE email = ?";
 
     @Override
     public Optional<User> findById(Long id) {
@@ -62,12 +67,31 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
 
     @Override
     public void delete(Long id) {
-        executeUpdate(DELETE_BY_ID_QUERY);
+        executeUpdate(DELETE_BY_ID_QUERY, id);
+    }
+
+    @Override
+    public void deleteByUsername(String username) {
+        int affectedRows = executeUpdate(DELETE_BY_USERNAME_QUERY, username);
+        if (affectedRows == 0) {
+            log.error("Failed to delete user by username: {}", username);
+            throw new RepositoryException("Failed to delete users by username: " + username);
+        }
+    }
+
+    @Override
+    public void deleteByEmail(String email) {
+        int affectedRows = executeUpdate(DELETE_BY_EMAIL_QUERY, email);
+        if (affectedRows == 0) {
+            log.error("Failed to delete user by email: {}", email);
+            throw new RepositoryException("Failed to delete users by email: " + email);
+        }
     }
 
     private User mapRowToUser(final ResultSet resultSet) throws SQLException {
         // TODO: Add role
         return User.builder()
+                .id(resultSet.getLong("id"))
                 .username(resultSet.getString("username"))
                 .passwordHash(resultSet.getString("password_hash"))
                 .build();

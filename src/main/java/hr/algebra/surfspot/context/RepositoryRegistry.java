@@ -17,7 +17,6 @@ public class RepositoryRegistry {
         registry.put(CoastRepository.class, new SqlCoastRepository(dataSource));
         registry.put(CountryRepository.class, new SqlCountryRepository(dataSource));
         registry.put(InstructorRepository.class, new SqlInstructorRepository(dataSource));
-        registry.put(PermissionRepository.class, new SqlPermissionRepository(dataSource));
         registry.put(RoleRepository.class, new SqlRoleRepository(dataSource));
         registry.put(SurfingSchoolRepository.class, new SqlSurfingSchoolRepository(dataSource));
     }

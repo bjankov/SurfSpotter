@@ -1,8 +1,13 @@
 package hr.algebra.surfspot.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 public class SurfSpot {
+    private static final Logger log = LoggerFactory.getLogger(SurfSpot.class);
+
     private Long id;
     private String name;
     private Location location;

@@ -1,8 +1,11 @@
 package hr.algebra.surfspot.model;
 
 import hr.algebra.surfspot.exception.ValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public record Country (String code, String name){
+    private static final Logger log = LoggerFactory.getLogger(Country.class);
 
     public Country {
         if (code == null || code.length() != 2) {

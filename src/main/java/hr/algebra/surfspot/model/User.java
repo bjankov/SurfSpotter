@@ -1,10 +1,15 @@
 package hr.algebra.surfspot.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 public class User {
+    private static final Logger log = LoggerFactory.getLogger(User.class);
+
     private Long id;
     private String username;
     private String email;

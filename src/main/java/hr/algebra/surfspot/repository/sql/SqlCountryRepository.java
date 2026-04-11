@@ -3,6 +3,8 @@ package hr.algebra.surfspot.repository.sql;
 import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.Country;
 import hr.algebra.surfspot.repository.CountryRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class SqlCountryRepository extends BaseSqlRepository<Country> implements CountryRepository {
+    private static final Logger log = LoggerFactory.getLogger(SqlCountryRepository.class);
     public SqlCountryRepository(DataSource dataSource) {
         super(dataSource);
     }
@@ -27,8 +30,8 @@ public class SqlCountryRepository extends BaseSqlRepository<Country> implements 
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM countries WHERE  = ?";
 
     @Override
-    public Optional<Country> findById(String id) {
-        return findSingleResult(FIND_BY_ID_QUERY, this::mapRowToCountry, id);
+    public Optional<Country> findById(String code) {
+        return findSingleResult(FIND_BY_ID_QUERY, this::mapRowToCountry, code);
     }
 
     @Override

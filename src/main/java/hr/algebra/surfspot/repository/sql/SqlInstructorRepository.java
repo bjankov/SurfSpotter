@@ -3,6 +3,8 @@ package hr.algebra.surfspot.repository.sql;
 import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.Instructor;
 import hr.algebra.surfspot.repository.InstructorRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -11,6 +13,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class SqlInstructorRepository extends BaseSqlRepository<Instructor> implements InstructorRepository {
+    private static final Logger log = LoggerFactory.getLogger(SqlCountryRepository.class);
+
     public SqlInstructorRepository(DataSource dataSource) {
         super(dataSource);
     }

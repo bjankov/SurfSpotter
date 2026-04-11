@@ -4,6 +4,8 @@ import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.Permission;
 import hr.algebra.surfspot.model.Role;
 import hr.algebra.surfspot.repository.RoleRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -14,6 +16,8 @@ import java.util.Optional;
 import java.util.Set;
 
 public class SqlRoleRepository extends BaseSqlRepository<Role> implements RoleRepository {
+    private static final Logger log =  LoggerFactory.getLogger(SqlRoleRepository.class);
+
     public static final String FIND_BY_ID_QUERY = "SELECT * FROM roles WHERE id = ?";
     public static final String FIND_BY_NAME_QUERY = "SELECT * FROM roles WHERE id = ?";
     public static final String FIND_ALL_QUERY = "SELECT * FROM roles";

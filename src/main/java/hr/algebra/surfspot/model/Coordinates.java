@@ -1,10 +1,13 @@
 package hr.algebra.surfspot.model;
 
 import hr.algebra.surfspot.exception.ValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 
 public record Coordinates(BigDecimal latitude, BigDecimal longitude) {
+    private static final Logger logger = LoggerFactory.getLogger(Coordinates.class);
     // TODO: Provjeri metode za validaciju
     public Coordinates {
         if (

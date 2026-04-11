@@ -3,18 +3,31 @@ package hr.algebra.surfspot.repository.sql;
 import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.*;
 import hr.algebra.surfspot.repository.SurfSpotRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.*;
 
 public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implements SurfSpotRepository {
+    private static final Logger log =  LoggerFactory.getLogger(SqlSurfSpotRepository.class);
+
     public SqlSurfSpotRepository(DataSource dataSource) {
         super(dataSource);
     }
 
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM surf_spots WHERE id = ?";
     private static final String FIND_BY_NAME_QUERY = "SELECT * FROM surf_spots WHERE name = ?";
+    private static final String FIND_BY_COUNTRY_CODE_QUERY = "SELECT * FROM surf_spots WHERE country_code = ?";
+    private static final String FIND_BY_DIFFICULTY_QUERY = "SELECT * FROM surf_spots WHERE difficulty = ?";
+    private static final String FIND_BY_WAVE_TYPE_QUERY = "SELECT * FROM surf_spots WHERE wave_type = ?";
+    private static final String FIND_BY_COAST_NAME_QUERY = """
+        SELECT *
+        FROM surf_spots
+        WHERE coast_name = ?
+        JOIN coasts ON coasts.id = surf_spots.coast_id
+        """;
     private static final String FIND_ALL_QUERY = "SELECT month_name FROM surf_spot_months WHERE id = ?";
     private static final String SAVE_SURF_SPOT_QUERY = """
         INSERT INTO surf_spots (
@@ -132,34 +145,36 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
     }
 
     // TODO: Finish implementation
+    // TODO: Might have to rename executeUpdate()
     @Override
     public boolean existsByName(String name) {
-        return false;
+        return executeUpdate(FIND_BY_NAME_QUERY, name) > 0;
     }
 
     @Override
-    public boolean existsById(String code) {
-        return false;
+    public boolean existsById(String code ) {
+        return executeUpdate(FIND_BY_ID_QUERY, code) > 0;
     }
 
     @Override
     public long countByCountryCode(String countryCode) {
-        return 0;
+        return executeUpdate(FIND_BY_COUNTRY_CODE_QUERY, countryCode);
     }
 
     @Override
     public long countByDifficultyLevel(DifficultyLevel difficultyLevel) {
-        return 0;
+        return executeUpdate(FIND_BY_DIFFICULTY_QUERY, difficultyLevel.name());
     }
 
     @Override
     public long countByWaveType(WaveType waveType) {
-        return 0;
+        return  executeUpdate(FIND_BY_WAVE_TYPE_QUERY, waveType.name());
     }
 
+    // TODO: Je li bolje traziti po coast name ili po coast id? Kako ce se to odvijati u pozadini aplikacije
     @Override
     public long countByCoast(Coast coast) {
-        return 0;
+        return executeUpdate(FIND_BY_COAST_NAME_QUERY, coast.getName());
     }
 
     @Override

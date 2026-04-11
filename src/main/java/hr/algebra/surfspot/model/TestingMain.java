@@ -1,15 +1,20 @@
 package hr.algebra.surfspot.model;
 
 import hr.algebra.surfspot.context.RepositoryRegistry;
+import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.repository.*;
 import hr.algebra.surfspot.repository.sql.*;
 import hr.algebra.surfspot.security.BCryptPasswordService;
 import hr.algebra.surfspot.service.AuthService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.math.BigDecimal;
 
 public class TestingMain {
+    private static final Logger log = LoggerFactory.getLogger(TestingMain.class);
+
     static void main() {
         DataSource dataSource = DataSourceSingleton.getInstance();
         RepositoryRegistry repositoryRegistry = new RepositoryRegistry(dataSource);
@@ -21,7 +26,13 @@ public class TestingMain {
                 .username("lolek")
                 .passwordHash("admin")
                 .build();
-        authService.register(adminUser.getUsername(), adminUser.getPasswordHash());
+        try {
+            authService.register(adminUser.getUsername(), adminUser.getPasswordHash());
+            log.info("User {} registered successfully", adminUser.getUsername());
+        } catch (RepositoryException e) {
+            log.error("Greska prilikom registracije korisnika", e);
+            // TODO: Mozda throw new ...
+        }
 
         SurfingSchool school = SurfingSchool.builder()
                 .name("Skola Surfanja")
