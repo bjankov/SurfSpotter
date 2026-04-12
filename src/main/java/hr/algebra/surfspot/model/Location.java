@@ -32,4 +32,10 @@ public class Location {
     public void setCoast(Coast coast) {
         this.coast = coast;
     }
+
+    @Override
+    public String toString() {
+        return "(" + coordinates + ")" +
+                ", Coast: " + coast.getName();
+    }
 }

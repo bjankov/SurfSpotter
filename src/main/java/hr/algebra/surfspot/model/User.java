@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class User {
@@ -99,6 +100,10 @@ public class User {
         return passwordHash;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
     public Boolean hasPermission(Permission permission) {
         return roles.stream()
                 .flatMap(role -> role.getPermissions().stream())
@@ -107,5 +112,22 @@ public class User {
 
     public Set<Role> getRoles() {
         return Collections.unmodifiableSet(roles);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        
+        if (id != null && user.id != null) {
+            return Objects.equals(id, user.id);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(username);
     }
 }

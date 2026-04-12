@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 
 public record Coordinates(BigDecimal latitude, BigDecimal longitude) {
     private static final Logger logger = LoggerFactory.getLogger(Coordinates.class);
-    // TODO: Provjeri metode za validaciju
     public Coordinates {
         if (
                 latitude == null ||
@@ -27,9 +26,8 @@ public record Coordinates(BigDecimal latitude, BigDecimal longitude) {
         }
     }
 
-    // TODO: Popravi toString() implementaciju zbog promjene double -> BigDecimal
     @Override
     public String toString() {
-        return String.format("%.6f, %.6f", latitude.doubleValue(), longitude.doubleValue());
+        return String.format("%.6f, %.6f", latitude, longitude);
     }
 }

@@ -196,7 +196,7 @@ public class SurfSpot {
             "Path fotografije: %s",
             id,
             name,
-            (location != null ? location.getCoast().getName() : "Nije uneseno"),
+            (location != null ? location : "Nije uneseno"),
             (waveDetails != null ? waveDetails.getWaveType().getDisplayValue() : "Nije uneseno"),
             windDirectionDegrees, WindDirection.fromDegrees(windDirectionDegrees).getDisplayValue(),
             (difficulty != null ? difficulty.getDisplayValue() : "Nije uneseno"),

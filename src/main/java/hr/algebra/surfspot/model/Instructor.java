@@ -125,7 +125,6 @@ public class Instructor {
                 id, firstName, lastName, (school != null ? school.getName() : "Samostalan"));
     }
 
-    // TODO: Provjeri validnost equals metode
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

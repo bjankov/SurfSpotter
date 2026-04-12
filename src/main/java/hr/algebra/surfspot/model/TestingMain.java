@@ -2,6 +2,7 @@ package hr.algebra.surfspot.model;
 
 import hr.algebra.surfspot.context.RepositoryRegistry;
 import hr.algebra.surfspot.exception.RepositoryException;
+import hr.algebra.surfspot.exception.ValidationException;
 import hr.algebra.surfspot.repository.*;
 import hr.algebra.surfspot.repository.sql.*;
 import hr.algebra.surfspot.security.BCryptPasswordService;
@@ -23,7 +24,7 @@ public class TestingMain {
         AuthService authService = new AuthService(userRepository, new BCryptPasswordService());
 
         User adminUser = User.builder()
-                .username("lolek")
+                .username("pero")
                 .passwordHash("admin")
                 .build();
         try {
@@ -57,20 +58,28 @@ public class TestingMain {
 
         WaveDetails details = new WaveDetails(WaveType.BEACH_BREAK, 1.0);
 
-        SurfSpot spot = SurfSpot.builder()
-                .name("Malvarossa")
-                .difficulty(DifficultyLevel.EASY)
-                .windDirectionDegrees(45)
-                .location(
-                        new Location(
-                            new Coordinates(
-                                new BigDecimal("31.252354"), new BigDecimal("14.345235")),
-                                obala))
-                .waveDetails(details)
-                .build();
-        System.out.println(spot);
+        try {
+            SurfSpot spot = SurfSpot.builder()
+                    .name("Malvarossa")
+                    .difficulty(DifficultyLevel.EASY)
+                    .windDirectionDegrees(45)
+                    .location(
+                            new Location(
+                                    new Coordinates(
+                                            new BigDecimal("89"), new BigDecimal("-179")),
+                                    obala))
+                    .waveDetails(details)
+                    .build();
+            System.out.println(spot);
 
-        SurfSpotRepository surfSpotRepository = repositoryRegistry.getRepository(SurfSpotRepository.class);
-        surfSpotRepository.save(spot);
+            SurfSpotRepository surfSpotRepository = repositoryRegistry.getRepository(SurfSpotRepository.class);
+            surfSpotRepository.save(spot);
+        } catch (RepositoryException e) {
+            System.out.println(e.getMessage());
+        } catch (ValidationException e) {
+            System.out.println("Greska prilikom validacije!");
+        } catch (Exception e) {
+            log.error("Doslo je do nepoznate greske!", e);
+        }
     }
 }

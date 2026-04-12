@@ -94,11 +94,7 @@ public class Coast {
 
     @Override
     public String toString() {
-        return "Coast{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", country=" + country +
-                '}';
+        return String.format("Country: %s, Name: %s", country, name);
     }
 
     @Override
