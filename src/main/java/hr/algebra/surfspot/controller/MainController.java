@@ -1,4 +1,4 @@
 package hr.algebra.surfspot.controller;
 
-public class MainController {
+public class MainController extends BaseController {
 }
