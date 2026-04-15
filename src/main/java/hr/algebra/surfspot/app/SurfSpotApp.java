@@ -1,29 +1,36 @@
 package hr.algebra.surfspot.app;
 
+import hr.algebra.surfspot.context.ApplicationContext;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.net.URL;
-
+/**
+ * Main JavaFX application class.
+ * Initializes the application context and navigates to the appropriate scene
+ * based on authentication state.
+ */
 public class SurfSpotApp extends Application {
+    private static final Logger log = LoggerFactory.getLogger(SurfSpotApp.class);
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        URL fxmlLocation = getClass().getResource("/fxml/main.fxml");
-        if (fxmlLocation == null) {
-            throw new IllegalStateException("Ne mogu pronaći main.fxml. Provjeri resources folder!");
+        log.info("Starting SurfSpot application");
+
+        // Initialize application context and set primary stage
+        ApplicationContext context = ApplicationContext.getInstance();
+        context.setPrimaryStage(primaryStage);
+
+        // Navigate based on authentication state
+        // Since we have no session persistence yet, always start at login
+        if (context.isAuthenticated()) {
+            log.info("User already authenticated, navigating to main screen");
+            context.getSceneNavigator().navigateToMain();
+        } else {
+            log.info("No authenticated user, navigating to login screen");
+            context.getSceneNavigator().navigateToLogin();
         }
-
-        Parent root = FXMLLoader.load(fxmlLocation);
-
-        Scene scene = new Scene(root);
-
-        primaryStage.setTitle("SurfSpot Manager");
-        primaryStage.setScene(scene);
-        primaryStage.show();
     }
 
     public static void main(String[] args) {

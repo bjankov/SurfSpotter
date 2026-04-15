@@ -128,6 +128,6 @@ public class User {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(username);
+        return Objects.hashCode(id);
     }
 }

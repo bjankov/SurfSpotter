@@ -3,6 +3,7 @@ package hr.algebra.surfspot.repository.sql;
 import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.Instructor;
 import hr.algebra.surfspot.repository.InstructorRepository;
+import hr.algebra.surfspot.repository.sql.mapper.RowMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,9 +15,11 @@ import java.util.Optional;
 
 public class SqlInstructorRepository extends BaseSqlRepository<Instructor> implements InstructorRepository {
     private static final Logger log = LoggerFactory.getLogger(SqlCountryRepository.class);
+    private final RowMapper<Instructor> instructorMapper;
 
     public SqlInstructorRepository(DataSource dataSource) {
         super(dataSource);
+        instructorMapper = RowMapperFactory.getInstance().getMapper(Instructor.class);
     }
 
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM instructors WHERE id = ?";
@@ -28,22 +31,22 @@ public class SqlInstructorRepository extends BaseSqlRepository<Instructor> imple
 
     @Override
     public Optional<Instructor> findByLastName(String lastName) {
-        return findSingleResult(FIND_BY_LAST_NAME_QUERY, this::mapRowToInstructor, lastName);
+        return findSingleResult(FIND_BY_LAST_NAME_QUERY, instructorMapper, lastName);
     }
 
     @Override
     public Optional<Instructor> findById(Long id) {
-        return findSingleResult(FIND_BY_ID_QUERY, this::mapRowToInstructor, id);
+        return findSingleResult(FIND_BY_ID_QUERY, instructorMapper, id);
     }
 
     @Override
     public Optional<Instructor> findByName(String name) {
-        return findSingleResult(FIND_BY_FIRST_NAME_QUERY, this::mapRowToInstructor, name);
+        return findSingleResult(FIND_BY_FIRST_NAME_QUERY, instructorMapper, name);
     }
 
     @Override
     public List<Instructor> findAll() {
-        return findAll(FIND_ALL_QUERY, this::mapRowToInstructor);
+        return findAll(FIND_ALL_QUERY, instructorMapper);
     }
 
     @Override
@@ -64,10 +67,4 @@ public class SqlInstructorRepository extends BaseSqlRepository<Instructor> imple
         executeUpdate(DELETE_BY_ID_QUERY, id);
     }
 
-    private Instructor mapRowToInstructor(ResultSet resultSet) throws SQLException {
-        return Instructor.builder()
-                .firstName(resultSet.getString("first_name"))
-                .lastName(resultSet.getString("last_name)"))
-                .build();
-    }
 }

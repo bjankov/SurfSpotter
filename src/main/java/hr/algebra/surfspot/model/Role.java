@@ -4,29 +4,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 public class Role {
     private static final Logger log = LoggerFactory.getLogger(Role.class);
 
-    private Long id;
-    private String name;
-    private Set<Permission> permissions;
+    private final Long id;
+    private final String name;
+    private final Set<Permission> permissions;
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public Role(Builder builder) {
+    private Role(Builder builder) {
         this.id = builder.id;
         this.name = builder.name;
+        this.permissions = builder.permissions != null ? new HashSet<>(builder.permissions) : new HashSet<>();
     }
 
     public static class Builder {
         private Long id;
         private String name;
-        private Set<Permission> permissions;
+        private Set<Permission> permissions = new HashSet<>();
 
         public Builder id(Long id) {
             this.id = id;
@@ -39,19 +41,26 @@ public class Role {
         }
 
         public Builder addPermission(Permission permission) {
-            this.permissions.add(permission);
+            if (permission != null) {
+                if (this.permissions == null) {
+                    this.permissions = new HashSet<>();
+                }
+                this.permissions.add(permission);
+            }
             return this;
         }
 
         public Builder permissions(Set<Permission> permissions) {
-            this.permissions = permissions;
+            if (permissions != null) {
+                this.permissions = new HashSet<>(permissions);
+            }
             return this;
         }
 
         public Builder from(Role role) {
             this.id = role.id;
             this.name = role.name;
-            this.permissions = role.permissions;
+            this.permissions = new HashSet<>(role.permissions);
             return this;
         }
 
@@ -64,24 +73,12 @@ public class Role {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public Set<Permission> getPermissions() {
         return Collections.unmodifiableSet(permissions);
-    }
-
-    public void setPermissions(Set<Permission> permissions) {
-        this.permissions = permissions;
     }
 
     @Override

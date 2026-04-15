@@ -3,6 +3,7 @@ package hr.algebra.surfspot.repository.sql;
 import hr.algebra.surfspot.model.Coast;
 import hr.algebra.surfspot.model.Country;
 import hr.algebra.surfspot.repository.CoastRepository;
+import hr.algebra.surfspot.repository.sql.mapper.RowMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,9 +14,11 @@ import java.util.Optional;
 
 public class SqlCoastRepository extends BaseSqlRepository<Coast> implements CoastRepository {
     public static final Logger log =  LoggerFactory.getLogger(SqlCoastRepository.class);
+    private final RowMapper<Coast> coastMapper ;
 
     public SqlCoastRepository(DataSource dataSource) {
         super(dataSource);
+        coastMapper = RowMapperFactory.getInstance().getMapper(Coast.class);
     }
 
     private static final String SAVE_QUERY = "INSERT INTO coasts (name, country_code) VALUES (?, ?)";
@@ -61,33 +64,21 @@ public class SqlCoastRepository extends BaseSqlRepository<Coast> implements Coas
 
     @Override
     public Optional<Coast> findById(final Long id) {
-        return findSingleResult(FIND_BY_ID_QUERY, this::mapRowToCoast, id);
+        return findSingleResult(FIND_BY_ID_QUERY, coastMapper, id);
     }
 
     @Override
     public Optional<Coast> findByName(String name) {
-        return findSingleResult(FIND_BY_NAME_QUERY, this::mapRowToCoast, name);
+        return findSingleResult(FIND_BY_NAME_QUERY, coastMapper, name);
     }
 
     @Override
     public Optional<Coast> findfindByCountryCode(String countryCode) {
-        return findSingleResult(FIND_BY_COUNTY_CODE_QUERY, this::mapRowToCoast, countryCode);
+        return findSingleResult(FIND_BY_COUNTY_CODE_QUERY, coastMapper, countryCode);
     }
 
     @Override
     public List<Coast> findAll() {
-        return findAll(FIND_ALL_QUERY, this::mapRowToCoast);
-    }
-
-    private Coast mapRowToCoast(ResultSet resultSet) throws SQLException {
-        Country country = new Country(
-                resultSet.getString("country_code"),
-                resultSet.getString("country_name")
-        );
-        return  Coast.builder()
-                .id(resultSet.getLong("id"))
-                .name(resultSet.getString("name"))
-                .country(country)
-                .build();
+        return findAll(FIND_ALL_QUERY, coastMapper);
     }
 }

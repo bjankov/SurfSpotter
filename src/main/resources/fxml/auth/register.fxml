@@ -8,48 +8,56 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
 
-
-<VBox alignment="CENTER" maxWidth="-Infinity" prefHeight="200.0" prefWidth="150.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1">
+<VBox alignment="CENTER" maxWidth="-Infinity" prefHeight="350.0" prefWidth="300.0" spacing="10.0"
+      xmlns="http://javafx.com/javafx/25"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="hr.algebra.surfspot.controller.auth.RegisterController">
+   <padding>
+      <Insets top="20.0" right="20.0" bottom="20.0" left="20.0" />
+   </padding>
    <children>
-      <TextField promptText="email">
-         <opaqueInsets>
-            <Insets />
-         </opaqueInsets>
-      </TextField>
-      <TextField promptText="username">
-         <opaqueInsets>
-            <Insets />
-         </opaqueInsets>
+      <Label text="Create Account" style="-fx-font-size: 18px; -fx-font-weight: bold;">
          <VBox.margin>
-            <Insets top="10.0" />
+            <Insets bottom="10.0" />
+         </VBox.margin>
+      </Label>
+
+      <TextField fx:id="emailField" promptText="email (optional)">
+         <VBox.margin>
+            <Insets top="5.0" />
          </VBox.margin>
       </TextField>
-      <PasswordField promptText="password">
-         <opaqueInsets>
-            <Insets />
-         </opaqueInsets>
+
+      <TextField fx:id="usernameField" promptText="username">
          <VBox.margin>
-            <Insets top="10.0" />
+            <Insets top="5.0" />
+         </VBox.margin>
+      </TextField>
+
+      <PasswordField fx:id="passwordField" promptText="password">
+         <VBox.margin>
+            <Insets top="5.0" />
          </VBox.margin>
       </PasswordField>
-      <PasswordField promptText="repeat password">
-         <opaqueInsets>
-            <Insets />
-         </opaqueInsets>
+
+      <PasswordField fx:id="repeatPasswordField" promptText="repeat password">
          <VBox.margin>
-            <Insets top="10.0" />
+            <Insets top="5.0" />
          </VBox.margin>
       </PasswordField>
-      <Button defaultButton="true" mnemonicParsing="false" text="REGISTER">
+
+      <Button defaultButton="true" mnemonicParsing="false" text="REGISTER" onAction="#handleRegister" maxWidth="Infinity">
          <VBox.margin>
             <Insets top="10.0" />
          </VBox.margin>
       </Button>
+
       <Label text="Already have an account?">
          <VBox.margin>
-            <Insets top="30.0" />
+            <Insets top="10.0" />
          </VBox.margin>
       </Label>
-      <Hyperlink text="Log in" />
+
+      <Hyperlink text="Log in" onAction="#handleLoginLink" />
    </children>
 </VBox>

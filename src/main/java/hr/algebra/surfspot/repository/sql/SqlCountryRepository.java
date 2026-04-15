@@ -3,6 +3,7 @@ package hr.algebra.surfspot.repository.sql;
 import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.Country;
 import hr.algebra.surfspot.repository.CountryRepository;
+import hr.algebra.surfspot.repository.sql.mapper.RowMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,8 +15,11 @@ import java.util.Optional;
 
 public class SqlCountryRepository extends BaseSqlRepository<Country> implements CountryRepository {
     private static final Logger log = LoggerFactory.getLogger(SqlCountryRepository.class);
+    private final RowMapper<Country> countryMapper;
+
     public SqlCountryRepository(DataSource dataSource) {
         super(dataSource);
+        countryMapper = RowMapperFactory.getInstance().getMapper(Country.class);
     }
 
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM countries WHERE code = ?";
@@ -31,17 +35,17 @@ public class SqlCountryRepository extends BaseSqlRepository<Country> implements 
 
     @Override
     public Optional<Country> findById(String code) {
-        return findSingleResult(FIND_BY_ID_QUERY, this::mapRowToCountry, code);
+        return findSingleResult(FIND_BY_ID_QUERY, countryMapper, code);
     }
 
     @Override
     public Optional<Country> findByName(String name) {
-        return findSingleResult(FIND_BY_NAME_QUERY, this::mapRowToCountry, name);
+        return findSingleResult(FIND_BY_NAME_QUERY,countryMapper, name);
     }
 
     @Override
     public List<Country> findAll() {
-        return findAll(FIND_ALL_QUERY, this::mapRowToCountry);
+        return findAll(FIND_ALL_QUERY, countryMapper);
     }
 
     @Override
@@ -59,12 +63,5 @@ public class SqlCountryRepository extends BaseSqlRepository<Country> implements 
         if (affectedRows > 0) {
 
         }
-    }
-
-    private Country mapRowToCountry(ResultSet resultSet) throws SQLException {
-        return new Country(
-                resultSet.getString("code"),
-                resultSet.getString("name")
-        );
     }
 }

@@ -1,8 +1,9 @@
 package hr.algebra.surfspot.model;
 
 public enum Permission {
-    SURFSPOT_READ,
-    SURFSPOT_WRITE,
-    SURFSPOT_DELETE,
-    SURFSPOT_MODIFY
+    SURF_SPOT_CREATE,
+    SURF_SPOT_VIEW,
+    SURF_SPOT_MODIFY,
+    SURF_SPOT_DELETE,
+    MANAGE_USERS
 }

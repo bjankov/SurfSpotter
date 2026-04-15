@@ -3,6 +3,7 @@ package hr.algebra.surfspot.repository.sql;
 import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.repository.SurfingSchoolRepository;
+import hr.algebra.surfspot.repository.sql.mapper.RowMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,9 +15,11 @@ import java.util.Optional;
 
 public class SqlSurfingSchoolRepository extends BaseSqlRepository<SurfingSchool> implements SurfingSchoolRepository {
     private static final Logger log = LoggerFactory.getLogger(SqlCountryRepository.class);
+    private final RowMapper<SurfingSchool> surfingSchoolMapper;
 
     public SqlSurfingSchoolRepository(DataSource dataSource) {
         super(dataSource);
+        surfingSchoolMapper = RowMapperFactory.getInstance().getMapper(SurfingSchool.class);
     }
 
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM surfing_schools WHERE id = ?";
@@ -26,16 +29,16 @@ public class SqlSurfingSchoolRepository extends BaseSqlRepository<SurfingSchool>
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM surfing_schools WHERE id = ?";
 
     public Optional<SurfingSchool> findById(Long id) {
-        return findSingleResult(FIND_BY_ID_QUERY, this::mapRowToSurfingSchool, id);
+        return findSingleResult(FIND_BY_ID_QUERY, surfingSchoolMapper, id);
     }
 
     public Optional<SurfingSchool> findByName(String name) {
-        return findSingleResult(FIND_BY_NAME_QUERY, this::mapRowToSurfingSchool, name);
+        return findSingleResult(FIND_BY_NAME_QUERY, surfingSchoolMapper, name);
     }
 
     @Override
     public List<SurfingSchool> findAll() {
-        return findAll(FIND_ALL_QUERY,  this::mapRowToSurfingSchool);
+        return findAll(FIND_ALL_QUERY, surfingSchoolMapper);
     }
 
     public SurfingSchool save(SurfingSchool surfingSchool) {
@@ -55,10 +58,4 @@ public class SqlSurfingSchoolRepository extends BaseSqlRepository<SurfingSchool>
         executeUpdate(DELETE_BY_ID_QUERY, id);
     }
 
-    private SurfingSchool mapRowToSurfingSchool(ResultSet resultSet) throws SQLException {
-        return SurfingSchool.builder()
-                .id(resultSet.getLong("id"))
-                .name(resultSet.getString("name"))
-                .build();
-    }
 }

@@ -3,6 +3,7 @@ package hr.algebra.surfspot.repository.sql;
 import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.*;
 import hr.algebra.surfspot.repository.SurfSpotRepository;
+import hr.algebra.surfspot.repository.sql.mapper.RowMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,9 +13,11 @@ import java.util.*;
 
 public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implements SurfSpotRepository {
     private static final Logger log =  LoggerFactory.getLogger(SqlSurfSpotRepository.class);
+    private final RowMapper<SurfSpot> surfSpotMapper;
 
     public SqlSurfSpotRepository(DataSource dataSource) {
         super(dataSource);
+        surfSpotMapper = RowMapperFactory.getInstance().getMapper(SurfSpot.class);
     }
 
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM surf_spots WHERE id = ?";
@@ -47,11 +50,11 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM surf_spots WHERE id = ?";
 
     public Optional<SurfSpot> findById(Long id) {
-        return findSingleResult(FIND_BY_ID_QUERY, this::mapSurfSpot, id);
+        return findSingleResult(FIND_BY_ID_QUERY, surfSpotMapper, id);
     }
 
     public Optional<SurfSpot> findByName(final String name) {
-        return findSingleResult(FIND_BY_NAME_QUERY, this::mapSurfSpot, name);
+        return findSingleResult(FIND_BY_NAME_QUERY, surfSpotMapper, name);
     }
 
     @Override
@@ -96,29 +99,6 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
         executeUpdate(DELETE_BY_ID_QUERY, id);
     }
 
-    private SurfSpot mapSurfSpot(ResultSet resultSet) throws SQLException {
-        Coordinates coordinates = new Coordinates(
-                resultSet.getBigDecimal("latitude"),
-                resultSet.getBigDecimal("longitude")
-        );
-        // TODO: Properly map the objects
-        Coast coast = new Coast();
-        Location location = new Location(coordinates, coast);
-        WaveDetails waveDetails = new WaveDetails(
-                WaveType.valueOf(resultSet.getString("wave_type")),
-                resultSet.getDouble("wave_height")
-        );
-
-        return SurfSpot.builder()
-                .id(resultSet.getLong("id"))
-                .name(resultSet.getString("name"))
-                .location(location)
-                .waveDetails(waveDetails)
-                .windDirectionDegrees(resultSet.getInt("wind_direction"))
-                .difficulty(DifficultyLevel.valueOf(resultSet.getString("difficulty")))
-                .bestSeason(fetchMonthsForSpot(resultSet.getLong("id")))
-                .build();
-    }
 
     private EnumSet<Month> fetchMonthsForSpot(Long surfSpotId) {
 
