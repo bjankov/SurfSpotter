@@ -12,13 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 
-/**
- * Application-wide context singleton that manages:
- * - Current authenticated user session
- * - Dependency injection (repositories, services)
- * - Scene navigation
- * - Primary stage reference
- */
 public class ApplicationContext {
     private static final Logger log = LoggerFactory.getLogger(ApplicationContext.class);
 

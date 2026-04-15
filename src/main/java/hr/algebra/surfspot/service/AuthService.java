@@ -28,14 +28,6 @@ public class AuthService {
         this.passwordService = passwordService;
     }
 
-    /**
-     * Authenticate user with username/email and password
-     * @param usernameOrEmail Username or email address
-     * @param password Plain text password
-     * @return Authenticated user
-     * @throws AuthenticationException if credentials are invalid
-     * @throws ValidationException if input is invalid
-     */
     public User login(String usernameOrEmail, String password) {
         // Validate input
         if (usernameOrEmail == null || usernameOrEmail.isBlank()) {
@@ -45,7 +37,6 @@ public class AuthService {
             throw new ValidationException("Lozinka ne moze biti prazna!");
         }
 
-        // Find user by username or email
         Optional<User> userOptional;
         if (isEmail(usernameOrEmail)) {
             userOptional = userRepository.findByEmail(usernameOrEmail);
@@ -53,7 +44,6 @@ public class AuthService {
             userOptional = userRepository.findByName(usernameOrEmail);
         }
 
-        // Verify user exists
         if (userOptional.isEmpty()) {
             log.warn("Login attempt with non-existent username/email: {}", usernameOrEmail);
             throw new AuthenticationException("Krivi podaci - nije pronaden niti jedan korisnik sa ovim podacima.");
@@ -61,7 +51,6 @@ public class AuthService {
 
         User user = userOptional.get();
 
-        // Verify password
         if (!passwordService.verify(password, user.getPasswordHash())) {
             log.warn("Failed login attempt for user: {}", user.getUsername());
             throw new AuthenticationException("Krivi podaci - nije pronaden niti jedan korisnik sa ovim podacima.");
@@ -71,13 +60,6 @@ public class AuthService {
         return user;
     }
 
-    /**
-     * @param username Username
-     * @param email Email address
-     * @param password Plain text password
-     * @throws DuplicateRecordException if username or email already exists
-     * @throws ValidationException if input is invalid
-     */
     public User register(String username, String email, String password) {
         if (username == null || username.isBlank()) {
             throw new ValidationException("Korisnicko ime ne moze biti prazno!");
