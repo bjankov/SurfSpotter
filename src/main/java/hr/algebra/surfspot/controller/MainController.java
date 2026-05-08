@@ -17,7 +17,7 @@ public class MainController extends BaseController {
 
     @FXML
     public void initialize() {
-        User currentUser = applicationContext.getCurrentUser();
+        User currentUser = applicationContext.getSession().getCurrentUser();
         if (currentUser != null) {
             String welcomeText = "Welcome to the Surf Spotter, " + currentUser.getUsername() + "!";
             if (welcomeLabel != null) {
@@ -30,6 +30,6 @@ public class MainController extends BaseController {
     @FXML
     private void handleLogout() {
         log.info("User logout initiated");
-        applicationContext.logout();
+        applicationContext.getSession().logout();
     }
 }

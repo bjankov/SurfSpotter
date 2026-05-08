@@ -1,6 +1,7 @@
 package hr.algebra.surfspot.controller.auth;
 
-import hr.algebra.surfspot.context.ApplicationContext;
+import hr.algebra.surfspot.context.SceneNavigator;
+import hr.algebra.surfspot.context.UserSession;
 import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.exception.AuthenticationException;
 import hr.algebra.surfspot.exception.ValidationException;
@@ -17,12 +18,17 @@ public class LoginController extends BaseController {
 
     @FXML
     private TextField usernameField;
+    @FXML private PasswordField passwordField;
 
-    @FXML
-    private PasswordField passwordField;
+    private final AuthService authService;
+    private final UserSession userSession;
+    private final SceneNavigator sceneNavigator;
 
-    private final ApplicationContext applicationContext = ApplicationContext.getInstance();
-    private final AuthService authService = applicationContext.getAuthService();
+    public LoginController(AuthService authService, UserSession userSession, SceneNavigator sceneNavigator) {
+        this.authService = authService;
+        this.userSession = userSession;
+        this.sceneNavigator = sceneNavigator;
+    }
 
     @FXML
     private void handleLogin() {
@@ -31,23 +37,20 @@ public class LoginController extends BaseController {
 
         try {
             User user = authService.login(usernameOrEmail, password);
-            applicationContext.setCurrentUser(user);
-            applicationContext.getSceneNavigator().navigateToMain();
+            userSession.login(user); // Više ne koristimo applicationContext.setCurrentUser
+            sceneNavigator.navigateToMain();
 
-        } catch (ValidationException e) {
-            log.warn("Validation error during login: {}", e.getMessage());
-            showError(e.getMessage());
-        } catch (AuthenticationException e) {
-            log.warn("Authentication failed: {}", e.getMessage());
+        } catch (ValidationException | AuthenticationException e) {
+            log.warn("Login error: {}", e.getMessage());
             showError(e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected error during login", e);
-            showError("Doslo je do neocekivane greske. Pokusajte ponovo.");
+            showError("Došlo je do neočekivane greške.");
         }
     }
 
     @FXML
     private void handleRegisterLink() {
-        applicationContext.getSceneNavigator().navigateToRegister();
+        sceneNavigator.navigateToRegister();
     }
 }

@@ -1,6 +1,7 @@
 package hr.algebra.surfspot.controller.auth;
 
-import hr.algebra.surfspot.context.ApplicationContext;
+import hr.algebra.surfspot.context.SceneNavigator;
+import hr.algebra.surfspot.context.UserSession;
 import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.exception.DuplicateRecordException;
 import hr.algebra.surfspot.exception.ValidationException;
@@ -15,20 +16,20 @@ import org.slf4j.LoggerFactory;
 public class RegisterController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(RegisterController.class);
 
-    @FXML
-    private TextField emailField;
+    @FXML private TextField emailField;
+    @FXML private TextField usernameField;
+    @FXML private PasswordField passwordField;
+    @FXML private PasswordField repeatPasswordField;
 
-    @FXML
-    private TextField usernameField;
+    private final AuthService authService;
+    private final UserSession userSession;
+    private final SceneNavigator sceneNavigator;
 
-    @FXML
-    private PasswordField passwordField;
-
-    @FXML
-    private PasswordField repeatPasswordField;
-
-    private final ApplicationContext applicationContext = ApplicationContext.getInstance();
-    private final AuthService authService = applicationContext.getAuthService();
+    public RegisterController(AuthService authService, UserSession userSession, SceneNavigator sceneNavigator) {
+        this.authService = authService;
+        this.userSession = userSession;
+        this.sceneNavigator = sceneNavigator;
+    }
 
     @FXML
     private void handleRegister() {
@@ -38,34 +39,29 @@ public class RegisterController extends BaseController {
         String repeatPassword = repeatPasswordField.getText();
 
         try {
-            // Validate password match
             if (!password.equals(repeatPassword)) {
                 showError("Lozinke se ne podudaraju!");
                 return;
             }
 
-            // Register user
             User user = authService.register(username, email, password);
 
-            // Auto-login after successful registration
-            applicationContext.setCurrentUser(user);
-            showInfo("Registracija uspjesna! Dobrodosli, " + username + "!");
-            applicationContext.getSceneNavigator().navigateToMain();
+            userSession.login(user);
 
-        } catch (ValidationException e) {
-            log.warn("Validation error during registration: {}", e.getMessage());
-            showError(e.getMessage());
-        } catch (DuplicateRecordException e) {
-            log.warn("Duplicate record during registration: {}", e.getMessage());
+            showInfo("Registracija uspješna! Dobrodošli, " + username + "!");
+            sceneNavigator.navigateToMain();
+
+        } catch (ValidationException | DuplicateRecordException e) {
+            log.warn("Registration error: {}", e.getMessage());
             showError(e.getMessage());
         } catch (Exception e) {
             log.error("Unexpected error during registration", e);
-            showError("Doslo je do neocekivane greske. Pokusajte ponovo.");
+            showError("Došlo je do neočekivane greške. Pokušajte ponovo.");
         }
     }
 
     @FXML
     private void handleLoginLink() {
-        applicationContext.getSceneNavigator().navigateToLogin();
+        sceneNavigator.navigateToLogin();
     }
 }

@@ -57,6 +57,37 @@ public abstract class BaseSqlRepository<T> {
         return results;
     }
 
+    protected boolean exists(String query, Object... params) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            setParams(preparedStatement, params);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return resultSet.next() && (resultSet.getInt(1) > 0 || resultSet.getRow() > 0);
+            }
+        } catch (SQLException e) {
+            throw new RepositoryException("Greška pri provjeri postojanja: " + e.getMessage());
+        }
+    }
+
+    protected long count(String query, Object... params) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            setParams(preparedStatement, params);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getLong(1);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RepositoryException("Greška pri brojanju: " + e.getMessage());
+        }
+        return 0;
+    }
+
     protected Long insertAndGetId(String query, Object... params) {
         try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
