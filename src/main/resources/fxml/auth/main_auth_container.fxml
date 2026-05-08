@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.Label?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<VBox alignment="CENTER" spacing="20" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="hr.algebra.surfspot.controller.auth.AuthLayoutController"
+      style="-fx-background-color: #f0f0f0; -fx-padding: 50;">
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="CONTROLLER_NAME"
-            prefHeight="400.0" prefWidth="600.0">
+    <Label text="SurfSpot - Welcome" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
 
-</AnchorPane>
+    <StackPane fx:id="formContainer" />
+
+</VBox>

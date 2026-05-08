@@ -1,5 +1,6 @@
 package hr.algebra.surfspot.context;
 
+import hr.algebra.surfspot.controller.auth.AuthLayoutController;
 import hr.algebra.surfspot.controller.auth.LoginController;
 import hr.algebra.surfspot.controller.auth.RegisterController;
 import hr.algebra.surfspot.service.AuthService;
@@ -33,10 +34,13 @@ public class ApplicationContext {
 
     private void initControllerFactories() {
         controllerFactories.put(LoginController.class, () ->
-                new LoginController(getAuthService(), getSession(), getNavigator()));
+                new LoginController(getAuthService(), getSession(), getSceneNavigator()));
 
         controllerFactories.put(RegisterController.class, () ->
-                new RegisterController(getAuthService(), getSession(), getNavigator()));
+                new RegisterController(getAuthService(), getSession(), getSceneNavigator()));
+
+        controllerFactories.put(AuthLayoutController.class, () ->
+                new AuthLayoutController(getSceneNavigator()));
     }
 
     public Object getController(Class<?> controllerClass) {
@@ -53,7 +57,7 @@ public class ApplicationContext {
 
     public AuthService getAuthService() { return services.getAuthService(); }
     public UserSession getSession() { return session; }
-    public SceneNavigator getNavigator() { return navigator; }
+    public SceneNavigator getSceneNavigator() { return navigator; }
 
     public boolean isAuthenticated() {
         return session.isAuthenticated();
