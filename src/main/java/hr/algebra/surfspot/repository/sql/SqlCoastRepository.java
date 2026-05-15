@@ -1,14 +1,12 @@
 package hr.algebra.surfspot.repository.sql;
 
 import hr.algebra.surfspot.model.Coast;
-import hr.algebra.surfspot.model.Country;
 import hr.algebra.surfspot.repository.CoastRepository;
 import hr.algebra.surfspot.repository.sql.mapper.RowMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.sql.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,7 +43,16 @@ public class SqlCoastRepository extends BaseSqlRepository<Coast> implements Coas
             JOIN countries
             ON coasts.country_code = countries.code
             """;
-    private static final String FIND_ALL_QUERY = "SELECT * FROM coasts";
+    private static final String FIND_ALL_QUERY = """
+            SELECT
+                coasts.id AS id,
+                coasts.name AS name,
+                countries.code AS country_code,
+                countries.name AS country_name
+            FROM coasts
+            JOIN countries
+            ON coasts.country_code = countries.code""";
+    private static final String UPDATE_BY_ID_QUERY = "UPDATE coasts SET name = ?, country_code = ? WHERE id = ?";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM coasts WHERE id = ?";
 
     @Override
@@ -58,6 +65,16 @@ public class SqlCoastRepository extends BaseSqlRepository<Coast> implements Coas
     }
 
     @Override
+    public Coast update(Coast coast) {
+        executeUpdate(UPDATE_BY_ID_QUERY,
+                coast.getName(),
+                coast.getCountry().code(),
+                coast.getId());
+
+        return coast;
+    }
+
+    @Override
     public void delete(Long id) {
         executeUpdate(DELETE_BY_ID_QUERY, id);
     }
@@ -67,7 +84,6 @@ public class SqlCoastRepository extends BaseSqlRepository<Coast> implements Coas
         return findSingleResult(FIND_BY_ID_QUERY, coastMapper, id);
     }
 
-    @Override
     public Optional<Coast> findByName(String name) {
         return findSingleResult(FIND_BY_NAME_QUERY, coastMapper, name);
     }

@@ -8,13 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
 public class SqlSurfingSchoolRepository extends BaseSqlRepository<SurfingSchool> implements SurfingSchoolRepository {
-    private static final Logger log = LoggerFactory.getLogger(SqlCountryRepository.class);
+    private static final Logger log = LoggerFactory.getLogger(SqlSurfingSchoolRepository.class);
     private final RowMapper<SurfingSchool> surfingSchoolMapper;
 
     public SqlSurfingSchoolRepository(DataSource dataSource) {
@@ -25,7 +23,8 @@ public class SqlSurfingSchoolRepository extends BaseSqlRepository<SurfingSchool>
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM surfing_schools WHERE id = ?";
     private static final String FIND_BY_NAME_QUERY = "SELECT * FROM surfing_schools WHERE name = ?";
     private static final String FIND_ALL_QUERY = "SELECT * FROM surfing_schools";
-    private static final String SAVE_QUERY = "INSERT INTO surfing_schools name VALUES ?";
+    private static final String SAVE_QUERY = "INSERT INTO surfing_schools (name) VALUES (?)";
+    private static final String UPDATE_BY_ID = "UPDATE surfing_schools SET name = ? WHERE id = ?";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM surfing_schools WHERE id = ?";
 
     public Optional<SurfingSchool> findById(Long id) {
@@ -42,7 +41,7 @@ public class SqlSurfingSchoolRepository extends BaseSqlRepository<SurfingSchool>
     }
 
     public SurfingSchool save(SurfingSchool surfingSchool) {
-        Long generatedId = insertAndGetId(SAVE_QUERY, surfingSchool);
+        Long generatedId = insertAndGetId(SAVE_QUERY, surfingSchool.getName());
 
         if (generatedId != null) {
             return SurfingSchool.builder()
@@ -51,6 +50,15 @@ public class SqlSurfingSchoolRepository extends BaseSqlRepository<SurfingSchool>
                     .build();
         }
         throw new RepositoryException(String.format("Surfing school with id %d already exists", generatedId));
+    }
+
+    @Override
+    public SurfingSchool update(SurfingSchool school) {
+        executeUpdate(UPDATE_BY_ID,
+                school.getName(),
+                school.getId()
+        );
+        return school;
     }
 
     @Override

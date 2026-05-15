@@ -111,6 +111,7 @@ public abstract class BaseSqlRepository<T> {
         try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
+            // TODO: Provjera je li affectedrows 0? Usput provjeri radis li negdje provjere sa affectedRows == 0
             setParams(preparedStatement, params);
             return preparedStatement.executeUpdate();
 

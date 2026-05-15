@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.sql.*;
 import java.util.*;
 
 public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implements SurfSpotRepository {
@@ -20,15 +19,44 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
         surfSpotMapper = RowMapperFactory.getInstance().getMapper(SurfSpot.class);
     }
 
+    private static final String UPDATE_BY_ID_QUERY = """
+            UPDATE surf_spots
+            SET name = ?,
+                latitude = ?,
+                longitude = ?,
+                country_code = ?,
+                coast_id = ?,
+                wave_type = ?,
+                wave_height = ?,
+                difficulty = ?,
+                wind_direction = ?
+            WHERE id = ?;""";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM surf_spots WHERE id = ?";
     private static final String FIND_BY_NAME_QUERY = "SELECT * FROM surf_spots WHERE name = ?";
     private static final String FIND_BY_COAST_NAME_QUERY = """
         SELECT *
         FROM surf_spots
-        WHERE coast_name = ?
         JOIN coasts ON coasts.id = surf_spots.coast_id
+        WHERE coast_name = ?
         """;
-    private static final String FIND_ALL_QUERY = "SELECT month_name FROM surf_spot_months WHERE id = ?";
+    private static final String FIND_ALL_QUERY = """
+    SELECT
+        ss.id,
+        ss.name AS surf_spot_name,
+        ss.latitude,
+        ss.longitude,
+        ss.wave_type,
+        ss.wave_height,
+        ss.difficulty,
+        ss.wind_direction,
+        coasts.id AS coast_id,
+        coasts.name AS coast_name,
+        countries.code AS country_code,
+        countries.name AS country_name
+    FROM surf_spots ss
+    JOIN coasts  ON ss.coast_id = coasts.id
+    JOIN countries ON coasts.country_code = countries.code
+    """;
     private static final String SAVE_SURF_SPOT_QUERY = """
         INSERT INTO surf_spots (
             name,
@@ -46,7 +74,7 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
     private static final String INSERT_MONTHS_QUERY = "INSERT INTO surf_spot_months (surf_spot_id, month_name) VALUES (?, ?)";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM surf_spots WHERE id = ?";
     private static final String COUNT_BY_COUNTRY_CODE_QUERY =  "SELECT COUNT(*) FROM surf_spots WHERE country_code = ?";
-    private static final String COUNT_BY_DIFFICULTY_QUERY = "SELCT COUNT(*) FROM surf_spots WHERE difficulty = ?";
+    private static final String COUNT_BY_DIFFICULTY_QUERY = "SELECT COUNT(*) FROM surf_spots WHERE difficulty = ?";
     private static final String COUNT_BY_WAVE_TYPE_QUERY = "SELECT COUNT(*) FROM surf_spots WHERE wave_type = ?";
 
     public Optional<SurfSpot> findById(Long id) {
@@ -59,7 +87,7 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
 
     @Override
     public List<SurfSpot> findAll() {
-        return List.of();
+        return findAll(FIND_ALL_QUERY, surfSpotMapper);
     }
 
     
@@ -200,5 +228,22 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
     @Override
     public List<SurfSpot> findByCoast(Coast coast) {
         return List.of();
+    }
+
+    // TODO: Mozda napisi wrappere za ove ulancane pozive?
+    @Override
+    public SurfSpot update(SurfSpot spot) {
+        executeUpdate(UPDATE_BY_ID_QUERY,
+                spot.getName(),
+                spot.getLocation().getCoordinates().latitude(),
+                spot.getLocation().getCoordinates().longitude(),
+                spot.getLocation().getCoast().getCountry().code(),
+                spot.getLocation().getCoast().getId(),
+                spot.getWaveDetails().getWaveType().toString(),
+                spot.getWaveDetails().getWaveHeight(),
+                spot.getDifficulty().toString(),
+                spot.getWindDirectionDegrees(),
+                spot.getId());
+        return spot;
     }
 }

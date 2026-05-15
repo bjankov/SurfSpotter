@@ -20,6 +20,7 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
         this.userMapper = RowMapperFactory.getInstance().getMapper(User.class);
     }
 
+    private static final String UPDATE_BY_ID = "UPDATE users SET username = ?, email = ? WHERE id = ?";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
     private static final String FIND_BY_USERNAME_QUERY = "SELECT * FROM users WHERE username = ?";
     private static final String FIND_BY_EMAIL_QUERY = "SELECT * FROM users WHERE email = ?";
@@ -34,7 +35,6 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
         return findSingleResult(FIND_BY_ID_QUERY, userMapper, id);
     }
 
-    @Override
     public Optional<User> findByName(String username) {
         return findSingleResult(FIND_BY_USERNAME_QUERY, userMapper, username);
     }
@@ -69,6 +69,16 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
                     .build();
         }
         throw new RepositoryException("Could not save new user.");
+    }
+
+    // TODO: Sto sa passwordom?
+    @Override
+    public User update(User user) {
+        executeUpdate(UPDATE_BY_ID,
+                user.getId(),
+                user.getUsername(),
+                user.getEmail());
+        return user;
     }
 
     @Override

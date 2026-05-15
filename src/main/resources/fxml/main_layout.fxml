@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.surfspot.controller.MainLayoutController">
+   <left>
+       <VBox prefHeight="400.0" prefWidth="148.0" BorderPane.alignment="CENTER">
+           <fx:define>
+               <ToggleGroup fx:id="navigationGroup" />
+           </fx:define>
+           <ToggleButton mnemonicParsing="false" onAction="#showSurfSpots" text="Surf Spots">
+            <toggleGroup>
+               <ToggleGroup fx:id="navigationGroup" />
+            </toggleGroup></ToggleButton>
+           <ToggleButton mnemonicParsing="false" onAction="#showSurfingSchools" text="Surfing Schools" toggleGroup="$navigationGroup" />
+           <ToggleButton mnemonicParsing="false" onAction="#showInstructors" text="Surfing Instructors" toggleGroup="$navigationGroup" />
+           <ToggleButton mnemonicParsing="false" onAction="#showCoasts" text="Coasts" toggleGroup="$navigationGroup" />
+       </VBox>
+   </left>
+   <top>
+       <MenuBar BorderPane.alignment="CENTER">
+           <Menu mnemonicParsing="false" text="File">
+               <MenuItem mnemonicParsing="false" text="Close" />
+           </Menu>
+           <Menu mnemonicParsing="false" text="Edit">
+               <MenuItem mnemonicParsing="false" text="Delete" />
+           </Menu>
+           <Menu mnemonicParsing="false" text="Help">
+               <MenuItem mnemonicParsing="false" text="About" />
+           </Menu>
+       </MenuBar>
+   </top>
+    <center>
+        <StackPane fx:id="contentArea" prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <Label fx:id="welcomeLabel" text="Učitavanje..." />
+        </StackPane>
+    </center>
+</BorderPane>

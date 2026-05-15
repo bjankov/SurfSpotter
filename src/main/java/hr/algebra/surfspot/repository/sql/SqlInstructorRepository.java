@@ -8,13 +8,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
 public class SqlInstructorRepository extends BaseSqlRepository<Instructor> implements InstructorRepository {
-    private static final Logger log = LoggerFactory.getLogger(SqlCountryRepository.class);
+    private static final Logger log = LoggerFactory.getLogger(SqlInstructorRepository.class);
     private final RowMapper<Instructor> instructorMapper;
 
     public SqlInstructorRepository(DataSource dataSource) {
@@ -28,6 +26,7 @@ public class SqlInstructorRepository extends BaseSqlRepository<Instructor> imple
     private static final String FIND_ALL_QUERY = "SELECT * FROM instructors";
     private static final String SAVE_QUERY = "INSERT INTO instructors (first_name, last_name) VALUES (?, ?)";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM instructors WHERE id = ?";
+    private static final String UPDATE_QUERY = "UPDATE instructors SET first_name = ?, last_name = ? WHERE id = ?";
 
     @Override
     public Optional<Instructor> findByLastName(String lastName) {
@@ -51,7 +50,7 @@ public class SqlInstructorRepository extends BaseSqlRepository<Instructor> imple
 
     @Override
     public Instructor save(Instructor instructor) {
-        Long generatedId = insertAndGetId(SAVE_QUERY, instructor);
+        Long generatedId = insertAndGetId(SAVE_QUERY, instructor.getFirstName(), instructor.getLastName());
 
         if  (generatedId != null) {
             return Instructor.builder()
@@ -60,6 +59,16 @@ public class SqlInstructorRepository extends BaseSqlRepository<Instructor> imple
                     .build();
         }
         throw new RepositoryException("Could not save instructor");
+    }
+
+    @Override
+    public Instructor update(Instructor instructor) {
+        executeUpdate(UPDATE_QUERY,
+                instructor.getFirstName(),
+                instructor.getLastName(),
+                instructor.getId()
+        );
+        return instructor;
     }
 
     @Override

@@ -88,6 +88,10 @@ public class Coast {
         return country;
     }
 
+    public String getCountryName() {
+        return country.name();
+    }
+
     public String getName() {
         return name;
     }

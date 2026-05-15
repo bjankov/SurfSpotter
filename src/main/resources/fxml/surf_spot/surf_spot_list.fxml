@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefHeight="600.0" prefWidth="900.0" spacing="15.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.surfspot.controller.surfspot.SurfSpotListController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="10.0">
+        <Label text="Surf Spotovi" textFill="#2c3e50">
+            <font>
+                <Font name="System Bold" size="24.0" />
+            </font>
+        </Label>
+
+        <Region HBox.hgrow="ALWAYS" />
+
+        <Button mnemonicParsing="false" onAction="#handleAdd" style="-fx-background-color: #2ecc71; -fx-text-fill: white;" text="Dodaj novog" />
+        <Button mnemonicParsing="false" onAction="#handleEdit" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="Uredi" />
+        <Button mnemonicParsing="false" onAction="#handleDelete" style="-fx-background-color: #e74c3c; -fx-text-fill: white;" text="Obriši" />
+    </HBox>
+
+    <SplitPane dividerPositions="0.6" VBox.vgrow="ALWAYS">
+
+        <TableView fx:id="surfSpotTable" prefWidth="500.0">
+            <columns>
+                <TableColumn fx:id="nameColumn" prefWidth="150.0" text="Ime" />
+                <TableColumn fx:id="locationColumn" prefWidth="150.0" text="Lokacija" />
+                <TableColumn fx:id="difficultyColumn" prefWidth="100.0" text="Težina" />
+            </columns>
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            </columnResizePolicy>
+        </TableView>
+
+        <VBox minWidth="300.0" spacing="10.0" style="-fx-background-color: #f8f9fa;">
+            <padding>
+                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+            </padding>
+
+            <Label text="Detalji spota" textFill="#2c3e50">
+                <font>
+                    <Font name="System Bold" size="18.0" />
+                </font>
+            </Label>
+
+            <ImageView fx:id="spotImageView" fitHeight="150.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" />
+
+            <GridPane hgap="10.0" vgap="10.0">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="80.0" />
+                    <ColumnConstraints hgrow="SOMETIMES" minWidth="150.0" />
+                </columnConstraints>
+
+                <Label text="Obala i država:" GridPane.rowIndex="0">
+                    <font><Font name="System Bold" size="12.0" /></font>
+                </Label>
+                <Label fx:id="locationLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Label text="Koordinate:" GridPane.rowIndex="1">
+                    <font><Font name="System Bold" size="12.0" /></font>
+                </Label>
+                <Label fx:id="coordinatesLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <Label text="Valovi:" GridPane.rowIndex="3">
+                    <font><Font name="System Bold" size="12.0" /></font>
+                </Label>
+                <Label fx:id="waveDetailsLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Label text="Vjetar:" GridPane.rowIndex="4">
+                    <font><Font name="System Bold" size="12.0" /></font>
+                </Label>
+                <Label fx:id="windDetailsLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <Label text="Sezona:" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                    <font><Font name="System Bold" size="12.0" /></font>
+                </Label>
+                <Label fx:id="seasonLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <rowConstraints>
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints minHeight="10.0" prefHeight="30.0" />
+               <RowConstraints minHeight="10.0" prefHeight="30.0" />
+            </rowConstraints>
+            </GridPane>
+
+            <Label text="Instruktori:">
+                <font><Font name="System Bold" size="12.0" /></font>
+                <VBox.margin><Insets top="10.0" /></VBox.margin>
+            </Label>
+            <ListView fx:id="instructorListView" VBox.vgrow="ALWAYS" />
+
+        </VBox>
+    </SplitPane>
+</VBox>

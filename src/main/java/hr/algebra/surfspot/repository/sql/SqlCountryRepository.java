@@ -8,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +20,7 @@ public class SqlCountryRepository extends BaseSqlRepository<Country> implements 
         countryMapper = RowMapperFactory.getInstance().getMapper(Country.class);
     }
 
+    private static final String UPDATE_BY_ID_QUERY = "UPDATE countries SET name = ? WHERE code = ?";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM countries WHERE code = ?";
     private static final String FIND_BY_NAME_QUERY = "SELECT * FROM countries WHERE name = ?";
     private static final String FIND_ALL_QUERY = "SELECT * FROM countries";
@@ -38,7 +37,6 @@ public class SqlCountryRepository extends BaseSqlRepository<Country> implements 
         return findSingleResult(FIND_BY_ID_QUERY, countryMapper, code);
     }
 
-    @Override
     public Optional<Country> findByName(String name) {
         return findSingleResult(FIND_BY_NAME_QUERY,countryMapper, name);
     }
@@ -58,10 +56,15 @@ public class SqlCountryRepository extends BaseSqlRepository<Country> implements 
     }
 
     @Override
-    public void delete(String id) {
-        int affectedRows = executeUpdate(DELETE_BY_ID_QUERY, id);
-        if (affectedRows > 0) {
+    public Country update(Country country) {
+        executeUpdate(UPDATE_BY_ID_QUERY,
+                country.name(),
+                country.code());
+        return country;
+    }
 
-        }
+    @Override
+    public void delete(String id) {
+        executeUpdate(DELETE_BY_ID_QUERY, id);
     }
 }

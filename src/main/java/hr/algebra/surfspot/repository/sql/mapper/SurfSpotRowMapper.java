@@ -8,22 +8,35 @@ import java.sql.SQLException;
 import java.util.EnumSet;
 
 public class SurfSpotRowMapper implements RowMapper<SurfSpot> {
+    @Override
     public SurfSpot map(ResultSet resultSet) throws SQLException {
+
+        Country country = new Country(
+                resultSet.getString("country_code"),
+                resultSet.getString("country_name")
+        );
+
+        Coast coast = Coast.builder()
+                .id(resultSet.getLong("coast_id"))
+                .name(resultSet.getString("coast_name"))
+                .country(country)
+                .build();
+
         Coordinates coordinates = new Coordinates(
                 resultSet.getBigDecimal("latitude"),
                 resultSet.getBigDecimal("longitude")
         );
-        // TODO: Properly map the objects
-        Coast coast = new Coast();
+
         Location location = new Location(coordinates, coast);
+
         WaveDetails waveDetails = new WaveDetails(
                 WaveType.valueOf(resultSet.getString("wave_type")),
-                resultSet.getDouble("wave_height")
+                resultSet.getBigDecimal("wave_height").doubleValue()
         );
 
         return SurfSpot.builder()
                 .id(resultSet.getLong("id"))
-                .name(resultSet.getString("name"))
+                .name(resultSet.getString("surf_spot_name"))
                 .location(location)
                 .waveDetails(waveDetails)
                 .windDirectionDegrees(resultSet.getInt("wind_direction"))

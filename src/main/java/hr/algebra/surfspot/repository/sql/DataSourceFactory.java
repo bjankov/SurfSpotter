@@ -21,7 +21,6 @@ public class DataSourceFactory {
             config.setUsername(props.getProperty("db.username"));
             config.setPassword(props.getProperty("db.password"));
 
-            // Connection pool configuration
             config.setMaximumPoolSize(10);
             config.setMinimumIdle(2);
             config.setIdleTimeout(30000);

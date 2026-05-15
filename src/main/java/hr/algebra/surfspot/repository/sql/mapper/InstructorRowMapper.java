@@ -10,8 +10,9 @@ public class InstructorRowMapper implements RowMapper<Instructor> {
     @Override
     public Instructor map(ResultSet resultSet) throws SQLException {
         return Instructor.builder()
+                .id(resultSet.getLong("id"))
                 .firstName(resultSet.getString("first_name"))
-                .lastName(resultSet.getString("last_name)"))
+                .lastName(resultSet.getString("last_name"))
                 .build();
     }
 }

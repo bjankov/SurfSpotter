@@ -1,7 +1,6 @@
 package hr.algebra.surfspot.service;
 
 import hr.algebra.surfspot.exception.AuthenticationException;
-import hr.algebra.surfspot.exception.ValidationException;
 import hr.algebra.surfspot.model.User;
 import hr.algebra.surfspot.repository.UserRepository;
 import hr.algebra.surfspot.security.PasswordService;
