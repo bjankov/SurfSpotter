@@ -32,4 +32,9 @@ public class WaveDetails {
     public void setWaveHeight(Double waveHeight) {
         this.waveHeight = waveHeight;
     }
+
+    @Override
+    public String toString() {
+        return waveHeight.toString() + " m | " + waveType.getDisplayValue();
+    }
 }

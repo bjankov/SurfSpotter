@@ -98,7 +98,7 @@ public class Coast {
 
     @Override
     public String toString() {
-        return String.format("Country: %s, Name: %s", country, name);
+        return String.format("%s, %s", name, country.name());
     }
 
     @Override

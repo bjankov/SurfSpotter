@@ -78,14 +78,14 @@ public class SurfSpotListController {
 
         String coastName = (spot.getLocation() != null && spot.getLocation().getCoast() != null)
                 ? spot.getLocation().getCoast().getName() : "?";
-        locationLabel.setText(String.format("%s (%s)", coastName, spot.getCountryCode()));
+        locationLabel.setText(String.format("%s, %s", coastName, spot.getCountryName()));
 
         coordinatesLabel.setText(spot.getLocation().getCoordinates().toString());
         waveDetailsLabel.setText(spot.getWaveDetails().toString());
         seasonLabel.setText(spot.getBestSeason().toString());
 
         if (spot.getWindDirectionDegrees() != null) {
-            windDetailsLabel.setText(spot.getWindDirectionDegrees() + "°");
+            windDetailsLabel.setText(spot.getFormattedWindDetails());
         } else {
             windDetailsLabel.setText("Nije unesen");
         }
@@ -94,6 +94,12 @@ public class SurfSpotListController {
             instructorListView.setItems(FXCollections.observableArrayList(spot.getInstructors()));
         } else {
             instructorListView.getItems().clear();
+        }
+
+        if (spot.getBestSeason() != null && !spot.getBestSeason().isEmpty()) {
+            seasonLabel.setText(spot.getFormattedBestSeason());
+        } else {
+            seasonLabel.setText("Nije određena");
         }
 
         displayImage(spot.getImagePath());

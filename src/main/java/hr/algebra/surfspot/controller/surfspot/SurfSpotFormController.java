@@ -1,25 +1,21 @@
 package hr.algebra.surfspot.controller.surfspot;
 
 import hr.algebra.surfspot.context.SceneNavigator;
-import hr.algebra.surfspot.model.Coast;
-import hr.algebra.surfspot.model.Coordinates;
-import hr.algebra.surfspot.model.DifficultyLevel;
-import hr.algebra.surfspot.model.Location;
-import hr.algebra.surfspot.model.SurfSpot;
-import hr.algebra.surfspot.model.WaveDetails;
-import hr.algebra.surfspot.model.WaveType;
+import hr.algebra.surfspot.model.*;
 import hr.algebra.surfspot.service.CoastService;
 import hr.algebra.surfspot.service.SurfSpotService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.FlowPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.*;
 
 public class SurfSpotFormController {
     private static final Logger log = LoggerFactory.getLogger(SurfSpotFormController.class);
@@ -33,10 +29,12 @@ public class SurfSpotFormController {
     @FXML private TextField waveHeightField;
     @FXML private ComboBox<DifficultyLevel> difficultyComboBox;
     @FXML private TextField windDirectionField;
+    @FXML private FlowPane monthsFlowPane;
 
     private final SurfSpotService surfSpotService;
     private final CoastService coastService;
     private final SceneNavigator sceneNavigator;
+    private final Map<Month, CheckBox> monthCheckBoxes = new EnumMap<>(Month.class);
     private SurfSpot currentSurfSpot;
 
     public SurfSpotFormController(SurfSpotService surfSpotService, CoastService coastService, SceneNavigator sceneNavigator) {
@@ -51,6 +49,12 @@ public class SurfSpotFormController {
 
         waveTypeComboBox.setItems(FXCollections.observableArrayList(WaveType.values()));
         difficultyComboBox.setItems(FXCollections.observableArrayList(DifficultyLevel.values()));
+
+        for (Month month : Month.values()) {
+            CheckBox checkBox = new CheckBox(month.name());
+            monthCheckBoxes.put(month, checkBox);
+            monthsFlowPane.getChildren().add(checkBox);
+        }
     }
 
     public void setSurfSpot(SurfSpot spot) {
@@ -72,6 +76,15 @@ public class SurfSpotFormController {
 
             difficultyComboBox.setValue(spot.getDifficulty());
             windDirectionField.setText(spot.getWindDirectionDegrees() != null ? spot.getWindDirectionDegrees().toString() : "");
+
+            monthCheckBoxes.values().forEach(cb -> cb.setSelected(false)); // Očisti sve
+            if (spot.getBestSeason() != null) {
+                spot.getBestSeason().forEach(month -> {
+                    if (monthCheckBoxes.containsKey(month)) {
+                        monthCheckBoxes.get(month).setSelected(true);
+                    }
+                });
+            }
         } else {
             formTitleLabel.setText("Novi surf spot");
             clearForm();
@@ -97,6 +110,13 @@ public class SurfSpotFormController {
             Double waveHeight = Double.parseDouble(waveHeightField.getText().trim());
             WaveDetails waveDetails = new WaveDetails(waveType, waveHeight);
 
+            Set<Month> bestSeason = EnumSet.noneOf(Month.class);
+            for (Map.Entry<Month, CheckBox> entry : monthCheckBoxes.entrySet()) {
+                if (entry.getValue().isSelected()) {
+                    bestSeason.add(entry.getKey());
+                }
+            }
+
             SurfSpot spot = SurfSpot.builder()
                     .id(currentSurfSpot != null ? currentSurfSpot.getId() : null)
                     .name(nameField.getText().trim())
@@ -104,6 +124,7 @@ public class SurfSpotFormController {
                     .waveDetails(waveDetails)
                     .difficulty(difficultyComboBox.getValue())
                     .windDirectionDegrees(Integer.parseInt(windDirectionField.getText().trim()))
+                    .bestSeason(bestSeason) // Dodano!
                     .build();
 
             surfSpotService.save(spot);
@@ -132,5 +153,6 @@ public class SurfSpotFormController {
         waveHeightField.clear();
         difficultyComboBox.setValue(null);
         windDirectionField.clear();
+        monthCheckBoxes.values().forEach(cb -> cb.setSelected(false));
     }
 }

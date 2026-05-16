@@ -13,6 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.layout.FlowPane?>
 <VBox prefHeight="700.0" prefWidth="800.0" spacing="20.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.surfspot.controller.surfspot.SurfSpotFormController">
     <padding>
         <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
@@ -33,6 +34,8 @@
             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="350.0" />
         </columnConstraints>
         <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
@@ -66,6 +69,9 @@
 
         <Label text="Smjer vjetra (°):" GridPane.rowIndex="7" />
         <TextField fx:id="windDirectionField" promptText="0 - 359" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+
+        <Label text="Najbolja sezona:" GridPane.rowIndex="8" />
+        <FlowPane fx:id="monthsFlowPane" hgap="10.0" vgap="10.0" GridPane.columnIndex="1" GridPane.rowIndex="8" />
     </GridPane>
 
     <Region VBox.vgrow="ALWAYS" />

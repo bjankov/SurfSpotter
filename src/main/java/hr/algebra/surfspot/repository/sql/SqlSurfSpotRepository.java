@@ -33,6 +33,7 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
             WHERE id = ?;""";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM surf_spots WHERE id = ?";
     private static final String FIND_BY_NAME_QUERY = "SELECT * FROM surf_spots WHERE name = ?";
+    private static final String FIND_MONTHS_BY_SPOT_ID = "SELECT month_name FROM surf_spot_months WHERE surf_spot_id = ?";
     private static final String FIND_ALL_QUERY = """
     SELECT
         ss.id,
@@ -67,6 +68,7 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
      """;
     private static final String INSERT_MONTHS_QUERY = "INSERT INTO surf_spot_months (surf_spot_id, month_name) VALUES (?, ?)";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM surf_spots WHERE id = ?";
+    private static final String DELETE_MONTHS_QUERY = "DELETE FROM surf_spot_months WHERE surf_spot_id = ?";
     private static final String COUNT_BY_COUNTRY_CODE_QUERY =  "SELECT COUNT(*) FROM surf_spots WHERE country_code = ?";
     private static final String COUNT_BY_DIFFICULTY_QUERY = "SELECT COUNT(*) FROM surf_spots WHERE difficulty = ?";
     private static final String COUNT_BY_WAVE_TYPE_QUERY = "SELECT COUNT(*) FROM surf_spots WHERE wave_type = ?";
@@ -82,21 +84,29 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
 
     @Override
     public List<SurfSpot> findAll() {
-        return findAll(FIND_ALL_QUERY, surfSpotMapper);
+        List<SurfSpot> spots = findAll(FIND_ALL_QUERY, surfSpotMapper);
+
+        for (SurfSpot spot : spots) {
+            spot.setBestSeason(fetchMonthsForSpot(spot.getId()));
+        }
+        return spots;
     }
 
     
     public SurfSpot save(SurfSpot spot) {
+        if (spot.getId() != null) {
+            return update(spot);
+        }
 
         Long generatedId = insertAndGetId(
                 SAVE_SURF_SPOT_QUERY,
                 spot.getName(),
-                spot.getLocation().getCoordinates().latitude(),
-                spot.getLocation().getCoordinates().longitude(),
-                spot.getLocation().getCoast().getCountry().code(),
-                spot.getLocation().getCoast().getId(),
-                spot.getWaveDetails().getWaveType().name(),
-                spot.getWaveDetails().getWaveHeight(),
+                spot.getLatitude(),
+                spot.getLongitude(),
+                spot.getCountryCode(),
+                spot.getCoastId(),
+                spot.getWaveType().name(),
+                spot.getWaveHeight(),
                 spot.getDifficulty().name(),
                 spot.getWindDirectionDegrees()
         );
@@ -124,9 +134,8 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
 
 
     private EnumSet<Month> fetchMonthsForSpot(Long surfSpotId) {
-
         List<Month> months = findAll(
-                FIND_ALL_QUERY,
+                FIND_MONTHS_BY_SPOT_ID,
                 resultSet -> Month.valueOf(resultSet.getString("month_name")),
                 surfSpotId);
 
@@ -230,15 +239,20 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
     public SurfSpot update(SurfSpot spot) {
         executeUpdate(UPDATE_BY_ID_QUERY,
                 spot.getName(),
-                spot.getLatitude(),
-                spot.getLongitude(),
-                spot.getCountryCode(),
-                spot.getCoastId(),
-                spot.getWaveType().toString(),
-                spot.getWaveHeight(),
-                spot.getDifficulty().toString(),
+                spot.getLocation().getCoordinates().latitude(),
+                spot.getLocation().getCoordinates().longitude(),
+                spot.getLocation().getCoast().getCountry().code(),
+                spot.getLocation().getCoast().getId(),
+                spot.getWaveDetails().getWaveType().name(),
+                spot.getWaveDetails().getWaveHeight(),
+                spot.getDifficulty().name(),
                 spot.getWindDirectionDegrees(),
-                spot.getId());
+                spot.getId()
+        );
+
+        executeUpdate(DELETE_MONTHS_QUERY, spot.getId());
+        saveMonths(spot.getId(), spot.getBestSeason());
+
         return spot;
     }
 }

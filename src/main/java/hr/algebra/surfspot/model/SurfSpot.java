@@ -136,6 +136,11 @@ public class SurfSpot {
         return windDirectionDegrees;
     }
 
+    public String getFormattedWindDetails() {
+        WindDirection direction = WindDirection.fromDegrees(windDirectionDegrees);
+        return String.format("%s (%d°)", direction.getDisplayValue(), windDirectionDegrees);
+    }
+
     public void setWindDirectionDegrees(Integer windDirectionDegrees) {
         this.windDirectionDegrees = windDirectionDegrees;
     }
@@ -188,6 +193,10 @@ public class SurfSpot {
         return location.getCoast().getCountry().code();
     }
 
+    public String getCountryName() {
+        return location.getCoast().getCountry().name();
+    }
+
     public Long getCoastId() {
         return location.getCoast().getId();
     }
@@ -200,6 +209,14 @@ public class SurfSpot {
         return waveDetails.getWaveHeight();
     }
 
+    public String getFormattedBestSeason() {
+        if (bestSeason == null || bestSeason.isEmpty()) {
+            return "Nije određena";
+        }
+        return bestSeason.stream()
+                .map(Enum::name)
+                .collect(java.util.stream.Collectors.joining(", "));
+    }
 
     @Override
     public String toString() {
