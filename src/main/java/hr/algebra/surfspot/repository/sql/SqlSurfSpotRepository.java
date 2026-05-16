@@ -33,12 +33,6 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
             WHERE id = ?;""";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM surf_spots WHERE id = ?";
     private static final String FIND_BY_NAME_QUERY = "SELECT * FROM surf_spots WHERE name = ?";
-    private static final String FIND_BY_COAST_NAME_QUERY = """
-        SELECT *
-        FROM surf_spots
-        JOIN coasts ON coasts.id = surf_spots.coast_id
-        WHERE coast_name = ?
-        """;
     private static final String FIND_ALL_QUERY = """
     SELECT
         ss.id,
@@ -76,6 +70,7 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
     private static final String COUNT_BY_COUNTRY_CODE_QUERY =  "SELECT COUNT(*) FROM surf_spots WHERE country_code = ?";
     private static final String COUNT_BY_DIFFICULTY_QUERY = "SELECT COUNT(*) FROM surf_spots WHERE difficulty = ?";
     private static final String COUNT_BY_WAVE_TYPE_QUERY = "SELECT COUNT(*) FROM surf_spots WHERE wave_type = ?";
+    private static final String COUNT_BY_COAST_ID_QUERY = "SELECT COUNT(*) FROM surf_spots WHERE coast_id = ?";
 
     public Optional<SurfSpot> findById(Long id) {
         return findSingleResult(FIND_BY_ID_QUERY, surfSpotMapper, id);
@@ -179,10 +174,12 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
         return  count(COUNT_BY_WAVE_TYPE_QUERY, waveType.name());
     }
 
-    // TODO: Je li bolje traziti po coast name ili po coast id? Kako ce se to odvijati u pozadini aplikacije
     @Override
     public long countByCoast(Coast coast) {
-        return executeUpdate(FIND_BY_COAST_NAME_QUERY, coast.getName());
+        if  (coast == null) {
+            return 0;
+        }
+        return count(COUNT_BY_COAST_ID_QUERY, coast.getId());
     }
 
     @Override
@@ -230,17 +227,16 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
         return List.of();
     }
 
-    // TODO: Mozda napisi wrappere za ove ulancane pozive?
     @Override
     public SurfSpot update(SurfSpot spot) {
         executeUpdate(UPDATE_BY_ID_QUERY,
                 spot.getName(),
-                spot.getLocation().getCoordinates().latitude(),
-                spot.getLocation().getCoordinates().longitude(),
-                spot.getLocation().getCoast().getCountry().code(),
-                spot.getLocation().getCoast().getId(),
-                spot.getWaveDetails().getWaveType().toString(),
-                spot.getWaveDetails().getWaveHeight(),
+                spot.getLatitude(),
+                spot.getLongitude(),
+                spot.getCountryCode(),
+                spot.getCoastId(),
+                spot.getWaveType().toString(),
+                spot.getWaveHeight(),
                 spot.getDifficulty().toString(),
                 spot.getWindDirectionDegrees(),
                 spot.getId());

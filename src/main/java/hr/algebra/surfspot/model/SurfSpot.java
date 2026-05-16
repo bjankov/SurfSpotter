@@ -3,6 +3,7 @@ package hr.algebra.surfspot.model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 public class SurfSpot {
@@ -181,6 +182,31 @@ public class SurfSpot {
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
     }
+
+    public BigDecimal getLatitude() {
+        return location.getCoordinates().latitude();
+    }
+
+    public BigDecimal getLongitude() {
+        return location.getCoordinates().longitude();
+    }
+
+    public String getCountryCode() {
+        return location.getCoast().getCountry().code();
+    }
+
+    public Long getCoastId() {
+        return location.getCoast().getId();
+    }
+
+    public WaveType getWaveType() {
+        return waveDetails.getWaveType();
+    }
+
+    public Double getWaveHeight() {
+        return waveDetails.getWaveHeight();
+    }
+
 
     @Override
     public String toString() {
