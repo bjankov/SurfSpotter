@@ -70,7 +70,7 @@ public class ApplicationContext {
                 new SurfSpotListController(getSurfSpotService(), getSceneNavigator()));
 
          controllerFactories.put(SurfSpotFormController.class, () ->
-                 new SurfSpotFormController(getSurfSpotService(), getSceneNavigator()));
+                 new SurfSpotFormController(getSurfSpotService(), getCoastService(), getSceneNavigator()));
 
          controllerFactories.put(SurfingSchoolListController.class, () ->
                  new SurfingSchoolListController(getSurfingSchoolService(), getSceneNavigator()));

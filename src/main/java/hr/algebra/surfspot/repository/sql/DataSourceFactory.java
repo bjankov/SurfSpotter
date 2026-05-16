@@ -2,6 +2,8 @@ package hr.algebra.surfspot.repository.sql;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import hr.algebra.surfspot.exception.DataAccessException;
+import javafx.fxml.LoadException;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -10,6 +12,9 @@ import java.util.Properties;
 
 public class DataSourceFactory {
     private static final String PROPERTIES_FILE = "/db.properties";
+
+    private DataSourceFactory() {
+    }
 
     public static DataSource createDataSource() {
         Properties props = new Properties();
@@ -30,7 +35,7 @@ public class DataSourceFactory {
 
             return new HikariDataSource(config);
         } catch (IOException e) {
-            throw new RuntimeException("Neuspjelo učitavanje konfiguracije baze", e);
+            throw new DataAccessException("Neuspjelo učitavanje konfiguracije baze", e);
         }
     }
 }

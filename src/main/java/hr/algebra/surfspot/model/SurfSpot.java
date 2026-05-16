@@ -46,7 +46,6 @@ public class SurfSpot {
         private DifficultyLevel difficulty;
         private Set<Month> bestSeason = EnumSet.noneOf(Month.class);
         private Set<Instructor> instructors = new HashSet<>();
-        private Coordinates coordinates;
 
         public Builder id(Long id) {
             this.id = id;
@@ -88,11 +87,6 @@ public class SurfSpot {
             return this;
         }
 
-        public Builder coordinates(Coordinates coordinates) {
-            this.coordinates = coordinates;
-            return this;
-        }
-
         public Builder from(SurfSpot surfSpot) {
             this.id = surfSpot.id;
             this.name = surfSpot.name;
@@ -102,7 +96,6 @@ public class SurfSpot {
             this.difficulty = surfSpot.difficulty;
             this.bestSeason = surfSpot.bestSeason;
             this.instructors = surfSpot.instructors;
-            this.coordinates = surfSpot.location.getCoordinates();
             return this;
         }
 

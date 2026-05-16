@@ -1,17 +1,23 @@
 package hr.algebra.surfspot.controller.surfspot;
 
 import hr.algebra.surfspot.context.SceneNavigator;
+import hr.algebra.surfspot.model.Instructor;
 import hr.algebra.surfspot.model.SurfSpot;
 import hr.algebra.surfspot.service.SurfSpotService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.List;
 
 public class SurfSpotListController {
@@ -22,10 +28,18 @@ public class SurfSpotListController {
     @FXML private TableColumn<SurfSpot, String> locationColumn;
     @FXML private TableColumn<SurfSpot, String> difficultyColumn;
 
+    @FXML private Label locationLabel;
+    @FXML private Label coordinatesLabel;
+    @FXML private Label waveDetailsLabel;
+    @FXML private Label windDetailsLabel;
+    @FXML private Label seasonLabel;
+    @FXML private ImageView spotImageView;
+    @FXML private ListView<Instructor> instructorListView;
+
     private final SurfSpotService surfSpotService;
     private final SceneNavigator sceneNavigator;
 
-    public SurfSpotListController(SurfSpotService surfSpotService , SceneNavigator sceneNavigator) {
+    public SurfSpotListController(SurfSpotService surfSpotService, SceneNavigator sceneNavigator) {
         this.surfSpotService = surfSpotService;
         this.sceneNavigator = sceneNavigator;
     }
@@ -35,7 +49,14 @@ public class SurfSpotListController {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         locationColumn.setCellValueFactory(new PropertyValueFactory<>("location"));
         difficultyColumn.setCellValueFactory(new PropertyValueFactory<>("difficulty"));
+
         loadSurfSpots();
+
+        surfSpotTable.getSelectionModel().selectedItemProperty().addListener(
+                (observable, oldSelection, newSelection) -> populateDetails(newSelection)
+        );
+
+        clearDetails();
     }
 
     private void loadSurfSpots() {
@@ -47,6 +68,56 @@ public class SurfSpotListController {
         } catch (Exception e) {
             log.error("Failed to load surf spots from service", e);
         }
+    }
+
+    private void populateDetails(SurfSpot spot) {
+        if (spot == null) {
+            clearDetails();
+            return;
+        }
+
+        String coastName = (spot.getLocation() != null && spot.getLocation().getCoast() != null)
+                ? spot.getLocation().getCoast().getName() : "?";
+        locationLabel.setText(String.format("%s (%s)", coastName, spot.getCountryCode()));
+
+        coordinatesLabel.setText(spot.getLocation().getCoordinates().toString());
+        waveDetailsLabel.setText(spot.getWaveDetails().toString());
+        seasonLabel.setText(spot.getBestSeason().toString());
+
+        if (spot.getWindDirectionDegrees() != null) {
+            windDetailsLabel.setText(spot.getWindDirectionDegrees() + "°");
+        } else {
+            windDetailsLabel.setText("Nije unesen");
+        }
+
+        if (spot.getInstructors() != null) {
+            instructorListView.setItems(FXCollections.observableArrayList(spot.getInstructors()));
+        } else {
+            instructorListView.getItems().clear();
+        }
+
+        displayImage(spot.getImagePath());
+    }
+
+    private void displayImage(String imagePath) {
+        if (imagePath != null && !imagePath.isBlank()) {
+            File file = new File(imagePath);
+            if (file.exists()) {
+                spotImageView.setImage(new Image(file.toURI().toString()));
+                return;
+            }
+        }
+        spotImageView.setImage(null);
+    }
+
+    private void clearDetails() {
+        locationLabel.setText("-");
+        coordinatesLabel.setText("-");
+        waveDetailsLabel.setText("-");
+        windDetailsLabel.setText("-");
+        seasonLabel.setText("-");
+        instructorListView.getItems().clear();
+        spotImageView.setImage(null);
     }
 
     @FXML
@@ -62,26 +133,24 @@ public class SurfSpotListController {
             log.info("Editing surf spot: {}", selected.getId());
             sceneNavigator.navigateToSurfSpotForm(selected);
         } else {
-            log.warn("Edit clicked but no instructor selected");
+            log.warn("Edit clicked but no surf spot selected");
         }
     }
 
     @FXML
     private void handleDelete() {
-        SurfSpot selectedSurfSpot = surfSpotTable.getSelectionModel().getSelectedItem();
-
-        if (selectedSurfSpot == null) {
-            log.warn("Pokušaj brisanja bez odabranog mjesta za surfanje.");
+        SurfSpot selected = surfSpotTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            log.warn("Delete clicked but no surf spot selected");
             return;
         }
 
         try {
-            surfSpotService.delete(selectedSurfSpot.getId());
-
+            surfSpotService.delete(selected.getId());
             loadSurfSpots();
-            log.info("Mjesto za surfanje {} uspješno obrisano.", selectedSurfSpot.getName());
+            log.info("Surf spot {} successfully deleted", selected.getName());
         } catch (Exception e) {
-            log.error("Greška pri brisanju surf spota", e);
+            log.error("Failed to delete surf spot", e);
         }
     }
 }

@@ -1,22 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<VBox prefHeight="600.0" prefWidth="900.0" spacing="15.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.surfspot.controller.surfspot.SurfSpotListController">
+<VBox prefHeight="600.0" prefWidth="900.0" spacing="15.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.surfspot.controller.surfspot.SurfSpotListController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
@@ -77,28 +67,26 @@
                 </Label>
                 <Label fx:id="coordinatesLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                <Label text="Valovi:" GridPane.rowIndex="3">
-                    <font><Font name="System Bold" size="12.0" /></font>
-                </Label>
-                <Label fx:id="waveDetailsLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
-                <Label text="Vjetar:" GridPane.rowIndex="4">
-                    <font><Font name="System Bold" size="12.0" /></font>
-                </Label>
-                <Label fx:id="windDetailsLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
                 <Label text="Sezona:" GridPane.columnIndex="0" GridPane.rowIndex="2">
                     <font><Font name="System Bold" size="12.0" /></font>
                 </Label>
                 <Label fx:id="seasonLabel" text="-" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                <Label text="Valovi:" GridPane.rowIndex="3">
+                    <font><Font name="System Bold" size="12.0" /></font>
+                </Label>
+                <Label fx:id="waveDetailsLabel" prefWidth="8.0" text="-" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                <Label text="Vjetar:" GridPane.rowIndex="4">
+                    <font><Font name="System Bold" size="12.0" /></font>
+                </Label>
+                <Label fx:id="windDetailsLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="4" />
             <rowConstraints>
                <RowConstraints />
                <RowConstraints />
                <RowConstraints />
                <RowConstraints />
                <RowConstraints />
-               <RowConstraints minHeight="10.0" prefHeight="30.0" />
-               <RowConstraints minHeight="10.0" prefHeight="30.0" />
             </rowConstraints>
             </GridPane>
 

@@ -112,7 +112,6 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
                     .difficulty(spot.getDifficulty())
                     .windDirectionDegrees(spot.getWindDirectionDegrees())
                     .waveDetails(spot.getWaveDetails())
-                    .coordinates(spot.getLocation().getCoordinates())
                     .build();
         }
         throw new RepositoryException("Could not save surf spot");
