@@ -124,6 +124,7 @@ CREATE TABLE surf_spots (
     difficulty TEXT,
     wind_direction INT
         CHECK ( wind_direction >= 0 AND wind_direction < 360),
+    image_path VARCHAR(255),
 
     CONSTRAINT fk_coast
     FOREIGN KEY (coast_id)

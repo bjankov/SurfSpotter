@@ -12,7 +12,7 @@
     </padding>
 
     <HBox alignment="CENTER_LEFT" spacing="10.0">
-        <Label text="Surf Spotovi" textFill="#2c3e50">
+        <Label text="Mjesta za surfanje" textFill="#2c3e50">
             <font>
                 <Font name="System Bold" size="24.0" />
             </font>
@@ -20,7 +20,7 @@
 
         <Region HBox.hgrow="ALWAYS" />
 
-        <Button mnemonicParsing="false" onAction="#handleAdd" style="-fx-background-color: #2ecc71; -fx-text-fill: white;" text="Dodaj novog" />
+        <Button mnemonicParsing="false" onAction="#handleAdd" style="-fx-background-color: #2ecc71; -fx-text-fill: white;" text="Dodaj" />
         <Button mnemonicParsing="false" onAction="#handleEdit" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="Uredi" />
         <Button mnemonicParsing="false" onAction="#handleDelete" style="-fx-background-color: #e74c3c; -fx-text-fill: white;" text="Obriši" />
     </HBox>
