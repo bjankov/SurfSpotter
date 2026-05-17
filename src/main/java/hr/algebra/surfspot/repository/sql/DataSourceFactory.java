@@ -3,7 +3,6 @@ package hr.algebra.surfspot.repository.sql;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import hr.algebra.surfspot.exception.DataAccessException;
-import javafx.fxml.LoadException;
 
 import javax.sql.DataSource;
 import java.io.IOException;

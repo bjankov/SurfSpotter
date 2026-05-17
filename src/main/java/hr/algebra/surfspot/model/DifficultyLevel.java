@@ -1,9 +1,9 @@
 package hr.algebra.surfspot.model;
 
 public enum DifficultyLevel {
-    EASY("Easy"),
-    MEDIUM("Medium"),
-    HARD("Hard"),
+    BEGINNER("Beginner"),
+    INTERMEDIATE("Intermediate"),
+    ADVANCED("Advanced"),
     EXPERT("Expert"),
     PROFESSIONAL("Professional");
 

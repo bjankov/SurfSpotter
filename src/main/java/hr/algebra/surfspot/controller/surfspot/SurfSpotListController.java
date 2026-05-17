@@ -48,7 +48,7 @@ public class SurfSpotListController {
     public void initialize() {
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         locationColumn.setCellValueFactory(new PropertyValueFactory<>("location"));
-        difficultyColumn.setCellValueFactory(new PropertyValueFactory<>("difficulty"));
+        difficultyColumn.setCellValueFactory(new PropertyValueFactory<>("difficultyDisplayValue"));
 
         loadSurfSpots();
 

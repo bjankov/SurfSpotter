@@ -46,8 +46,8 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
         ss.wind_direction,
         coasts.id AS coast_id,
         coasts.name AS coast_name,
-        countries.code AS country_code,
-        countries.name AS country_name
+        countries.name AS country_name,
+        countries.code AS country_code
     FROM surf_spots ss
     JOIN coasts  ON ss.coast_id = coasts.id
     JOIN countries ON coasts.country_code = countries.code
@@ -57,7 +57,6 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
             name,
             latitude,
             longitude,
-            country_code,
             coast_id,
             wave_type,
             wave_height,
@@ -103,7 +102,6 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
                 spot.getName(),
                 spot.getLatitude(),
                 spot.getLongitude(),
-                spot.getCountryCode(),
                 spot.getCoastId(),
                 spot.getWaveType().name(),
                 spot.getWaveHeight(),
@@ -239,12 +237,11 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
     public SurfSpot update(SurfSpot spot) {
         executeUpdate(UPDATE_BY_ID_QUERY,
                 spot.getName(),
-                spot.getLocation().getCoordinates().latitude(),
-                spot.getLocation().getCoordinates().longitude(),
-                spot.getLocation().getCoast().getCountry().code(),
-                spot.getLocation().getCoast().getId(),
-                spot.getWaveDetails().getWaveType().name(),
-                spot.getWaveDetails().getWaveHeight(),
+                spot.getLatitude(),
+                spot.getLongitude(),
+                spot.getCoastId(),
+                spot.getWaveType().name(),
+                spot.getWaveHeight(),
                 spot.getDifficulty().name(),
                 spot.getWindDirectionDegrees(),
                 spot.getId()

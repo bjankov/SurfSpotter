@@ -205,6 +205,10 @@ public class SurfSpot {
         return waveDetails.getWaveType();
     }
 
+    public String getDifficultyDisplayValue() {
+        return difficulty.getDisplayValue();
+    }
+
     public Double getWaveHeight() {
         return waveDetails.getWaveHeight();
     }
