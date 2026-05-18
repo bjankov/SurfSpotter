@@ -9,13 +9,10 @@
            <fx:define>
                <ToggleGroup fx:id="navigationGroup" />
            </fx:define>
-           <ToggleButton mnemonicParsing="false" onAction="#showSurfSpots" text="Surf Spots">
-            <toggleGroup>
-               <ToggleGroup fx:id="navigationGroup" />
-            </toggleGroup></ToggleButton>
-           <ToggleButton mnemonicParsing="false" onAction="#showSurfingSchools" text="Surfing Schools" toggleGroup="$navigationGroup" />
-           <ToggleButton mnemonicParsing="false" onAction="#showInstructors" text="Surfing Instructors" toggleGroup="$navigationGroup" />
-           <ToggleButton mnemonicParsing="false" onAction="#showCoasts" text="Coasts" toggleGroup="$navigationGroup" />
+           <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showSurfSpots" text="Surf Spots" toggleGroup="$navigationGroup" />
+           <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showSurfingSchools" text="Surfing Schools" toggleGroup="$navigationGroup" />
+           <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showInstructors" text="Surfing Instructors" toggleGroup="$navigationGroup" />
+           <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showCoasts" text="Coasts" toggleGroup="$navigationGroup" />
        </VBox>
    </left>
    <top>
