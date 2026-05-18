@@ -24,12 +24,12 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
             SET name = ?,
                 latitude = ?,
                 longitude = ?,
-                country_code = ?,
                 coast_id = ?,
                 wave_type = ?,
                 wave_height = ?,
                 difficulty = ?,
-                wind_direction = ?
+                wind_direction = ?,
+                image_path = ?
             WHERE id = ?;""";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM surf_spots WHERE id = ?";
     private static final String FIND_BY_NAME_QUERY = "SELECT * FROM surf_spots WHERE name = ?";
@@ -47,7 +47,8 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
         coasts.id AS coast_id,
         coasts.name AS coast_name,
         countries.name AS country_name,
-        countries.code AS country_code
+        countries.code AS country_code,
+        ss.image_path
     FROM surf_spots ss
     JOIN coasts  ON ss.coast_id = coasts.id
     JOIN countries ON coasts.country_code = countries.code
@@ -61,14 +62,15 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
             wave_type,
             wave_height,
             difficulty,
-            wind_direction
+            wind_direction,
+            image_path
             )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
      """;
     private static final String INSERT_MONTHS_QUERY = "INSERT INTO surf_spot_months (surf_spot_id, month_name) VALUES (?, ?)";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM surf_spots WHERE id = ?";
     private static final String DELETE_MONTHS_QUERY = "DELETE FROM surf_spot_months WHERE surf_spot_id = ?";
-    private static final String COUNT_BY_COUNTRY_CODE_QUERY =  "SELECT COUNT(*) FROM surf_spots WHERE country_code = ?";
+    private static final String COUNT_BY_COUNTRY_CODE_QUERY =  "SELECT COUNT(*) FROM surf_spots ss JOIN coasts c ON ss.coast_id = c.id WHERE c.country_code = ?";
     private static final String COUNT_BY_DIFFICULTY_QUERY = "SELECT COUNT(*) FROM surf_spots WHERE difficulty = ?";
     private static final String COUNT_BY_WAVE_TYPE_QUERY = "SELECT COUNT(*) FROM surf_spots WHERE wave_type = ?";
     private static final String COUNT_BY_COAST_ID_QUERY = "SELECT COUNT(*) FROM surf_spots WHERE coast_id = ?";
@@ -106,7 +108,8 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
                 spot.getWaveType().name(),
                 spot.getWaveHeight(),
                 spot.getDifficulty().name(),
-                spot.getWindDirectionDegrees()
+                spot.getWindDirectionDegrees(),
+                spot.getImagePath()
         );
 
         if (generatedId != null) {
@@ -120,6 +123,7 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
                     .difficulty(spot.getDifficulty())
                     .windDirectionDegrees(spot.getWindDirectionDegrees())
                     .waveDetails(spot.getWaveDetails())
+                    .imagePath(spot.getImagePath())
                     .build();
         }
         throw new RepositoryException("Could not save surf spot");
@@ -244,6 +248,7 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
                 spot.getWaveHeight(),
                 spot.getDifficulty().name(),
                 spot.getWindDirectionDegrees(),
+                spot.getImagePath(),
                 spot.getId()
         );
 

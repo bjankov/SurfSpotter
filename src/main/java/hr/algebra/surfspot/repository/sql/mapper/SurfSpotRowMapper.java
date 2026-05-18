@@ -42,6 +42,7 @@ public class SurfSpotRowMapper implements RowMapper<SurfSpot> {
                 .windDirectionDegrees(resultSet.getInt("wind_direction"))
                 .difficulty(DifficultyLevel.valueOf(resultSet.getString("difficulty")))
                 .bestSeason(EnumSet.noneOf(Month.class))
+                .imagePath(resultSet.getString("image_path"))
                 .build();
     }
 }

@@ -4,21 +4,28 @@ import hr.algebra.surfspot.context.SceneNavigator;
 import hr.algebra.surfspot.model.*;
 import hr.algebra.surfspot.service.CoastService;
 import hr.algebra.surfspot.service.SurfSpotService;
+import hr.algebra.surfspot.util.ImageStorage;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
+import javafx.stage.FileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Path;
 import java.util.*;
 
 public class SurfSpotFormController {
     private static final Logger log = LoggerFactory.getLogger(SurfSpotFormController.class);
+    private Path selectedImageFile = null;
 
     @FXML private Label formTitleLabel;
     @FXML private TextField nameField;
@@ -30,6 +37,7 @@ public class SurfSpotFormController {
     @FXML private ComboBox<DifficultyLevel> difficultyComboBox;
     @FXML private TextField windDirectionField;
     @FXML private FlowPane monthsFlowPane;
+    @FXML private ImageView formImageView;
 
     private final SurfSpotService surfSpotService;
     private final CoastService coastService;
@@ -85,9 +93,30 @@ public class SurfSpotFormController {
                     }
                 });
             }
+
+            if (spot.getImagePath() != null && !spot.getImagePath().isBlank()) {
+                java.nio.file.Path imagePath = ImageStorage.getStorageDir().resolve(spot.getImagePath());
+                if (java.nio.file.Files.exists(imagePath)) {
+                    formImageView.setImage(new Image(imagePath.toUri().toString()));
+                } else {
+                    loadDefaultFormImage();
+                }
+            } else {
+                loadDefaultFormImage();
+            }
         } else {
             formTitleLabel.setText("Novi surf spot");
             clearForm();
+            loadDefaultFormImage();
+        }
+    }
+
+    private void loadDefaultFormImage() {
+        java.net.URL defaultUrl = getClass().getResource("/images/default.jpg");
+        if (defaultUrl != null) {
+            formImageView.setImage(new Image(defaultUrl.toExternalForm()));
+        } else {
+            formImageView.setImage(null);
         }
     }
 
@@ -97,6 +126,16 @@ public class SurfSpotFormController {
             if (nameField.getText().isBlank() || coastComboBox.getValue() == null) {
                 log.warn("Validation failed: Name or Coast is missing.");
                 return;
+            }
+
+            String imageName = currentSurfSpot != null ? currentSurfSpot.getImagePath() : null;
+
+            if (selectedImageFile != null) {
+                try {
+                    imageName = ImageStorage.saveImage(selectedImageFile);
+                } catch (IOException e) {
+                    log.error("Greška pri spremanju slike", e);
+                }
             }
 
             BigDecimal lat = new BigDecimal(latitudeField.getText().trim());
@@ -124,7 +163,8 @@ public class SurfSpotFormController {
                     .waveDetails(waveDetails)
                     .difficulty(difficultyComboBox.getValue())
                     .windDirectionDegrees(Integer.parseInt(windDirectionField.getText().trim()))
-                    .bestSeason(bestSeason) // Dodano!
+                    .bestSeason(bestSeason)
+                    .imagePath(imageName)
                     .build();
 
             surfSpotService.save(spot);
@@ -154,5 +194,20 @@ public class SurfSpotFormController {
         difficultyComboBox.setValue(null);
         windDirectionField.clear();
         monthCheckBoxes.values().forEach(cb -> cb.setSelected(false));
+    }
+
+    @FXML
+    private void handleChooseImage() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Odaberi sliku surf spota");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Slike", "*.jpg", "*.jpeg", "*.png")
+        );
+
+        java.io.File file = fileChooser.showOpenDialog(formImageView.getScene().getWindow());
+        if (file != null) {
+            selectedImageFile = file.toPath();
+            formImageView.setImage(new Image(file.toURI().toString()));
+        }
     }
 }

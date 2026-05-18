@@ -35,6 +35,7 @@ public class SurfSpot {
         this.difficulty = builder.difficulty;
         this.bestSeason = builder.bestSeason;
         this.instructors = builder.instructors;
+        this.imagePath = builder.imagePath;
     }
 
     public static class Builder {
@@ -44,6 +45,7 @@ public class SurfSpot {
         private WaveDetails waveDetails;
         private Integer windDirectionDegrees;
         private DifficultyLevel difficulty;
+        private String imagePath;
         private Set<Month> bestSeason = EnumSet.noneOf(Month.class);
         private Set<Instructor> instructors = new HashSet<>();
 
@@ -87,6 +89,11 @@ public class SurfSpot {
             return this;
         }
 
+        public Builder imagePath(String imagePath) {
+            this.imagePath = imagePath;
+            return this;
+        }
+
         public Builder from(SurfSpot surfSpot) {
             this.id = surfSpot.id;
             this.name = surfSpot.name;
@@ -96,6 +103,7 @@ public class SurfSpot {
             this.difficulty = surfSpot.difficulty;
             this.bestSeason = surfSpot.bestSeason;
             this.instructors = surfSpot.instructors;
+            this.imagePath = surfSpot.imagePath;
             return this;
         }
 
@@ -243,5 +251,19 @@ public class SurfSpot {
             (!bestSeason.isEmpty() ? bestSeason.toString() : "Nije uneseno"),
             (!instructors.isEmpty() ? instructors.toString() : "Nije uneseno"),
             imagePath);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SurfSpot surfSpot = (SurfSpot) o;
+
+        return id != null && id.equals(surfSpot.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
