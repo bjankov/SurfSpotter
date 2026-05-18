@@ -1,16 +1,11 @@
 package hr.algebra.surfspot.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
 public class Role {
-    private static final Logger log = LoggerFactory.getLogger(Role.class);
-
     private final Long id;
     private final String name;
     private final Set<Permission> permissions;

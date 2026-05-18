@@ -1,11 +1,6 @@
 package hr.algebra.surfspot.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class WaveDetails {
-    private static final Logger log = LoggerFactory.getLogger(WaveDetails.class);
-
     private WaveType waveType;
     private Double waveHeight;
 

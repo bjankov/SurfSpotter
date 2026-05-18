@@ -1,13 +1,8 @@
 package hr.algebra.surfspot.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Objects;
 
 public class Coast {
-    private static final Logger log = LoggerFactory.getLogger(Coast.class);
-
     private Long id;
     private String name;
     private Country country;

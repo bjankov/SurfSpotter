@@ -1,13 +1,8 @@
 package hr.algebra.surfspot.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Objects;
 
 public class Instructor {
-    private static final Logger log = LoggerFactory.getLogger(Instructor.class);
-
     private Long id;
     private String firstName;
     private String lastName;
