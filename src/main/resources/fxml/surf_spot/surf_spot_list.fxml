@@ -50,7 +50,7 @@
             </columnResizePolicy>
         </TableView>
 
-        <VBox minWidth="300.0" spacing="10.0" style="-fx-background-color: #f8f9fa;">
+        <VBox maxWidth="300.0" minWidth="300.0" spacing="10.0" style="-fx-background-color: #f8f9fa;">
             <padding>
                 <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
             </padding>

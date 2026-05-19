@@ -208,7 +208,12 @@ INSERT INTO role_permissions (role_id, permission_name) VALUES
     (1, 'SURF_SPOT_VIEW'),
     (1, 'SURF_SPOT_MODIFY'),
     (1, 'SURF_SPOT_DELETE'),
-    (1, 'MANAGE_USERS');
+    (1, 'MANAGE_USERS'),
+    (1, 'MANAGE_COUNTRIES'),
+    (2, 'SURF_SPOT_CREATE'),
+    (2, 'SURF_SPOT_VIEW'),
+    (2, 'SURF_SPOT_MODIFY'),
+    (2, 'SURF_SPOT_DELETE');
 
 -- Postavljanje ID generatora na najveci postavljeni ID + 1
 SELECT setval(pg_get_serial_sequence('users', 'id'), coalesce(max(id), 1)) FROM users;

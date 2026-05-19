@@ -1,14 +1,26 @@
 package hr.algebra.surfspot.controller;
 
+import hr.algebra.surfspot.context.ApplicationContext;
 import hr.algebra.surfspot.context.SceneNavigator;
+import hr.algebra.surfspot.model.Permission;
+import hr.algebra.surfspot.model.User;
 import javafx.fxml.FXML;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.StackPane;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MainLayoutController {
 
+    private static final Logger log = LoggerFactory.getLogger(MainLayoutController.class);
     @FXML private StackPane contentArea;
     @FXML private ToggleGroup navigationGroup;
+
+    @FXML private ToggleButton usersToggleButton;
+    @FXML private ToggleButton countriesToggleButton;
+    @FXML private ToggleButton schoolsToggleButton;
+    @FXML private ToggleButton instructorsToggleButton;
 
     private final SceneNavigator navigator;
 
@@ -20,7 +32,24 @@ public class MainLayoutController {
     public void initialize() {
         navigator.setMainContentArea(contentArea);
 
+        User currentUser = ApplicationContext.getInstance().getSession().getCurrentUser();
+
+        setupForUser(currentUser);
+
         showSurfSpots();
+    }
+
+    private void setupForUser(User user) {
+        usersToggleButton.managedProperty().bind(usersToggleButton.visibleProperty());
+        countriesToggleButton.managedProperty().bind(countriesToggleButton.visibleProperty());
+
+        if (user != null) {
+            usersToggleButton.setVisible(user.hasPermission(Permission.MANAGE_USERS));
+            countriesToggleButton.setVisible(user.hasPermission(Permission.MANAGE_COUNTRIES));
+        } else {
+            usersToggleButton.setVisible(false);
+            countriesToggleButton.setVisible(false);
+        }
     }
 
     @FXML
@@ -40,7 +69,22 @@ public class MainLayoutController {
 
     @FXML
     private void handleLogout() {
+        ApplicationContext.getInstance().getSession().logout();
         navigator.navigateToLogin();
+    }
+
+    @FXML
+    private void showUsers() {
+        if (ApplicationContext.getInstance().getSession().getCurrentUser().hasPermission(Permission.MANAGE_USERS)) {
+            navigator.navigateToUserList();
+        }
+    }
+
+    @FXML
+    private void showCountries() {
+        if (ApplicationContext.getInstance().getSession().getCurrentUser().hasPermission(Permission.MANAGE_COUNTRIES)) {
+            navigator.navigateToCountryList();
+        }
     }
 
     public void showCoasts() {

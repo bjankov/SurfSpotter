@@ -6,11 +6,12 @@ import java.util.Objects;
 import java.util.Set;
 
 public class User {
-    private Long id;
+    private final Long id;
     private String username;
     private String email;
-    private String passwordHash;
+    private final String passwordHash;
     private Set<Role> roles = new HashSet<>();
+    private Set<Permission> permissions = new HashSet<>();
 
     private User(Builder builder) {
         this.id = builder.id;
@@ -18,6 +19,7 @@ public class User {
         this.passwordHash = builder.passwordHash;
         this.email = builder.email;
         this.roles = builder.roles;
+        this.permissions = builder.permissions;
     }
 
     public static Builder builder() {
@@ -30,6 +32,7 @@ public class User {
         private String passwordHash;
         private String email;
         private Set<Role> roles = new HashSet<>();
+        private Set<Permission> permissions = new HashSet<>();
 
         public Builder id(Long id) {
             this.id = id;
@@ -69,12 +72,31 @@ public class User {
             return this;
         }
 
+        public Builder addPermission(Permission permission) {
+            if (permission == null) {
+                return this;
+            }
+            if (this.permissions == null) {
+                this.permissions = new HashSet<>();
+            }
+            this.permissions.add(permission);
+            return this;
+        }
+
+        public Builder withPermissions(Set<Permission> permissions) {
+            if (permissions != null) {
+                this.permissions = new HashSet<>(permissions);
+            }
+            return this;
+        }
+
         public Builder from(User user) {
             this.id = user.id;
             this.username = user.username;
             this.passwordHash = user.passwordHash;
             this.email = user.email;
             this.roles = new HashSet<>(user.roles);
+            this.permissions = new HashSet<>(user.permissions);
             return this;
         }
 
@@ -91,6 +113,10 @@ public class User {
         return username;
     }
 
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
     public String getPasswordHash() {
         return passwordHash;
     }
@@ -99,14 +125,24 @@ public class User {
         return email;
     }
 
-    public Boolean hasPermission(Permission permission) {
-        return roles.stream()
-                .flatMap(role -> role.getPermissions().stream())
-                .anyMatch(p -> p == permission);
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public Set<Role> getRoles() {
         return Collections.unmodifiableSet(roles);
+    }
+
+    public Set<Permission> getPermissions() {
+        return Collections.unmodifiableSet(permissions);
+    }
+
+    public void setPermissions(Set<Permission> permissions) {
+        this.permissions = permissions != null ? new HashSet<>(permissions) : new HashSet<>();
+    }
+
+    public Boolean hasPermission(Permission permission) {
+        return permissions != null && permissions.contains(permission);
     }
 
     @Override
@@ -114,7 +150,7 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        
+
         if (id != null && user.id != null) {
             return Objects.equals(id, user.id);
         }

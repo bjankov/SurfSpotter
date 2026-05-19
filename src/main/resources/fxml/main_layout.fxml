@@ -13,6 +13,8 @@
            <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showSurfingSchools" text="Surfing Schools" toggleGroup="$navigationGroup" />
            <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showInstructors" text="Surfing Instructors" toggleGroup="$navigationGroup" />
            <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showCoasts" text="Coasts" toggleGroup="$navigationGroup" />
+           <ToggleButton fx:id="countriesToggleButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showCountries" text="Countries" toggleGroup="$navigationGroup" />
+           <ToggleButton fx:id="usersToggleButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showUsers" text="Users" toggleGroup="$navigationGroup" />
        </VBox>
    </left>
    <top>

@@ -68,7 +68,7 @@ public class SurfingSchoolListController {
         SurfingSchool selectedSurfingSchool = surfingSchoolTable.getSelectionModel().getSelectedItem();
 
         if (selectedSurfingSchool == null) {
-            log.warn("Pokušaj brisanja bez odabranog instruktora.");
+            log.warn("Pokušaj brisanja bez odabrane skole.");
             return;
         }
 

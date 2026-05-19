@@ -6,12 +6,18 @@ import hr.algebra.surfspot.controller.auth.LoginController;
 import hr.algebra.surfspot.controller.auth.RegisterController;
 import hr.algebra.surfspot.controller.coast.CoastFormController;
 import hr.algebra.surfspot.controller.coast.CoastListController;
+import hr.algebra.surfspot.controller.country.CountryFormController;
+import hr.algebra.surfspot.controller.country.CountryListController;
 import hr.algebra.surfspot.controller.instructor.InstructorFormController;
 import hr.algebra.surfspot.controller.instructor.InstructorListController;
 import hr.algebra.surfspot.controller.school.SurfingSchoolFormController;
 import hr.algebra.surfspot.controller.school.SurfingSchoolListController;
 import hr.algebra.surfspot.controller.surfspot.SurfSpotFormController;
 import hr.algebra.surfspot.controller.surfspot.SurfSpotListController;
+import hr.algebra.surfspot.controller.user.UserFormController;
+import hr.algebra.surfspot.controller.user.UserListController;
+import hr.algebra.surfspot.repository.RoleRepository;
+import hr.algebra.surfspot.repository.UserRepository;
 import hr.algebra.surfspot.repository.sql.DataSourceFactory;
 import hr.algebra.surfspot.service.*;
 import javafx.stage.Stage;
@@ -35,6 +41,12 @@ public class ApplicationContext {
         RepositoryRegistry repositoryRegistry = new RepositoryRegistry(dataSource);
 
         this.services = new ServiceRegistry(repositoryRegistry);
+
+        new DatabaseSeeder(
+                repositoryRegistry.getRepository(UserRepository.class),
+                repositoryRegistry.getRepository(RoleRepository.class),
+                services.getPasswordService()
+        ).seed();
 
         this.session = new UserSession();
         this.navigator = new SceneNavigator(this);
@@ -83,6 +95,18 @@ public class ApplicationContext {
 
          controllerFactories.put(CoastFormController.class, () ->
                  new CoastFormController(getCoastService(), getCountryService(), getSceneNavigator()));
+
+         controllerFactories.put(CountryListController.class, () ->
+                 new CountryListController(getCountryService(), getSceneNavigator()));
+
+        controllerFactories.put(CountryFormController.class, () ->
+                new CountryFormController(getCountryService(), getSceneNavigator()));
+
+        controllerFactories.put(UserListController.class, () ->
+                new UserListController(getUserService(), getSceneNavigator()));
+
+        controllerFactories.put(UserFormController.class, () ->
+                new UserFormController(getUserService(), getSceneNavigator()));
     }
 
     public Object getController(Class<?> controllerClass) {
@@ -99,6 +123,7 @@ public class ApplicationContext {
     public SurfingSchoolService getSurfingSchoolService() { return services.getSurfingSchoolService(); }
     public CoastService getCoastService() { return services.getCoastService(); }
     public CountryService getCountryService() { return services.getCountryService(); }
+    public UserService getUserService() { return services.getUserService(); }
     public UserSession getSession() { return session; }
     public SceneNavigator getSceneNavigator() { return navigator; }
 

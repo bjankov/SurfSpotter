@@ -37,7 +37,7 @@ public class LoginController extends BaseController {
 
         try {
             User user = authService.login(usernameOrEmail, password);
-            userSession.login(user); // Više ne koristimo applicationContext.setCurrentUser
+            userSession.login(user);
             sceneNavigator.navigateToMain();
 
         } catch (ValidationException | AuthenticationException e) {

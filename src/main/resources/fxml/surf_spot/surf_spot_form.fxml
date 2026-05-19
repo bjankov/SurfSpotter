@@ -76,7 +76,7 @@
             <MenuButton fx:id="seasonMenuButton" maxWidth="1.7976931348623157E308" text="Odaberi mjesece" GridPane.columnIndex="1" GridPane.rowIndex="8" />
         </GridPane>
 
-        <VBox alignment="TOP_CENTER" minWidth="200.0" spacing="15.0" style="-fx-background-color: #f8f9fa; -fx-border-color: #ecf0f1; -fx-border-radius: 5; -fx-background-radius: 5;">
+        <VBox alignment="TOP_CENTER" minWidth="300.0" spacing="15.0" style="-fx-background-color: #f8f9fa; -fx-border-color: #ecf0f1; -fx-border-radius: 5; -fx-background-radius: 5;">
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>

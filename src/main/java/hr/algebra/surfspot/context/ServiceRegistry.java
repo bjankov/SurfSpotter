@@ -14,6 +14,8 @@ public class ServiceRegistry {
     private final SurfingSchoolService surfingSchoolService;
     private final CoastService coastService;
     private final CountryService countryService;
+    private final UserService userService;
+    private final PasswordService passwordService;
 
     public ServiceRegistry(RepositoryRegistry repositoryRegistry) {
         UserRepository userRepository = repositoryRegistry.getRepository(UserRepository.class);
@@ -40,6 +42,12 @@ public class ServiceRegistry {
         this.countryService = new CountryServiceImpl(
                 repositoryRegistry.getRepository(CountryRepository.class)
         );
+
+        this.userService = new UserServiceImpl(
+                repositoryRegistry.getRepository(UserRepository.class)
+        );
+
+        this.passwordService = new BCryptPasswordService();
     }
 
     public AuthService getAuthService() { return authService; }
@@ -62,5 +70,11 @@ public class ServiceRegistry {
 
     public CountryService getCountryService() {
         return countryService;
+    }
+
+    public UserService getUserService() { return userService; }
+
+    public PasswordService getPasswordService() {
+        return passwordService;
     }
 }

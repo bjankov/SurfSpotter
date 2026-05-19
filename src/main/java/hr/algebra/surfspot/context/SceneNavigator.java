@@ -2,13 +2,12 @@ package hr.algebra.surfspot.context;
 
 import hr.algebra.surfspot.controller.auth.AuthLayoutController;
 import hr.algebra.surfspot.controller.coast.CoastFormController;
+import hr.algebra.surfspot.controller.country.CountryFormController;
 import hr.algebra.surfspot.controller.instructor.InstructorFormController;
 import hr.algebra.surfspot.controller.school.SurfingSchoolFormController;
 import hr.algebra.surfspot.controller.surfspot.SurfSpotFormController;
-import hr.algebra.surfspot.model.Coast;
-import hr.algebra.surfspot.model.Instructor;
-import hr.algebra.surfspot.model.SurfSpot;
-import hr.algebra.surfspot.model.SurfingSchool;
+import hr.algebra.surfspot.controller.user.UserFormController;
+import hr.algebra.surfspot.model.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -178,10 +177,57 @@ public class SceneNavigator {
         }
     }
 
+    public void navigateToUserForm(User user) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/user/user_form.fxml"));
+            loader.setControllerFactory(context::getController);
+            Parent formNode = loader.load();
+
+            UserFormController controller = loader.getController();
+            controller.setUser(user);
+
+            displayInMain(formNode);
+        } catch (IOException e) {
+            throw new RuntimeException("Greška pri otvaranju forme korisnika", e);
+        }
+    }
+
+    public void navigateToUserList() {
+        try {
+            Parent listNode = loadFXML("/fxml/user/user_list.fxml");
+            displayInMain(listNode);
+        } catch (IOException e) {
+            throw new RuntimeException("Greška pri učitavanju liste korisnika", e);
+        }
+    }
+
+    public void navigateToCountryForm(Country country) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/country/country_form.fxml"));
+            loader.setControllerFactory(context::getController);
+            Parent formNode = loader.load();
+
+            CountryFormController controller = loader.getController();
+            controller.setCountry(country);
+
+            displayInMain(formNode);
+        } catch (IOException e) {
+            throw new RuntimeException("Greška pri otvaranju forme drzave", e);
+        }
+    }
+
+    public void navigateToCountryList() {
+        try {
+            Parent listNode = loadFXML("/fxml/country/country_list.fxml");
+            displayInMain(listNode);
+        } catch (IOException e) {
+            throw new RuntimeException("Greška pri učitavanju liste drzava", e);
+        }
+    }
+
     public Parent loadFXML(String fxmlPath) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
         loader.setControllerFactory(context::getController);
         return loader.load();
     }
-
 }

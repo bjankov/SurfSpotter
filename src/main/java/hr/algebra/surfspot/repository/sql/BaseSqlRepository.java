@@ -32,7 +32,7 @@ public abstract class BaseSqlRepository<T> {
                 }
             }
         } catch (SQLException e) {
-            throw new RepositoryException("Greska u bazi:" + e.getMessage());
+            throw new RepositoryException("Greska u bazi: " + e.getMessage());
         }
         return Optional.empty();
     }

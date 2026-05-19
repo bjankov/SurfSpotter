@@ -20,6 +20,7 @@ public class RowMapperFactory {
         mappers.put(SurfingSchool.class, new SurfingSchoolRowMapper());
         mappers.put(SurfSpot.class, new SurfSpotRowMapper());
         mappers.put(User.class, new UserRowMapper());
+        mappers.put(Permission.class, new PermissionRowMapper());
     }
 
     public static RowMapperFactory getInstance() {

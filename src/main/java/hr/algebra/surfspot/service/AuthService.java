@@ -33,6 +33,8 @@ public class AuthService {
                     return new AuthenticationException("Neispravni podaci sa prijavu.");
                 });
 
+        user.setPermissions(userRepository.findPermissionsByUserId(user.getId()));
+
         if (!passwordService.verify(password, user.getPasswordHash())) {
             log.warn("Failed login attempt for user: {}", user.getUsername());
             throw new AuthenticationException("Neispravni podaci za prijavu");
