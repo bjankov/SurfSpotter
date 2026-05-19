@@ -1,18 +1,27 @@
 package hr.algebra.surfspot.model;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+
 import java.math.BigDecimal;
 import java.util.*;
 
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
+@JacksonXmlRootElement(localName = "SurfSpot")
 public class SurfSpot {
-    private Long id;
+    private transient Long id;
     private String name;
-    private Location location;
-    private WaveDetails waveDetails;
-    private Integer windDirectionDegrees;
+    private transient Location location;
+    private transient WaveDetails waveDetails;
+    private transient Integer windDirectionDegrees;
     private DifficultyLevel difficulty;
+    @JacksonXmlElementWrapper(localName = "bestSeason")
+    @JacksonXmlProperty(localName = "month")
     private Set<Month> bestSeason = EnumSet.noneOf(Month.class);
-    private Set<Instructor> instructors = new HashSet<>();
-    private String imagePath;
+    private transient Set<Instructor> instructors = new HashSet<>();
+    private transient String imagePath;
 
     public static Builder builder() {
         return new Builder();

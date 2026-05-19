@@ -1,5 +1,8 @@
 package hr.algebra.surfspot.controller.surfspot;
 
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import hr.algebra.surfspot.context.SceneNavigator;
 import hr.algebra.surfspot.model.Instructor;
 import hr.algebra.surfspot.model.SurfSpot;
@@ -19,9 +22,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -352,6 +357,37 @@ public class SurfSpotListController {
             spotImageView.setImage(new Image(defaultUrl.toExternalForm()));
         } else {
             spotImageView.setImage(null);
+        }
+    }
+
+    @FXML
+    private void handleExport() {
+        if (itineraryListView.getItems().isEmpty()) {
+            log.warn("Itinerary is empty, nothing to export.");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Itinerary");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML Files", "*.xml"));
+
+        File file = fileChooser.showSaveDialog(itineraryListView.getScene().getWindow());
+
+        if (file != null) {
+            try {
+                XmlMapper xmlMapper = XmlMapper.builder()
+                        .enable(SerializationFeature.INDENT_OUTPUT)
+                        .enable(MapperFeature.PROPAGATE_TRANSIENT_MARKER)
+                        .build();
+
+                xmlMapper.writer()
+                        .withRootName("PlanPutovanja")
+                        .writeValue(file, itineraryListView.getItems());
+
+                log.info("Itinerary successfully exported to: {}", file.getAbsolutePath());
+            } catch (Exception e) {
+                log.error("Export failed", e);
+            }
         }
     }
 }

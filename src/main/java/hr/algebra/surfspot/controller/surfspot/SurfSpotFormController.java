@@ -7,13 +7,9 @@ import hr.algebra.surfspot.service.SurfSpotService;
 import hr.algebra.surfspot.util.ImageStorage;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.FlowPane;
 import javafx.stage.FileChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +18,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class SurfSpotFormController {
     private static final Logger log = LoggerFactory.getLogger(SurfSpotFormController.class);
@@ -36,13 +33,13 @@ public class SurfSpotFormController {
     @FXML private TextField waveHeightField;
     @FXML private ComboBox<DifficultyLevel> difficultyComboBox;
     @FXML private TextField windDirectionField;
-    @FXML private FlowPane monthsFlowPane;
+    @FXML private MenuButton seasonMenuButton;
     @FXML private ImageView formImageView;
 
     private final SurfSpotService surfSpotService;
     private final CoastService coastService;
     private final SceneNavigator sceneNavigator;
-    private final Map<Month, CheckBox> monthCheckBoxes = new EnumMap<>(Month.class);
+    private final Set<Month> selectedMonths = EnumSet.noneOf(Month.class);
     private SurfSpot currentSurfSpot;
 
     public SurfSpotFormController(SurfSpotService surfSpotService, CoastService coastService, SceneNavigator sceneNavigator) {
@@ -58,11 +55,7 @@ public class SurfSpotFormController {
         waveTypeComboBox.setItems(FXCollections.observableArrayList(WaveType.values()));
         difficultyComboBox.setItems(FXCollections.observableArrayList(DifficultyLevel.values()));
 
-        for (Month month : Month.values()) {
-            CheckBox checkBox = new CheckBox(month.name());
-            monthCheckBoxes.put(month, checkBox);
-            monthsFlowPane.getChildren().add(checkBox);
-        }
+        setupSeasonMenu();
     }
 
     public void setSurfSpot(SurfSpot spot) {
@@ -85,14 +78,18 @@ public class SurfSpotFormController {
             difficultyComboBox.setValue(spot.getDifficulty());
             windDirectionField.setText(spot.getWindDirectionDegrees() != null ? spot.getWindDirectionDegrees().toString() : "");
 
-            monthCheckBoxes.values().forEach(cb -> cb.setSelected(false)); // Očisti sve
+            selectedMonths.clear();
             if (spot.getBestSeason() != null) {
-                spot.getBestSeason().forEach(month -> {
-                    if (monthCheckBoxes.containsKey(month)) {
-                        monthCheckBoxes.get(month).setSelected(true);
-                    }
-                });
+                selectedMonths.addAll(spot.getBestSeason());
             }
+
+            for (MenuItem item : seasonMenuButton.getItems()) {
+                if (item instanceof CustomMenuItem customItem && customItem.getContent() instanceof CheckBox cb) {
+                    Month month = Month.valueOf(cb.getText());
+                    cb.setSelected(selectedMonths.contains(month));
+                }
+            }
+            updateSeasonMenuText();
 
             if (spot.getImagePath() != null && !spot.getImagePath().isBlank()) {
                 java.nio.file.Path imagePath = ImageStorage.getStorageDir().resolve(spot.getImagePath());
@@ -149,13 +146,6 @@ public class SurfSpotFormController {
             Double waveHeight = Double.parseDouble(waveHeightField.getText().trim());
             WaveDetails waveDetails = new WaveDetails(waveType, waveHeight);
 
-            Set<Month> bestSeason = EnumSet.noneOf(Month.class);
-            for (Map.Entry<Month, CheckBox> entry : monthCheckBoxes.entrySet()) {
-                if (entry.getValue().isSelected()) {
-                    bestSeason.add(entry.getKey());
-                }
-            }
-
             SurfSpot spot = SurfSpot.builder()
                     .id(currentSurfSpot != null ? currentSurfSpot.getId() : null)
                     .name(nameField.getText().trim())
@@ -163,7 +153,7 @@ public class SurfSpotFormController {
                     .waveDetails(waveDetails)
                     .difficulty(difficultyComboBox.getValue())
                     .windDirectionDegrees(Integer.parseInt(windDirectionField.getText().trim()))
-                    .bestSeason(bestSeason)
+                    .bestSeason(selectedMonths.isEmpty() ? EnumSet.noneOf(Month.class) : EnumSet.copyOf(selectedMonths))
                     .imagePath(imageName)
                     .build();
 
@@ -193,7 +183,14 @@ public class SurfSpotFormController {
         waveHeightField.clear();
         difficultyComboBox.setValue(null);
         windDirectionField.clear();
-        monthCheckBoxes.values().forEach(cb -> cb.setSelected(false));
+
+        selectedMonths.clear();
+        for (MenuItem item : seasonMenuButton.getItems()) {
+            if (item instanceof CustomMenuItem customItem && customItem.getContent() instanceof CheckBox cb) {
+                cb.setSelected(false);
+            }
+        }
+        updateSeasonMenuText();
     }
 
     @FXML
@@ -208,6 +205,44 @@ public class SurfSpotFormController {
         if (file != null) {
             selectedImageFile = file.toPath();
             formImageView.setImage(new Image(file.toURI().toString()));
+        }
+    }
+
+    private void setupSeasonMenu() {
+        seasonMenuButton.getItems().clear();
+
+        for (Month month : Month.values()) {
+            CheckBox checkBox = new CheckBox(month.name());
+            checkBox.setMaxWidth(Double.MAX_VALUE);
+
+            CustomMenuItem menuItem = new CustomMenuItem(checkBox);
+            menuItem.setHideOnClick(false);
+
+            checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue) {
+                    selectedMonths.add(month);
+                } else {
+                    selectedMonths.remove(month);
+                }
+                updateSeasonMenuText();
+            });
+
+            seasonMenuButton.getItems().add(menuItem);
+        }
+    }
+
+    private void updateSeasonMenuText() {
+        if (selectedMonths.isEmpty()) {
+            seasonMenuButton.setText("Odaberi mjesece");
+        } else {
+            if (selectedMonths.size() <= 3) {
+                String text = selectedMonths.stream()
+                        .map(Enum::name)
+                        .collect(Collectors.joining(", "));
+                seasonMenuButton.setText(text);
+            } else {
+                seasonMenuButton.setText(selectedMonths.size() + " mjeseci odabrano");
+            }
         }
     }
 }

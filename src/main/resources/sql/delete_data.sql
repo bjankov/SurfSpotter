@@ -9,6 +9,5 @@ TRUNCATE TABLE
     coasts,
     countries,
     roles,
-    permissions,
     users
     RESTART IDENTITY CASCADE;
