@@ -20,6 +20,7 @@ public class InstructorListController {
     @FXML private TableView<Instructor> instructorTable;
     @FXML private TableColumn<Instructor, String> firstNameColumn;
     @FXML private TableColumn<Instructor, String> lastNameColumn;
+    @FXML private TableColumn<Instructor, String> schoolColumn;
 
     private final InstructorService instructorService;
     private final SceneNavigator sceneNavigator;

@@ -4,6 +4,7 @@ import hr.algebra.surfspot.context.SceneNavigator;
 import hr.algebra.surfspot.model.User;
 import hr.algebra.surfspot.service.UserService;
 import javafx.fxml.FXML;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import org.slf4j.Logger;
@@ -15,6 +16,7 @@ public class UserFormController {
     @FXML private Label formTitleLabel;
     @FXML private TextField usernameField;
     @FXML private TextField emailField;
+    @FXML private CheckBox isAdminCheckbox;
 
     private final UserService userService;
     private final SceneNavigator sceneNavigator;
@@ -30,6 +32,7 @@ public class UserFormController {
         if (user != null) {
             formTitleLabel.setText("Uredi podatke o korisniku");
             usernameField.setText(user.getUsername());
+            emailField.setText(user.getEmail());
         } else {
             formTitleLabel.setText("Novi korisnik");
             usernameField.clear();
@@ -63,6 +66,6 @@ public class UserFormController {
 
     @FXML
     private void handleBack() {
-        sceneNavigator.navigateToCountryList();
+        sceneNavigator.navigateToUserList();
     }
 }

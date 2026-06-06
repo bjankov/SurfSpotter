@@ -49,12 +49,6 @@ public class UserListController {
     }
 
     @FXML
-    private void handleAdd() {
-        log.info("Navigating to form for new user creation");
-        sceneNavigator.navigateToUserForm(null);
-    }
-
-    @FXML
     private void handleEdit() {
         User selectedUser = userTable.getSelectionModel().getSelectedItem();
         if (selectedUser != null) {

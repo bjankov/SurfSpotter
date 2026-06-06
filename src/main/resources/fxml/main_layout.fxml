@@ -9,12 +9,12 @@
            <fx:define>
                <ToggleGroup fx:id="navigationGroup" />
            </fx:define>
-           <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showSurfSpots" text="Surf Spots" toggleGroup="$navigationGroup" />
-           <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showSurfingSchools" text="Surfing Schools" toggleGroup="$navigationGroup" />
-           <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showInstructors" text="Surfing Instructors" toggleGroup="$navigationGroup" />
-           <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showCoasts" text="Coasts" toggleGroup="$navigationGroup" />
-           <ToggleButton fx:id="countriesToggleButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showCountries" text="Countries" toggleGroup="$navigationGroup" />
-           <ToggleButton fx:id="usersToggleButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showUsers" text="Users" toggleGroup="$navigationGroup" />
+           <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showSurfSpots" text="Mjesta za surfanje" toggleGroup="$navigationGroup"/>
+           <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showSurfingSchools" text="Skole surfanja" toggleGroup="$navigationGroup" />
+           <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showInstructors" text="Instruktori surfanja" toggleGroup="$navigationGroup" />
+           <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showCoasts" text="Obale" toggleGroup="$navigationGroup" />
+           <ToggleButton fx:id="countriesToggleButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showCountries" text="Drzave" toggleGroup="$navigationGroup" />
+           <ToggleButton fx:id="usersToggleButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showUsers" text="Korisnici" toggleGroup="$navigationGroup" />
        </VBox>
    </left>
    <top>
@@ -28,11 +28,13 @@
            <Menu mnemonicParsing="false" text="Help">
                <MenuItem mnemonicParsing="false" text="About" />
            </Menu>
+           <Menu mnemonicParsing="false" text="Account">
+               <MenuItem mnemonicParsing="false" text="Logout" onAction="#handleLogout"/>
+           </Menu>
        </MenuBar>
    </top>
     <center>
         <StackPane fx:id="contentArea" prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-            <Label fx:id="welcomeLabel" text="Učitavanje..." />
         </StackPane>
     </center>
 </BorderPane>

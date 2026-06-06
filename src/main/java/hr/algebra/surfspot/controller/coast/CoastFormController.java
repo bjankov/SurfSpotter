@@ -50,6 +50,7 @@ public class CoastFormController {
         if (coast != null) {
             formTitleLabel.setText("Uredi obalu");
             nameField.setText(coast.getName());
+            countryComboBox.setValue(coast.getCountry());
         } else {
             formTitleLabel.setText("Nova obala");
             nameField.clear();

@@ -29,6 +29,7 @@ public class CountryFormController {
         this.currentCountry = country;
         if (country != null) {
             formTitleLabel.setText("Uredi drzavu");
+            codeField.setText(country.code());
             nameField.setText(country.name());
         } else {
             formTitleLabel.setText("Nova drzava");

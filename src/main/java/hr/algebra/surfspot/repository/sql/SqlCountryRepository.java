@@ -30,7 +30,7 @@ public class SqlCountryRepository extends BaseSqlRepository<Country> implements 
             ON CONFLICT(code)
             DO UPDATE SET name = EXCLUDED.name
             """;
-    private static final String DELETE_BY_ID_QUERY = "DELETE FROM countries WHERE  = ?";
+    private static final String DELETE_BY_ID_QUERY = "DELETE FROM countries WHERE code = ?";
 
     @Override
     public Optional<Country> findById(String code) {
