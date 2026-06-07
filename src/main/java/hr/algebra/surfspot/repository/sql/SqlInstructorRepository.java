@@ -23,10 +23,20 @@ public class SqlInstructorRepository extends BaseSqlRepository<Instructor> imple
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM instructors WHERE id = ?";
     private static final String FIND_BY_FIRST_NAME_QUERY = "SELECT * FROM instructors WHERE first_name = ?";
     private static final String FIND_BY_LAST_NAME_QUERY = "SELECT * FROM instructors WHERE last_name = ?";
-    private static final String FIND_ALL_QUERY = "SELECT * FROM instructors";
+    private static final String FIND_ALL_QUERY = """
+            SELECT
+                i.id AS instructor_id,
+                i.first_name,
+                i.last_name,
+                ss.id AS school_id,
+                ss.name AS school_name
+            FROM instructors i
+            LEFT JOIN surfing_schools ss
+            ON ss.id = i.surfing_school_id
+            """;
     private static final String SAVE_QUERY = "INSERT INTO instructors (first_name, last_name) VALUES (?, ?)";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM instructors WHERE id = ?";
-    private static final String UPDATE_QUERY = "UPDATE instructors SET first_name = ?, last_name = ? WHERE id = ?";
+    private static final String UPDATE_QUERY = "UPDATE instructors SET first_name = ?, last_name = ?, surfing_school_id = ? WHERE id = ?";
 
     @Override
     public Optional<Instructor> findByLastName(String lastName) {
@@ -66,6 +76,7 @@ public class SqlInstructorRepository extends BaseSqlRepository<Instructor> imple
         executeUpdate(UPDATE_QUERY,
                 instructor.getFirstName(),
                 instructor.getLastName(),
+                instructor.getSchool().getId(),
                 instructor.getId()
         );
         return instructor;

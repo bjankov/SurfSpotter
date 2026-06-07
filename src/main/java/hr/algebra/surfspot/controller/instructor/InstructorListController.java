@@ -35,6 +35,14 @@ public class InstructorListController {
         firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
         lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastName"));
 
+        schoolColumn.setCellValueFactory(cellData -> {
+            Instructor instructor = cellData.getValue();
+            if (instructor.getSchool() != null) {
+                return new javafx.beans.property.SimpleStringProperty(instructor.getSchool().getName());
+            }
+            return new javafx.beans.property.SimpleStringProperty("Nema škole");
+        });
+
         loadInstructors();
     }
 
