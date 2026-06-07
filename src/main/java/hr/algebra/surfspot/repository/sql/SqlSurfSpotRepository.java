@@ -11,89 +11,104 @@ import javax.sql.DataSource;
 import java.util.*;
 
 public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implements SurfSpotRepository {
-    private static final Logger log =  LoggerFactory.getLogger(SqlSurfSpotRepository.class);
+    private static final Logger log = LoggerFactory.getLogger(SqlSurfSpotRepository.class);
+
     private final RowMapper<SurfSpot> surfSpotMapper;
+    private final RowMapper<Instructor> instructorMapper;
 
     public SqlSurfSpotRepository(DataSource dataSource) {
         super(dataSource);
-        surfSpotMapper = RowMapperFactory.getInstance().getMapper(SurfSpot.class);
+        this.surfSpotMapper = RowMapperFactory.getInstance().getMapper(SurfSpot.class);
+        this.instructorMapper = RowMapperFactory.getInstance().getMapper(Instructor.class);
     }
+
+    // --- SQL UPITI ---
 
     private static final String UPDATE_BY_ID_QUERY = """
             UPDATE surf_spots
-            SET name = ?,
-                latitude = ?,
-                longitude = ?,
-                coast_id = ?,
-                wave_type = ?,
-                wave_height = ?,
-                difficulty = ?,
-                wind_direction = ?,
-                image_path = ?
+            SET name = ?, latitude = ?, longitude = ?, coast_id = ?,
+                wave_type = ?, wave_height = ?, difficulty = ?,
+                wind_direction = ?, image_path = ?
             WHERE id = ?;""";
+
+    private static final String SAVE_SURF_SPOT_QUERY = """
+            INSERT INTO surf_spots (
+                name, latitude, longitude, coast_id, wave_type,
+                wave_height, difficulty, wind_direction, image_path
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);""";
+
+    private static final String DELETE_BY_ID_QUERY = "DELETE FROM surf_spots WHERE id = ?";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM surf_spots WHERE id = ?";
     private static final String FIND_BY_NAME_QUERY = "SELECT * FROM surf_spots WHERE name = ?";
+
+    // --- POMOĆNI UPITI ZA VEZE ---
     private static final String FIND_MONTHS_BY_SPOT_ID = "SELECT month_name FROM surf_spot_months WHERE surf_spot_id = ?";
-    private static final String FIND_ALL_QUERY = """
-    SELECT
-        ss.id,
-        ss.name AS surf_spot_name,
-        ss.latitude,
-        ss.longitude,
-        ss.wave_type,
-        ss.wave_height,
-        ss.difficulty,
-        ss.wind_direction,
-        coasts.id AS coast_id,
-        coasts.name AS coast_name,
-        countries.name AS country_name,
-        countries.code AS country_code,
-        ss.image_path
-    FROM surf_spots ss
-    JOIN coasts  ON ss.coast_id = coasts.id
-    JOIN countries ON coasts.country_code = countries.code
-    """;
-    private static final String SAVE_SURF_SPOT_QUERY = """
-        INSERT INTO surf_spots (
-            name,
-            latitude,
-            longitude,
-            coast_id,
-            wave_type,
-            wave_height,
-            difficulty,
-            wind_direction,
-            image_path
-            )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-     """;
     private static final String INSERT_MONTHS_QUERY = "INSERT INTO surf_spot_months (surf_spot_id, month_name) VALUES (?, ?)";
-    private static final String DELETE_BY_ID_QUERY = "DELETE FROM surf_spots WHERE id = ?";
     private static final String DELETE_MONTHS_QUERY = "DELETE FROM surf_spot_months WHERE surf_spot_id = ?";
-    private static final String COUNT_BY_COUNTRY_CODE_QUERY =  "SELECT COUNT(*) FROM surf_spots ss JOIN coasts c ON ss.coast_id = c.id WHERE c.country_code = ?";
+
+    private static final String FIND_INSTRUCTORS_BY_SPOT_ID = """
+            SELECT i.* FROM instructors i
+            JOIN surf_spot_instructors ssi ON i.id = ssi.instructor_id
+            WHERE ssi.surf_spot_id = ?;""";
+
+    // --- AGREGACIJSKI UPITI ---
+    private static final String COUNT_BY_COUNTRY_CODE_QUERY = "SELECT COUNT(*) FROM surf_spots ss JOIN coasts c ON ss.coast_id = c.id WHERE c.country_code = ?";
     private static final String COUNT_BY_DIFFICULTY_QUERY = "SELECT COUNT(*) FROM surf_spots WHERE difficulty = ?";
     private static final String COUNT_BY_WAVE_TYPE_QUERY = "SELECT COUNT(*) FROM surf_spots WHERE wave_type = ?";
     private static final String COUNT_BY_COAST_ID_QUERY = "SELECT COUNT(*) FROM surf_spots WHERE coast_id = ?";
 
+    // --- OSNOVNI SELECT ZA FILTRIRANJE ---
+    private static final String BASE_SELECT = """
+            SELECT
+                ss.id, ss.name AS surf_spot_name, ss.latitude, ss.longitude,
+                ss.wave_type, ss.wave_height, ss.difficulty, ss.wind_direction,
+                coasts.id AS coast_id, coasts.name AS coast_name,
+                countries.name AS country_name, countries.code AS country_code,
+                ss.image_path
+            FROM surf_spots ss
+            JOIN coasts ON ss.coast_id = coasts.id
+            JOIN countries ON coasts.country_code = countries.code
+            """;
+
+    // --- UPITI ZA FILTRIRANJE ---
+    private static final String FIND_ALL_QUERY = BASE_SELECT;
+    private static final String FIND_BY_COUNTRY_NAME = BASE_SELECT + " WHERE countries.name = ?";
+    private static final String FIND_BY_DIFFICULTY = BASE_SELECT + " WHERE ss.difficulty = ?";
+    private static final String FIND_BY_WAVE_TYPE = BASE_SELECT + " WHERE ss.wave_type = ?";
+    private static final String FIND_BY_COAST = BASE_SELECT + " WHERE ss.coast_id = ?";
+    private static final String FIND_BY_WIND_DIRECTION = BASE_SELECT + " WHERE ss.wind_direction = ?";
+
+    private static final String FIND_BY_INSTRUCTOR = BASE_SELECT +
+            " JOIN surf_spot_instructors ssi ON ss.id = ssi.surf_spot_id WHERE ssi.instructor_id = ?";
+
+    private static final String FIND_BY_MONTH = BASE_SELECT +
+            " JOIN surf_spot_months ssm ON ss.id = ssm.surf_spot_id WHERE ssm.month_name = ?";
+
+    private static final String FIND_BY_SCHOOL = BASE_SELECT +
+            " JOIN surfing_school_spots sss ON ss.id = sss.surf_spot_id WHERE sss.school_id = ?";
+
+    // --- OSNOVNE CRUD METODE ---
+
+    @Override
     public Optional<SurfSpot> findById(Long id) {
-        return findSingleResult(FIND_BY_ID_QUERY, surfSpotMapper, id);
+        Optional<SurfSpot> spot = findSingleResult(FIND_BY_ID_QUERY, surfSpotMapper, id);
+        spot.ifPresent(this::populateAssociations);
+        return spot;
     }
 
-    public Optional<SurfSpot> findByName(final String name) {
-        return findSingleResult(FIND_BY_NAME_QUERY, surfSpotMapper, name);
+    @Override
+    public Optional<SurfSpot> findByName(String name) {
+        Optional<SurfSpot> spot = findSingleResult(FIND_BY_NAME_QUERY, surfSpotMapper, name);
+        spot.ifPresent(this::populateAssociations);
+        return spot;
     }
 
     @Override
     public List<SurfSpot> findAll() {
-        List<SurfSpot> spots = findAll(FIND_ALL_QUERY, surfSpotMapper);
-
-        for (SurfSpot spot : spots) {
-            spot.setBestSeason(fetchMonthsForSpot(spot.getId()));
-        }
-        return spots;
+        return fetchAndPopulate(FIND_ALL_QUERY);
     }
 
-    
+    @Override
     public SurfSpot save(SurfSpot spot) {
         if (spot.getId() != null) {
             return update(spot);
@@ -130,114 +145,6 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
     }
 
     @Override
-    public void delete(Long id) {
-        executeUpdate(DELETE_BY_ID_QUERY, id);
-    }
-
-
-    private EnumSet<Month> fetchMonthsForSpot(Long surfSpotId) {
-        List<Month> months = findAll(
-                FIND_MONTHS_BY_SPOT_ID,
-                resultSet -> Month.valueOf(resultSet.getString("month_name")),
-                surfSpotId);
-
-        if (months.isEmpty()) {
-            return EnumSet.noneOf(Month.class);
-        }
-        return EnumSet.copyOf(months);
-    }
-
-    private void saveMonths(Long surfSpotId, Set<Month> months) {
-
-        if (months == null || months.isEmpty()) {
-            return;
-        }
-
-        for (final Month month : months) {
-            executeUpdate(INSERT_MONTHS_QUERY, surfSpotId, month.name());
-        }
-    }
-
-    // TODO: Finish implementation
-    @Override
-    public boolean existsByName(String name) {
-        return exists(FIND_BY_NAME_QUERY, name);
-    }
-
-    @Override
-    public boolean existsById(String code ) {
-        return exists(FIND_BY_ID_QUERY, code);
-    }
-
-    @Override
-    public long countByCountryCode(String countryCode) {
-        return count(COUNT_BY_COUNTRY_CODE_QUERY, countryCode);
-    }
-
-    @Override
-    public long countByDifficultyLevel(DifficultyLevel difficultyLevel) {
-        return count(COUNT_BY_DIFFICULTY_QUERY, difficultyLevel.name());
-    }
-
-    @Override
-    public long countByWaveType(WaveType waveType) {
-        return  count(COUNT_BY_WAVE_TYPE_QUERY, waveType.name());
-    }
-
-    @Override
-    public long countByCoast(Coast coast) {
-        if  (coast == null) {
-            return 0;
-        }
-        return count(COUNT_BY_COAST_ID_QUERY, coast.getId());
-    }
-
-    @Override
-    public List<SurfSpot> findByCountryName(String countryName) {
-        return List.of();
-    }
-
-    @Override
-    public List<SurfSpot> findByDifficulty(DifficultyLevel difficultyLevel) {
-        return List.of();
-    }
-
-    @Override
-    public List<SurfSpot> findByInstructor(Instructor instructor) {
-        return List.of();
-    }
-
-    @Override
-    public List<SurfSpot> findByWaveType(WaveType waveType) {
-        return List.of();
-    }
-
-    @Override
-    public List<SurfSpot> findByMonthInBestSeason(Month month) {
-        return List.of();
-    }
-
-    @Override
-    public List<SurfSpot> findByMonthsInBestSeason(Set<Month> months) {
-        return List.of();
-    }
-
-    @Override
-    public List<SurfSpot> findByWindDirection(WindDirection windDirection) {
-        return List.of();
-    }
-
-    @Override
-    public List<SurfSpot> findBySchool(SurfingSchool surfingSchool) {
-        return List.of();
-    }
-
-    @Override
-    public List<SurfSpot> findByCoast(Coast coast) {
-        return List.of();
-    }
-
-    @Override
     public SurfSpot update(SurfSpot spot) {
         executeUpdate(UPDATE_BY_ID_QUERY,
                 spot.getName(),
@@ -256,5 +163,137 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
         saveMonths(spot.getId(), spot.getBestSeason());
 
         return spot;
+    }
+
+    @Override
+    public void delete(Long id) {
+        executeUpdate(DELETE_BY_ID_QUERY, id);
+    }
+
+    // --- POMOĆNE METODE ZA POVEZANE PODATKE (ASSOCIATIONS) ---
+
+    private void populateAssociations(SurfSpot spot) {
+        spot.setBestSeason(fetchMonthsForSpot(spot.getId()));
+        spot.setInstructors (fetchInstructorsForSpot(spot.getId()));
+    }
+
+    private List<SurfSpot> fetchAndPopulate(String query, Object... params) {
+        List<SurfSpot> spots = findAll(query, surfSpotMapper, params);
+        spots.forEach(this::populateAssociations);
+        return spots;
+    }
+
+    private EnumSet<Month> fetchMonthsForSpot(Long surfSpotId) {
+        List<Month> months = findAll(
+                FIND_MONTHS_BY_SPOT_ID,
+                resultSet -> Month.valueOf(resultSet.getString("month_name")),
+                surfSpotId);
+
+        if (months.isEmpty()) {
+            return EnumSet.noneOf(Month.class);
+        }
+        return EnumSet.copyOf(months);
+    }
+
+    private Set<Instructor> fetchInstructorsForSpot(Long surfSpotId) {
+        List<Instructor> instructorList = findAll(FIND_INSTRUCTORS_BY_SPOT_ID, instructorMapper, surfSpotId);
+        return new HashSet<>(instructorList);
+    }
+
+    private void saveMonths(Long surfSpotId, Set<Month> months) {
+        if (months == null || months.isEmpty()) return;
+        for (final Month month : months) {
+            executeUpdate(INSERT_MONTHS_QUERY, surfSpotId, month.name());
+        }
+    }
+
+    // --- METODE ZA PROVJERU I BROJANJE ---
+
+    @Override
+    public boolean existsByName(String name) {
+        return exists(FIND_BY_NAME_QUERY, name);
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return exists(FIND_BY_ID_QUERY, id);
+    }
+
+    @Override
+    public long countByCountryCode(String countryCode) {
+        return count(COUNT_BY_COUNTRY_CODE_QUERY, countryCode);
+    }
+
+    @Override
+    public long countByDifficultyLevel(DifficultyLevel difficultyLevel) {
+        return count(COUNT_BY_DIFFICULTY_QUERY, difficultyLevel.name());
+    }
+
+    @Override
+    public long countByWaveType(WaveType waveType) {
+        return count(COUNT_BY_WAVE_TYPE_QUERY, waveType.name());
+    }
+
+    @Override
+    public long countByCoast(Coast coast) {
+        if (coast == null) return 0;
+        return count(COUNT_BY_COAST_ID_QUERY, coast.getId());
+    }
+
+    // --- METODE ZA FILTRIRANJE (SEARCH) ---
+
+    @Override
+    public List<SurfSpot> findByCountryName(String countryName) {
+        return fetchAndPopulate(FIND_BY_COUNTRY_NAME, countryName);
+    }
+
+    @Override
+    public List<SurfSpot> findByDifficulty(DifficultyLevel difficultyLevel) {
+        return fetchAndPopulate(FIND_BY_DIFFICULTY, difficultyLevel.name());
+    }
+
+    @Override
+    public List<SurfSpot> findByInstructor(Instructor instructor) {
+        if (instructor == null || instructor.getId() == null) return Collections.emptyList();
+        return fetchAndPopulate(FIND_BY_INSTRUCTOR, instructor.getId());
+    }
+
+    @Override
+    public List<SurfSpot> findByWaveType(WaveType waveType) {
+        return fetchAndPopulate(FIND_BY_WAVE_TYPE, waveType.name());
+    }
+
+    @Override
+    public List<SurfSpot> findByMonthInBestSeason(Month month) {
+        return fetchAndPopulate(FIND_BY_MONTH, month.name());
+    }
+
+    @Override
+    public List<SurfSpot> findByWindDirection(WindDirection windDirection) {
+        return fetchAndPopulate(FIND_BY_WIND_DIRECTION, windDirection.name());
+    }
+
+    @Override
+    public List<SurfSpot> findBySchool(SurfingSchool surfingSchool) {
+        if (surfingSchool == null || surfingSchool.getId() == null) return Collections.emptyList();
+        return fetchAndPopulate(FIND_BY_SCHOOL, surfingSchool.getId());
+    }
+
+    @Override
+    public List<SurfSpot> findByCoast(Coast coast) {
+        if (coast == null || coast.getId() == null) return Collections.emptyList();
+        return fetchAndPopulate(FIND_BY_COAST, coast.getId());
+    }
+
+    @Override
+    public List<SurfSpot> findByMonthsInBestSeason(Set<Month> months) {
+        if (months == null || months.isEmpty()) return Collections.emptyList();
+
+        String placeholders = String.join(",", Collections.nCopies(months.size(), "?"));
+        String dynamicQuery = BASE_SELECT +
+                " JOIN surf_spot_months ssm ON ss.id = ssm.surf_spot_id WHERE ssm.month_name IN (" + placeholders + ")";
+
+        Object[] params = months.stream().map(Enum::name).toArray();
+        return fetchAndPopulate(dynamicQuery, params);
     }
 }

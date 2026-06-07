@@ -41,13 +41,6 @@ public class ApplicationContext {
         RepositoryRegistry repositoryRegistry = new RepositoryRegistry(dataSource);
 
         this.services = new ServiceRegistry(repositoryRegistry);
-
-        new DatabaseSeeder(
-                repositoryRegistry.getRepository(UserRepository.class),
-                repositoryRegistry.getRepository(RoleRepository.class),
-                services.getPasswordService()
-        ).seed();
-
         this.session = new UserSession();
         this.navigator = new SceneNavigator(this);
 
@@ -76,7 +69,7 @@ public class ApplicationContext {
                 new InstructorListController(getInstructorService(),  getSceneNavigator()));
 
         controllerFactories.put(InstructorFormController.class, () ->
-                new  InstructorFormController(getInstructorService(), getSceneNavigator()));
+                new  InstructorFormController(getInstructorService(), getSurfingSchoolService(), getSceneNavigator()));
 
         controllerFactories.put(SurfSpotListController.class, () ->
                 new SurfSpotListController(getSurfSpotService(), getSceneNavigator()));

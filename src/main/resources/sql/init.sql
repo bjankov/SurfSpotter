@@ -131,6 +131,14 @@ CREATE TABLE surf_spots (
     REFERENCES coasts(id)
 );
 
+CREATE TABLE surf_spot_instructors (
+    surf_spot_id BIGINT NOT NULL,
+    instructor_id BIGINT NOT NULL,
+    PRIMARY KEY (surf_spot_id, instructor_id),
+    FOREIGN KEY (surf_spot_id) REFERENCES surf_spots(id) ON DELETE CASCADE,
+    FOREIGN KEY (instructor_id) REFERENCES instructors(id) ON DELETE CASCADE
+);
+
 INSERT INTO surf_spots (id, name, latitude, longitude, coast_id, wave_type, wave_height, difficulty, wind_direction)
 VALUES
     (1, 'Pipeline', 21.6640, -158.0539,  1, 'REEF_BREAK', 5.0, 'EXPERT', 90),
@@ -158,6 +166,10 @@ CREATE TABLE users (
     username TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL
+);
+
+INSERT INTO users (id, username, email, password_hash)
+VALUES (1, 'admin', 'admin@surfspot.com', '$2a$12$ylGEN5C3SY4lROgwj4YN2OuQ2ET/ueSrOxmMiTiS2z6A0uqkekWUu'
 );
 
 CREATE TABLE roles (

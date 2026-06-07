@@ -3,15 +3,17 @@ package hr.algebra.surfspot.repository;
 import hr.algebra.surfspot.model.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface SurfSpotRepository extends CrudRepository<SurfSpot, Long> {
     boolean existsByName(String name);
-    boolean existsById(String code);
+    boolean existsById(Long id);
     long countByCountryCode(String countryCode);
     long countByDifficultyLevel(DifficultyLevel difficultyLevel);
     long  countByWaveType(WaveType waveType);
     long countByCoast(Coast coast);
+    Optional<SurfSpot> findByName(String name);
     List<SurfSpot> findByCountryName(String countryName);
     List<SurfSpot> findByDifficulty(DifficultyLevel difficultyLevel);
     List<SurfSpot> findByInstructor(Instructor instructor);
