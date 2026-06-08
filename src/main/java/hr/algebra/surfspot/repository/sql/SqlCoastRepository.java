@@ -2,7 +2,6 @@ package hr.algebra.surfspot.repository.sql;
 
 import hr.algebra.surfspot.model.Coast;
 import hr.algebra.surfspot.repository.CoastRepository;
-import hr.algebra.surfspot.repository.sql.mapper.RowMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,9 +13,9 @@ public class SqlCoastRepository extends BaseSqlRepository<Coast> implements Coas
     public static final Logger log =  LoggerFactory.getLogger(SqlCoastRepository.class);
     private final RowMapper<Coast> coastMapper ;
 
-    public SqlCoastRepository(DataSource dataSource) {
+    public SqlCoastRepository(DataSource dataSource,  RowMapper<Coast> coastMapper) {
         super(dataSource);
-        coastMapper = RowMapperFactory.getInstance().getMapper(Coast.class);
+        this.coastMapper = coastMapper;
     }
 
     private static final String SAVE_QUERY = "INSERT INTO coasts (name, country_code) VALUES (?, ?)";

@@ -2,8 +2,6 @@ package hr.algebra.surfspot.repository.sql;
 
 import hr.algebra.surfspot.exception.EntityNotFoundException;
 import hr.algebra.surfspot.exception.RepositoryException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -12,8 +10,6 @@ import java.util.List;
 import java.util.Optional;
 
 public abstract class BaseSqlRepository<T> {
-    private static final Logger log = LoggerFactory.getLogger(BaseSqlRepository.class);
-
     protected final DataSource dataSource;
 
     protected BaseSqlRepository(final DataSource dataSource) {

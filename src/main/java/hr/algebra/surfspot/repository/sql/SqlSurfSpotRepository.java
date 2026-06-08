@@ -3,23 +3,17 @@ package hr.algebra.surfspot.repository.sql;
 import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.*;
 import hr.algebra.surfspot.repository.SurfSpotRepository;
-import hr.algebra.surfspot.repository.sql.mapper.RowMapperFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.sql.DataSource;
 import java.util.*;
 
 public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implements SurfSpotRepository {
-    private static final Logger log = LoggerFactory.getLogger(SqlSurfSpotRepository.class);
-
     private final RowMapper<SurfSpot> surfSpotMapper;
     private final RowMapper<Instructor> instructorMapper;
 
-    public SqlSurfSpotRepository(DataSource dataSource) {
+    public SqlSurfSpotRepository(DataSource dataSource,  RowMapper<SurfSpot> surfSpotMapper, RowMapper<Instructor> instructorMapper) {
         super(dataSource);
-        this.surfSpotMapper = RowMapperFactory.getInstance().getMapper(SurfSpot.class);
-        this.instructorMapper = RowMapperFactory.getInstance().getMapper(Instructor.class);
+        this.surfSpotMapper = surfSpotMapper;
+        this.instructorMapper = instructorMapper;
     }
 
     // --- SQL UPITI ---

@@ -4,10 +4,6 @@ import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.Permission;
 import hr.algebra.surfspot.model.Role;
 import hr.algebra.surfspot.repository.RoleRepository;
-import hr.algebra.surfspot.repository.sql.mapper.RowMapperFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,10 +13,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class SqlRoleRepository extends BaseSqlRepository<Role> implements RoleRepository {
-    private static final Logger log = LoggerFactory.getLogger(SqlRoleRepository.class);
     private final RowMapper<Role> roleMapper;
 
     public static final String UPDATE_BY_ID_QUERY = "UPDATE roles SET name = ? WHERE id = ?";
@@ -31,9 +25,9 @@ public class SqlRoleRepository extends BaseSqlRepository<Role> implements RoleRe
     public static final String DELETE_BY_ID_QUERY = "DELETE FROM roles WHERE id = ?";
     public static final String FIND_PERMISSIONS_BY_ROLE_ID_QUERY = "SELECT permission_name FROM role_permissions WHERE role_id = ?";
 
-    public SqlRoleRepository(DataSource dataSource) {
+    public SqlRoleRepository(DataSource dataSource, RowMapper<Role> roleMapper) {
         super(dataSource);
-        roleMapper = RowMapperFactory.getInstance().getMapper(Role.class);
+        this.roleMapper = roleMapper;
     }
 
     @Override
@@ -52,7 +46,7 @@ public class SqlRoleRepository extends BaseSqlRepository<Role> implements RoleRe
     public List<Role> findAll() {
         return findAll(FIND_ALL_QUERY, roleMapper).stream()
                 .map(this::populatePermissions)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

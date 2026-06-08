@@ -8,12 +8,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.StackPane;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MainLayoutController {
 
-    private static final Logger log = LoggerFactory.getLogger(MainLayoutController.class);
     @FXML private StackPane contentArea;
     @FXML private ToggleGroup navigationGroup;
 
@@ -75,14 +72,14 @@ public class MainLayoutController {
 
     @FXML
     private void showUsers() {
-        if (ApplicationContext.getInstance().getSession().getCurrentUser().hasPermission(Permission.MANAGE_USERS)) {
+        if (Boolean.TRUE.equals(ApplicationContext.getInstance().getSession().getCurrentUser().hasPermission(Permission.MANAGE_USERS))) {
             navigator.navigateToUserList();
         }
     }
 
     @FXML
     private void showCountries() {
-        if (ApplicationContext.getInstance().getSession().getCurrentUser().hasPermission(Permission.MANAGE_COUNTRIES)) {
+        if (Boolean.TRUE.equals(ApplicationContext.getInstance().getSession().getCurrentUser().hasPermission(Permission.MANAGE_COUNTRIES))) {
             navigator.navigateToCountryList();
         }
     }

@@ -4,7 +4,6 @@ import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.Permission;
 import hr.algebra.surfspot.model.User;
 import hr.algebra.surfspot.repository.UserRepository;
-import hr.algebra.surfspot.repository.sql.mapper.RowMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,10 +18,10 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
     private final RowMapper<User> userMapper;
     private final RowMapper<Permission> permissionMapper;
 
-    public SqlUserRepository(DataSource dataSource) {
+    public SqlUserRepository(DataSource dataSource, RowMapper<User> userMapper, RowMapper<Permission> permissionMapper) {
         super(dataSource);
-        this.userMapper = RowMapperFactory.getInstance().getMapper(User.class);
-        this.permissionMapper = RowMapperFactory.getInstance().getMapper(Permission.class);
+        this.userMapper = userMapper;
+        this.permissionMapper = permissionMapper;
     }
 
     private static final String UPDATE_BY_ID = "UPDATE users SET username = ?, email = ? WHERE id = ?";

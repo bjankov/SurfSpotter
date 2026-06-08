@@ -219,7 +219,7 @@ public class SurfSpotFormController {
             menuItem.setHideOnClick(false);
 
             checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue) {
+                if (Boolean.TRUE.equals(newValue)) {
                     selectedMonths.add(month);
                 } else {
                     selectedMonths.remove(month);

@@ -3,21 +3,17 @@ package hr.algebra.surfspot.repository.sql;
 import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.Country;
 import hr.algebra.surfspot.repository.CountryRepository;
-import hr.algebra.surfspot.repository.sql.mapper.RowMapperFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.util.List;
 import java.util.Optional;
 
 public class SqlCountryRepository extends BaseSqlRepository<Country> implements CountryRepository {
-    private static final Logger log = LoggerFactory.getLogger(SqlCountryRepository.class);
     private final RowMapper<Country> countryMapper;
 
-    public SqlCountryRepository(DataSource dataSource) {
+    public SqlCountryRepository(DataSource dataSource, RowMapper<Country> countryMapper) {
         super(dataSource);
-        countryMapper = RowMapperFactory.getInstance().getMapper(Country.class);
+        this.countryMapper =  countryMapper;
     }
 
     private static final String UPDATE_BY_ID_QUERY = "UPDATE countries SET name = ? WHERE code = ?";

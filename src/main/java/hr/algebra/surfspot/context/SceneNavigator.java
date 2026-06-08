@@ -7,6 +7,7 @@ import hr.algebra.surfspot.controller.instructor.InstructorFormController;
 import hr.algebra.surfspot.controller.school.SurfingSchoolFormController;
 import hr.algebra.surfspot.controller.surfspot.SurfSpotFormController;
 import hr.algebra.surfspot.controller.user.UserFormController;
+import hr.algebra.surfspot.exception.NavigationException;
 import hr.algebra.surfspot.model.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -48,7 +49,7 @@ public class SceneNavigator {
             stage.setScene(new Scene(root, 600, 400));
             stage.show();
         } catch (IOException e) {
-            throw new RuntimeException("Greška pri učitavanju AuthLayout-a", e);
+            throw new NavigationException("Greška pri učitavanju AuthLayout-a", e);
         }
     }
 
@@ -65,7 +66,7 @@ public class SceneNavigator {
             stage.setScene(new Scene(root, 1024, 768));
             stage.show();
         } catch (IOException e) {
-            throw new RuntimeException("Greška pri učitavanju Main ekrana", e);
+            throw new NavigationException("Greška pri učitavanju Main ekrana", e);
         }
     }
 
@@ -86,7 +87,7 @@ public class SceneNavigator {
             Parent listNode = loadFXML("/fxml/surf_spot/surf_spot_list.fxml");
             displayInMain(listNode);
         } catch (IOException e) {
-            throw new RuntimeException("Greska pri ucitavanju liste surf spotova", e);
+            throw new NavigationException("Greska pri ucitavanju liste surf spotova", e);
         }
     }
 
@@ -101,7 +102,7 @@ public class SceneNavigator {
 
             displayInMain(formNode);
         } catch (IOException e) {
-            throw new RuntimeException("Greška pri otvaranju forme surf spota", e);
+            throw new NavigationException("Greška pri otvaranju forme surf spota", e);
         }
     }
 
@@ -110,7 +111,7 @@ public class SceneNavigator {
             Parent listNode = loadFXML("/fxml/instructor/instructor_list.fxml");
             displayInMain(listNode);
         } catch (IOException e) {
-            throw new RuntimeException("Greška pri učitavanju liste instruktora", e);
+            throw new NavigationException("Greška pri učitavanju liste instruktora", e);
         }
     }
 
@@ -125,7 +126,7 @@ public class SceneNavigator {
 
             displayInMain(formNode);
         } catch (IOException e) {
-            throw new RuntimeException("Greška pri otvaranju forme instruktora", e);
+            throw new NavigationException("Greška pri otvaranju forme instruktora", e);
         }
     }
 
@@ -134,7 +135,7 @@ public class SceneNavigator {
             Parent listNode = loadFXML("/fxml/surfing_school/surfing_school_list.fxml");
             displayInMain(listNode);
         } catch (IOException e) {
-            throw new RuntimeException("Greška pri učitavanju liste škola surfanja", e);
+            throw new NavigationException("Greška pri učitavanju liste škola surfanja", e);
         }
     }
 
@@ -149,7 +150,7 @@ public class SceneNavigator {
 
             displayInMain(formNode);
         } catch (IOException e) {
-            throw new RuntimeException("Greška pri otvaranju forme skole", e);
+            throw new NavigationException("Greška pri otvaranju forme skole", e);
         }
     }
 
@@ -164,7 +165,7 @@ public class SceneNavigator {
 
             displayInMain(formNode);
         } catch (IOException e) {
-            throw new RuntimeException("Greška pri otvaranju forme obala", e);
+            throw new NavigationException("Greška pri otvaranju forme obala", e);
         }
     }
 
@@ -173,7 +174,7 @@ public class SceneNavigator {
             Parent listNode = loadFXML("/fxml/coast/coast_list.fxml");
             displayInMain(listNode);
         } catch (IOException e) {
-            throw new RuntimeException("Greška pri učitavanju liste obala", e);
+            throw new NavigationException("Greška pri učitavanju liste obala", e);
         }
     }
 
@@ -188,7 +189,7 @@ public class SceneNavigator {
 
             displayInMain(formNode);
         } catch (IOException e) {
-            throw new RuntimeException("Greška pri otvaranju forme korisnika", e);
+            throw new NavigationException("Greška pri otvaranju forme korisnika", e);
         }
     }
 
@@ -197,7 +198,7 @@ public class SceneNavigator {
             Parent listNode = loadFXML("/fxml/user/user_list.fxml");
             displayInMain(listNode);
         } catch (IOException e) {
-            throw new RuntimeException("Greška pri učitavanju liste korisnika", e);
+            throw new NavigationException("Greška pri učitavanju liste korisnika", e);
         }
     }
 
@@ -212,7 +213,7 @@ public class SceneNavigator {
 
             displayInMain(formNode);
         } catch (IOException e) {
-            throw new RuntimeException("Greška pri otvaranju forme drzave", e);
+            throw new NavigationException("Greška pri otvaranju forme drzave", e);
         }
     }
 
@@ -221,7 +222,7 @@ public class SceneNavigator {
             Parent listNode = loadFXML("/fxml/country/country_list.fxml");
             displayInMain(listNode);
         } catch (IOException e) {
-            throw new RuntimeException("Greška pri učitavanju liste drzava", e);
+            throw new NavigationException("Greška pri učitavanju liste drzava", e);
         }
     }
 

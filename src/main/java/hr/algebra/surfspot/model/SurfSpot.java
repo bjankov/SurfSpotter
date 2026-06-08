@@ -5,12 +5,13 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.*;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
 @JacksonXmlRootElement(localName = "SurfSpot")
-public class SurfSpot {
+public class SurfSpot implements Serializable {
     private transient Long id;
     private String name;
     private transient Location location;

@@ -3,21 +3,16 @@ package hr.algebra.surfspot.repository.sql;
 import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.repository.SurfingSchoolRepository;
-import hr.algebra.surfspot.repository.sql.mapper.RowMapperFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.sql.DataSource;
 import java.util.List;
 import java.util.Optional;
 
 public class SqlSurfingSchoolRepository extends BaseSqlRepository<SurfingSchool> implements SurfingSchoolRepository {
-    private static final Logger log = LoggerFactory.getLogger(SqlSurfingSchoolRepository.class);
     private final RowMapper<SurfingSchool> surfingSchoolMapper;
 
-    public SqlSurfingSchoolRepository(DataSource dataSource) {
+    public SqlSurfingSchoolRepository(DataSource dataSource, RowMapper<SurfingSchool> surfingSchoolMapper) {
         super(dataSource);
-        surfingSchoolMapper = RowMapperFactory.getInstance().getMapper(SurfingSchool.class);
+        this.surfingSchoolMapper = surfingSchoolMapper;
     }
 
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM surfing_schools WHERE id = ?";

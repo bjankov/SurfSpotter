@@ -3,25 +3,21 @@ package hr.algebra.surfspot.context;
 import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.repository.*;
 import hr.algebra.surfspot.repository.sql.*;
+import hr.algebra.surfspot.repository.sql.mapper.*; // Pretpostavka paketa za mappere
 
 import javax.sql.DataSource;
-import java.util.HashMap;
 import java.util.Map;
 
 public class RepositoryRegistry {
-    private final Map<Class<?>, Object> registry = new HashMap<>();
+    private final Map<Class<?>, Object> registry;
 
     public RepositoryRegistry(DataSource dataSource) {
-        registry.put(SurfSpotRepository.class, new SqlSurfSpotRepository(dataSource));
-        registry.put(UserRepository.class, new SqlUserRepository(dataSource));
-        registry.put(CoastRepository.class, new SqlCoastRepository(dataSource));
-        registry.put(CountryRepository.class, new SqlCountryRepository(dataSource));
-        registry.put(InstructorRepository.class, new SqlInstructorRepository(dataSource));
-        registry.put(RoleRepository.class, new SqlRoleRepository(dataSource));
-        registry.put(SurfingSchoolRepository.class, new SqlSurfingSchoolRepository(dataSource));
+
+        this.registry = Map.of(SurfSpotRepository.class, new SqlSurfSpotRepository(dataSource, new SurfSpotRowMapper(), new InstructorRowMapper()), UserRepository.class, new SqlUserRepository(dataSource, new UserRowMapper(), new PermissionRowMapper()), CoastRepository.class, new SqlCoastRepository(dataSource, new CoastRowMapper()), CountryRepository.class, new SqlCountryRepository(dataSource, new CountryRowMapper()), InstructorRepository.class, new SqlInstructorRepository(dataSource, new InstructorRowMapper()), RoleRepository.class, new SqlRoleRepository(dataSource, new RoleRowMapper()), SurfingSchoolRepository.class, new SqlSurfingSchoolRepository(dataSource, new SurfingSchoolRowMapper()));
     }
 
     public <T> T getRepository(Class<T> repositoryInterface) {
+        @SuppressWarnings("unchecked")
         T repository = (T) registry.get(repositoryInterface);
         if (repository == null) {
             throw new RepositoryException("No repository found for interface " + repositoryInterface.getName());

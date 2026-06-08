@@ -19,8 +19,9 @@ public class ServiceRegistry {
 
     public ServiceRegistry(RepositoryRegistry repositoryRegistry) {
         UserRepository userRepository = repositoryRegistry.getRepository(UserRepository.class);
-        PasswordService passwordService = new BCryptPasswordService();
         UserValidator userValidator = new UserValidator(userRepository);
+
+        this.passwordService = new BCryptPasswordService();
 
         this.authService = new AuthService(userRepository, passwordService, userValidator);
 
@@ -46,35 +47,21 @@ public class ServiceRegistry {
         this.userService = new UserServiceImpl(
                 repositoryRegistry.getRepository(UserRepository.class)
         );
-
-        this.passwordService = new BCryptPasswordService();
     }
 
     public AuthService getAuthService() { return authService; }
 
-    public InstructorService getInstructorService() {
-        return instructorService;
-    }
+    public InstructorService getInstructorService() { return instructorService; }
 
-    public SurfingSchoolService getSurfingSchoolService() {
-        return surfingSchoolService;
-    }
+    public SurfingSchoolService getSurfingSchoolService() { return surfingSchoolService; }
 
-    public SurfSpotService getSurfSpotService() {
-        return surfSpotService;
-    }
+    public SurfSpotService getSurfSpotService() { return surfSpotService; }
 
-    public CoastService getCoastService() {
-        return coastService;
-    }
+    public CoastService getCoastService() { return coastService; }
 
-    public CountryService getCountryService() {
-        return countryService;
-    }
+    public CountryService getCountryService() { return countryService; }
 
     public UserService getUserService() { return userService; }
 
-    public PasswordService getPasswordService() {
-        return passwordService;
-    }
+    public PasswordService getPasswordService() { return passwordService; }
 }

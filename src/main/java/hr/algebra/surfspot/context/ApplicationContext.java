@@ -16,8 +16,6 @@ import hr.algebra.surfspot.controller.surfspot.SurfSpotFormController;
 import hr.algebra.surfspot.controller.surfspot.SurfSpotListController;
 import hr.algebra.surfspot.controller.user.UserFormController;
 import hr.algebra.surfspot.controller.user.UserListController;
-import hr.algebra.surfspot.repository.RoleRepository;
-import hr.algebra.surfspot.repository.UserRepository;
 import hr.algebra.surfspot.repository.sql.DataSourceFactory;
 import hr.algebra.surfspot.service.*;
 import javafx.stage.Stage;

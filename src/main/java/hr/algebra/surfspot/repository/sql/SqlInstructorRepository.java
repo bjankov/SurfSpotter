@@ -3,21 +3,16 @@ package hr.algebra.surfspot.repository.sql;
 import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.Instructor;
 import hr.algebra.surfspot.repository.InstructorRepository;
-import hr.algebra.surfspot.repository.sql.mapper.RowMapperFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.sql.DataSource;
 import java.util.List;
 import java.util.Optional;
 
 public class SqlInstructorRepository extends BaseSqlRepository<Instructor> implements InstructorRepository {
-    private static final Logger log = LoggerFactory.getLogger(SqlInstructorRepository.class);
     private final RowMapper<Instructor> instructorMapper;
 
-    public SqlInstructorRepository(DataSource dataSource) {
+    public SqlInstructorRepository(DataSource dataSource, RowMapper<Instructor> instructorMapper) {
         super(dataSource);
-        instructorMapper = RowMapperFactory.getInstance().getMapper(Instructor.class);
+        this.instructorMapper = instructorMapper;
     }
 
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM instructors WHERE id = ?";
