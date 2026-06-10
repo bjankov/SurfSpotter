@@ -1,6 +1,6 @@
 package hr.algebra.surfspot.repository.sql;
 
-import hr.algebra.surfspot.exception.RepositoryException;
+import hr.algebra.surfspot.exception.PersistenceException;
 import hr.algebra.surfspot.model.*;
 import hr.algebra.surfspot.repository.SurfSpotRepository;
 import javax.sql.DataSource;
@@ -15,8 +15,6 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
         this.surfSpotMapper = surfSpotMapper;
         this.instructorMapper = instructorMapper;
     }
-
-    // --- SQL UPITI ---
 
     private static final String UPDATE_BY_ID_QUERY = """
             UPDATE surf_spots
@@ -35,7 +33,6 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM surf_spots WHERE id = ?";
     private static final String FIND_BY_NAME_QUERY = "SELECT * FROM surf_spots WHERE name = ?";
 
-    // --- POMOĆNI UPITI ZA VEZE ---
     private static final String FIND_MONTHS_BY_SPOT_ID = "SELECT month_name FROM surf_spot_months WHERE surf_spot_id = ?";
     private static final String INSERT_MONTHS_QUERY = "INSERT INTO surf_spot_months (surf_spot_id, month_name) VALUES (?, ?)";
     private static final String DELETE_MONTHS_QUERY = "DELETE FROM surf_spot_months WHERE surf_spot_id = ?";
@@ -45,13 +42,11 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
             JOIN surf_spot_instructors ssi ON i.id = ssi.instructor_id
             WHERE ssi.surf_spot_id = ?;""";
 
-    // --- AGREGACIJSKI UPITI ---
     private static final String COUNT_BY_COUNTRY_CODE_QUERY = "SELECT COUNT(*) FROM surf_spots ss JOIN coasts c ON ss.coast_id = c.id WHERE c.country_code = ?";
     private static final String COUNT_BY_DIFFICULTY_QUERY = "SELECT COUNT(*) FROM surf_spots WHERE difficulty = ?";
     private static final String COUNT_BY_WAVE_TYPE_QUERY = "SELECT COUNT(*) FROM surf_spots WHERE wave_type = ?";
     private static final String COUNT_BY_COAST_ID_QUERY = "SELECT COUNT(*) FROM surf_spots WHERE coast_id = ?";
 
-    // --- OSNOVNI SELECT ZA FILTRIRANJE ---
     private static final String BASE_SELECT = """
             SELECT
                 ss.id, ss.name AS surf_spot_name, ss.latitude, ss.longitude,
@@ -64,7 +59,6 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
             JOIN countries ON coasts.country_code = countries.code
             """;
 
-    // --- UPITI ZA FILTRIRANJE ---
     private static final String FIND_ALL_QUERY = BASE_SELECT;
     private static final String FIND_BY_COUNTRY_NAME = BASE_SELECT + " WHERE countries.name = ?";
     private static final String FIND_BY_DIFFICULTY = BASE_SELECT + " WHERE ss.difficulty = ?";
@@ -104,6 +98,7 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
 
     @Override
     public SurfSpot save(SurfSpot spot) {
+        // TODO: Mozda korisno?
         if (spot.getId() != null) {
             return update(spot);
         }
@@ -135,12 +130,13 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
                     .imagePath(spot.getImagePath())
                     .build();
         }
-        throw new RepositoryException("Could not save surf spot");
+        throw new PersistenceException("Could not save surf spot");
     }
 
     @Override
     public SurfSpot update(SurfSpot spot) {
-        executeUpdate(UPDATE_BY_ID_QUERY,
+        int affectedRows = executeUpdate(
+                UPDATE_BY_ID_QUERY,
                 spot.getName(),
                 spot.getLatitude(),
                 spot.getLongitude(),
@@ -153,6 +149,8 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
                 spot.getId()
         );
 
+        requireAffectedRows(affectedRows, "Could not update surf spot with ID: " + spot.getId());
+
         executeUpdate(DELETE_MONTHS_QUERY, spot.getId());
         saveMonths(spot.getId(), spot.getBestSeason());
 
@@ -161,10 +159,12 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
 
     @Override
     public void delete(Long id) {
-        executeUpdate(DELETE_BY_ID_QUERY, id);
+        int affectedRows = executeUpdate(
+                DELETE_BY_ID_QUERY,
+                id
+        );
+        requireAffectedRows(affectedRows, "Could not delete surf spot with ID: " + id);
     }
-
-    // --- POMOĆNE METODE ZA POVEZANE PODATKE (ASSOCIATIONS) ---
 
     private void populateAssociations(SurfSpot spot) {
         spot.setBestSeason(fetchMonthsForSpot(spot.getId()));
@@ -201,8 +201,6 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
         }
     }
 
-    // --- METODE ZA PROVJERU I BROJANJE ---
-
     @Override
     public boolean existsByName(String name) {
         return exists(FIND_BY_NAME_QUERY, name);
@@ -233,8 +231,6 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
         if (coast == null) return 0;
         return count(COUNT_BY_COAST_ID_QUERY, coast.getId());
     }
-
-    // --- METODE ZA FILTRIRANJE (SEARCH) ---
 
     @Override
     public List<SurfSpot> findByCountryName(String countryName) {

@@ -1,6 +1,6 @@
 package hr.algebra.surfspot.repository.sql;
 
-import hr.algebra.surfspot.exception.RepositoryException;
+import hr.algebra.surfspot.exception.PersistenceException;
 import hr.algebra.surfspot.model.Permission;
 import hr.algebra.surfspot.model.User;
 import hr.algebra.surfspot.repository.UserRepository;
@@ -70,30 +70,36 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
                 user.getPasswordHash()
         );
 
-        if (generatedId != null) {
-            return User.builder()
-                    .id(generatedId)
-                    .username(user.getUsername())
-                    .email(user.getEmail())
-                    .passwordHash(user.getPasswordHash())
-                    .build();
-        }
-        throw new RepositoryException("Could not save new user.");
+        requireGeneratedId(generatedId, "Could not save user with ID: " + user.getId());
+
+        return User.builder()
+                .id(generatedId)
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .passwordHash(user.getPasswordHash())
+                .build();
     }
 
     // TODO: Sto sa passwordom?
     @Override
     public User update(User user) {
-        executeUpdate(UPDATE_BY_ID,
+        int affectedRows = executeUpdate(
+                UPDATE_BY_ID,
                 user.getUsername(),
                 user.getEmail(),
-                user.getId());
+                user.getId()
+        );
+        requireAffectedRows(affectedRows, "Could not update user with ID: " + user.getId());
         return user;
     }
 
     @Override
     public void delete(Long id) {
-        executeUpdate(DELETE_BY_ID_QUERY, id);
+        int affectedRows = executeUpdate(
+                DELETE_BY_ID_QUERY,
+                id
+        );
+        requireAffectedRows(affectedRows, "Could not delete user with ID: " + id);
     }
 
     @Override
@@ -101,7 +107,7 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
         int affectedRows = executeUpdate(DELETE_BY_USERNAME_QUERY, username);
         if (affectedRows == 0) {
             log.error("Failed to delete user by username: {}", username);
-            throw new RepositoryException("Failed to delete users by username: " + username);
+            throw new PersistenceException("Failed to delete users by username: " + username);
         }
     }
 
@@ -110,7 +116,7 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
         int affectedRows = executeUpdate(DELETE_BY_EMAIL_QUERY, email);
         if (affectedRows == 0) {
             log.error("Failed to delete user by email: {}", email);
-            throw new RepositoryException("Failed to delete users by email: " + email);
+            throw new PersistenceException("Failed to delete users by email: " + email);
         }
     }
 

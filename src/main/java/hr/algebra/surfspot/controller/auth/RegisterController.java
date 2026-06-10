@@ -51,7 +51,7 @@ public class RegisterController extends BaseController {
             showInfo("Registracija uspješna! Dobrodošli, " + username + "!");
             sceneNavigator.navigateToMain();
 
-        } catch (ValidationException | DuplicateRecordException e) {
+        } catch (ValidationException e) {
             log.warn("Registration error: {}", e.getMessage());
             showError(e.getMessage());
         } catch (Exception e) {

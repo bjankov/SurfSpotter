@@ -56,26 +56,34 @@ public class SqlCoastRepository extends BaseSqlRepository<Coast> implements Coas
 
     @Override
     public Coast save(final Coast coast) {
-        Long generatedId = insertAndGetId(SAVE_QUERY, coast.getName(), coast.getCountry().code());
+        Long generatedId = insertAndGetId(
+                SAVE_QUERY,
+                coast.getName(),
+                coast.getCountry().code());
 
-        return new Coast(
-            generatedId, coast.getName(), coast.getCountry()
-        );
+        requireGeneratedId(generatedId, "Could not save coast " + coast.getName());
+
+        return Coast.builder()
+                .id(generatedId)
+                .name(coast.getName())
+                .country(coast.getCountry())
+                .build();
     }
 
     @Override
     public Coast update(Coast coast) {
-        executeUpdate(UPDATE_BY_ID_QUERY,
+        int affectedRows = executeUpdate(UPDATE_BY_ID_QUERY,
                 coast.getName(),
                 coast.getCountry().code(),
                 coast.getId());
-
+        requireAffectedRows(affectedRows, "Could not update coast with ID: " + coast.getId());
         return coast;
     }
 
     @Override
     public void delete(Long id) {
-        executeUpdate(DELETE_BY_ID_QUERY, id);
+        int affectedRows = executeUpdate(DELETE_BY_ID_QUERY, id);
+        requireAffectedRows(affectedRows, "Could not delete coast with ID: " + id);
     }
 
     @Override

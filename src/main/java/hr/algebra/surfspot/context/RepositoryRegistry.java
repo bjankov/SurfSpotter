@@ -1,6 +1,6 @@
 package hr.algebra.surfspot.context;
 
-import hr.algebra.surfspot.exception.RepositoryException;
+import hr.algebra.surfspot.exception.PersistenceException;
 import hr.algebra.surfspot.repository.*;
 import hr.algebra.surfspot.repository.sql.*;
 import hr.algebra.surfspot.repository.sql.mapper.*; // Pretpostavka paketa za mappere
@@ -20,7 +20,7 @@ public class RepositoryRegistry {
         @SuppressWarnings("unchecked")
         T repository = (T) registry.get(repositoryInterface);
         if (repository == null) {
-            throw new RepositoryException("No repository found for interface " + repositoryInterface.getName());
+            throw new PersistenceException("No repository found for interface " + repositoryInterface.getName());
         }
         return repository;
     }

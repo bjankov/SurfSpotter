@@ -2,7 +2,7 @@ package hr.algebra.surfspot.repository.sql;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import hr.algebra.surfspot.exception.DataAccessException;
+import hr.algebra.surfspot.exception.ConfigurationException;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class DataSourceFactory {
 
             return new HikariDataSource(config);
         } catch (IOException e) {
-            throw new DataAccessException("Neuspjelo učitavanje konfiguracije baze", e);
+            throw new ConfigurationException("Neuspjelo učitavanje konfiguracije baze", e);
         }
     }
 }

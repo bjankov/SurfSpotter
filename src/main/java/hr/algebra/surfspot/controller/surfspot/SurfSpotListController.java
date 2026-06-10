@@ -51,6 +51,8 @@ public class SurfSpotListController {
     @FXML private VBox itineraryPanel;
     @FXML private ListView<SurfSpot> itineraryListView;
 
+    private SurfSpot draggedSpot;
+
     private final SurfSpotService surfSpotService;
     private final SceneNavigator sceneNavigator;
 
@@ -66,14 +68,11 @@ public class SurfSpotListController {
         difficultyColumn.setCellValueFactory(new PropertyValueFactory<>("difficultyDisplayValue"));
 
         loadSurfSpots();
-
         surfSpotTable.getSelectionModel().selectedItemProperty().addListener(
-                (observable, oldSelection, newSelection) -> populateDetails(newSelection)
+                (obs, oldVal, newVal) -> populateDetails(newVal)
         );
 
-        if (mainSplitPane != null && itineraryPanel != null) {
-            mainSplitPane.getItems().remove(itineraryPanel);
-        }
+        mainSplitPane.getItems().remove(itineraryPanel);
 
         setupDragAndDrop();
         clearDetails();
@@ -81,20 +80,15 @@ public class SurfSpotListController {
 
     private void loadSurfSpots() {
         try {
-            List<SurfSpot> data = surfSpotService.findAll();
-            ObservableList<SurfSpot> observableData = FXCollections.observableArrayList(data);
-            surfSpotTable.setItems(observableData);
-            log.info("Loaded {} surf spots into table", data.size());
+            List<SurfSpot> spots = surfSpotService.findAll();
+            surfSpotTable.setItems(FXCollections.observableArrayList(spots));
+            log.info("Loaded {} surf spots into table", spots.size());
         } catch (Exception e) {
-            log.error("Failed to load surf spots from service", e);
+            log.error("Failed to load surf spots", e);
         }
     }
 
     private void populateDetails(SurfSpot spot) {
-        if (locationLabel == null || coordinatesLabel == null || waveDetailsLabel == null || windDetailsLabel == null || seasonLabel == null) {
-            return;
-        }
-
         if (spot == null) {
             clearDetails();
             return;
@@ -102,217 +96,182 @@ public class SurfSpotListController {
 
         String coastName = (spot.getLocation() != null && spot.getLocation().getCoast() != null)
                 ? spot.getLocation().getCoast().getName() : "?";
-        locationLabel.setText(String.format("%s, %s", coastName, spot.getCountryName()));
 
+        locationLabel.setText(String.format("%s, %s", coastName, spot.getCountryName()));
         coordinatesLabel.setText(spot.getLocation().getCoordinates().toString());
         waveDetailsLabel.setText(spot.getWaveDetails().toString());
-        seasonLabel.setText(spot.getBestSeason().toString());
+        windDetailsLabel.setText(spot.getWindDirectionDegrees() != null ? spot.getFormattedWindDetails() : "Nije unesen");
+        seasonLabel.setText(spot.getBestSeason() != null && !spot.getBestSeason().isEmpty()
+                ? spot.getFormattedBestSeason() : "Nije određena");
 
-        if (spot.getWindDirectionDegrees() != null) {
-            windDetailsLabel.setText(spot.getFormattedWindDetails());
-        } else {
-            windDetailsLabel.setText("Nije unesen");
-        }
+        instructorListView.setItems(spot.getInstructors() != null
+                ? FXCollections.observableArrayList(spot.getInstructors())
+                : FXCollections.emptyObservableList());
 
-        if (spot.getInstructors() != null && instructorListView != null) {
-            instructorListView.setItems(FXCollections.observableArrayList(spot.getInstructors()));
-        } else if (instructorListView != null) {
-            instructorListView.getItems().clear();
-        }
-
-        if (spot.getBestSeason() != null && !spot.getBestSeason().isEmpty()) {
-            seasonLabel.setText(spot.getFormattedBestSeason());
-        } else {
-            seasonLabel.setText("Nije određena");
-        }
-
-        if (spot.getImagePath() != null && !spot.getImagePath().isBlank() && spotImageView != null) {
-            Path imagePath = ImageStorage.getStorageDir().resolve(spot.getImagePath());
-
-            if (Files.exists(imagePath)) {
-                spotImageView.setImage(new Image(imagePath.toUri().toString()));
-            } else {
-                loadDefaultImage();
-            }
-        } else {
-            loadDefaultImage();
-        }
-    }
-
-    private void setupDragAndDrop() {
-        if (surfSpotTable == null || itineraryListView == null) {
-            return;
-        }
-
-        surfSpotTable.setOnDragDetected(event -> {
-            SurfSpot selected = surfSpotTable.getSelectionModel().getSelectedItem();
-            if (selected != null && selected.getId() != null) {
-                Dragboard db = surfSpotTable.startDragAndDrop(TransferMode.COPY);
-                ClipboardContent content = new ClipboardContent();
-                content.putString("ADD:" + selected.getId());
-                db.setContent(content);
-                event.consume();
-            }
-        });
-
-        itineraryListView.setOnDragOver(event -> {
-            if (event.getGestureSource() == surfSpotTable && event.getDragboard().hasString()) {
-                event.acceptTransferModes(TransferMode.COPY);
-            }
-            event.consume();
-        });
-
-        itineraryListView.setOnDragDropped(event -> {
-            Dragboard db = event.getDragboard();
-            boolean success = false;
-            if (db.hasString() && db.getString().startsWith("ADD:")) {
-                success = processAddDrop(db.getString(), itineraryListView.getItems().size());
-            }
-            event.setDropCompleted(success);
-            event.consume();
-        });
-
-        itineraryListView.setCellFactory(lv -> {
-            ListCell<SurfSpot> cell = new ListCell<>() {
-                private final HBox graphicBox = new HBox();
-                private final Label nameLabel = new Label();
-                private final Button deleteButton = new Button("✕");
-                private final Region spacer = new Region();
-
-                {
-                    deleteButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #e74c3c; -fx-padding: 0 5 0 5; -fx-font-weight: bold; -fx-cursor: hand;");
-                    deleteButton.setFocusTraversable(false);
-
-                    HBox.setHgrow(spacer, Priority.ALWAYS);
-                    graphicBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-                    graphicBox.getChildren().addAll(nameLabel, spacer, deleteButton);
-
-                    deleteButton.setOnAction(event -> {
-                        SurfSpot item = getItem();
-                        if (item != null) {
-                            getListView().getItems().remove(item);
-                            log.info("Removed spot from itinerary: {}", item.getName());
-                        }
-                    });
-                }
-
-                @Override
-                protected void updateItem(SurfSpot item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                        setGraphic(null);
-                    } else {
-                        nameLabel.setText(item.getName());
-                        setText(null);
-                        setGraphic(graphicBox);
-                    }
-                }
-            };
-
-            cell.setOnDragDetected(event -> {
-                if (cell.isEmpty()) return;
-                Dragboard db = cell.startDragAndDrop(TransferMode.MOVE);
-                ClipboardContent content = new ClipboardContent();
-                content.putString("MOVE:" + cell.getIndex());
-                db.setContent(content);
-                event.consume();
-            });
-
-            cell.setOnDragOver(event -> {
-                if (event.getDragboard().hasString()) {
-                    String data = event.getDragboard().getString();
-                    if (data.startsWith("MOVE:") && event.getGestureSource() == cell.getListView()) {
-                        event.acceptTransferModes(TransferMode.MOVE);
-                    } else if (data.startsWith("ADD:") && event.getGestureSource() == surfSpotTable) {
-                        event.acceptTransferModes(TransferMode.COPY);
-                    }
-                }
-                event.consume();
-            });
-
-            cell.setOnDragDropped(event -> {
-                Dragboard db = event.getDragboard();
-                boolean success = false;
-
-                if (db.hasString()) {
-                    String data = db.getString();
-                    if (data.startsWith("MOVE:")) {
-                        int sourceIndex = Integer.parseInt(data.replace("MOVE:", ""));
-                        int targetIndex = cell.isEmpty() ? itineraryListView.getItems().size() : cell.getIndex();
-
-                        SurfSpot spot = itineraryListView.getItems().remove(sourceIndex);
-                        if (sourceIndex < targetIndex) {
-                            targetIndex--;
-                        }
-                        itineraryListView.getItems().add(targetIndex, spot);
-                        itineraryListView.getSelectionModel().select(spot);
-                        success = true;
-                    } else if (data.startsWith("ADD:")) {
-                        int targetIndex = cell.isEmpty() ? itineraryListView.getItems().size() : cell.getIndex();
-                        success = processAddDrop(data, targetIndex);
-                    }
-                }
-                event.setDropCompleted(success);
-                event.consume();
-            });
-
-            return cell;
-        });
-    }
-
-    private boolean processAddDrop(String dragData, int targetIndex) {
-        try {
-            Long id = Long.parseLong(dragData.replace("ADD:", ""));
-            SurfSpot spot = surfSpotTable.getItems().stream()
-                    .filter(s -> s.getId().equals(id))
-                    .findFirst()
-                    .orElse(null);
-
-            if (spot != null) {
-                boolean alreadyExists = itineraryListView.getItems().stream()
-                        .anyMatch(s -> s.getId().equals(spot.getId()));
-
-                if (!alreadyExists) {
-                    itineraryListView.getItems().add(targetIndex, spot);
-                    log.info("Added to itinerary: {}", spot.getName());
-                    return true;
-                }
-            }
-        } catch (NumberFormatException e) {
-            log.error("Error parsing ID for Drag&Drop", e);
-        }
-        return false;
-    }
-
-    @FXML
-    private void handleToggleItinerary() {
-        if (mainSplitPane == null || itineraryPanel == null) return;
-
-        if (mainSplitPane.getItems().contains(itineraryPanel)) {
-            mainSplitPane.getItems().remove(itineraryPanel);
-        } else {
-            mainSplitPane.getItems().add(itineraryPanel);
-            mainSplitPane.setDividerPositions(0.4, 0.75);
-        }
+        loadSpotImage(spot.getImagePath());
     }
 
     private void clearDetails() {
-        if (locationLabel == null || coordinatesLabel == null || waveDetailsLabel == null || windDetailsLabel == null || seasonLabel == null) {
-            return;
-        }
-
         locationLabel.setText("-");
         coordinatesLabel.setText("-");
         waveDetailsLabel.setText("-");
         windDetailsLabel.setText("-");
         seasonLabel.setText("-");
+        instructorListView.getItems().clear();
+        spotImageView.setImage(null);
+    }
 
-        if (instructorListView != null) {
-            instructorListView.getItems().clear();
+    private void loadSpotImage(String imagePath) {
+        if (imagePath != null && !imagePath.isBlank()) {
+            Path fullPath = ImageStorage.getStorageDir().resolve(imagePath);
+            if (Files.exists(fullPath)) {
+                spotImageView.setImage(new Image(fullPath.toUri().toString()));
+                return;
+            }
         }
-        if (spotImageView != null) {
-            spotImageView.setImage(null);
+        loadDefaultImage();
+    }
+
+    private void loadDefaultImage() {
+        java.net.URL url = getClass().getResource("/images/default.jpg");
+        spotImageView.setImage(url != null ? new Image(url.toExternalForm()) : null);
+    }
+
+    private void setupDragAndDrop() {
+        setupTableAsDragSource();
+        setupListAsDropTarget();
+        itineraryListView.setCellFactory(lv -> createItineraryCell());
+    }
+
+    private void setupTableAsDragSource() {
+        surfSpotTable.setOnDragDetected(event -> {
+            SurfSpot selected = surfSpotTable.getSelectionModel().getSelectedItem();
+            if (selected != null && selected.getId() != null) {
+                draggedSpot = selected;
+                startDrag(surfSpotTable.startDragAndDrop(TransferMode.COPY), selected.getName());
+            }
+            event.consume();
+        });
+    }
+
+    private void setupListAsDropTarget() {
+        itineraryListView.setOnDragOver(event -> {
+            if (draggedSpot != null) event.acceptTransferModes(TransferMode.COPY);
+            event.consume();
+        });
+
+        itineraryListView.setOnDragDropped(event -> {
+            addToItinerary(draggedSpot, itineraryListView.getItems().size());
+            draggedSpot = null;
+            event.setDropCompleted(true);
+            event.consume();
+        });
+    }
+
+    private ListCell<SurfSpot> createItineraryCell() {
+        ItineraryCell cell = new ItineraryCell();
+
+        cell.setOnDragDetected(event -> {
+            if (!cell.isEmpty()) {
+                draggedSpot = cell.getItem();
+                startDrag(cell.startDragAndDrop(TransferMode.MOVE), draggedSpot.getName());
+            }
+            event.consume();
+        });
+
+        cell.setOnDragOver(event -> {
+            if (draggedSpot != null) event.acceptTransferModes(TransferMode.COPY, TransferMode.MOVE);
+            event.consume();
+        });
+
+        cell.setOnDragDropped(event -> {
+            int targetIndex = cell.isEmpty() ? itineraryListView.getItems().size() : cell.getIndex();
+            boolean fromTable = event.getGestureSource() == surfSpotTable;
+
+            if (fromTable) {
+                addToItinerary(draggedSpot, targetIndex);
+            } else {
+                reorderItinerary(itineraryListView.getItems().indexOf(draggedSpot), targetIndex);
+            }
+
+            draggedSpot = null;
+            event.setDropCompleted(true);
+            event.consume();
+        });
+
+        return cell;
+    }
+
+    private void addToItinerary(SurfSpot spot, int targetIndex) {
+        if (spot == null) return;
+        boolean duplicate = itineraryListView.getItems().stream()
+                .anyMatch(s -> s.getId().equals(spot.getId()));
+        if (!duplicate) {
+            itineraryListView.getItems().add(targetIndex, spot);
+            log.info("Added to itinerary: {}", spot.getName());
+        }
+    }
+
+    private void reorderItinerary(int sourceIndex, int targetIndex) {
+        if (sourceIndex < 0) return;
+        ObservableList<SurfSpot> items = itineraryListView.getItems();
+        SurfSpot spot = items.remove(sourceIndex);
+        items.add(sourceIndex < targetIndex ? targetIndex - 1 : targetIndex, spot);
+        itineraryListView.getSelectionModel().select(spot);
+    }
+
+    private void startDrag(Dragboard db, String label) {
+        ClipboardContent content = new ClipboardContent();
+        content.putString(label);
+        db.setContent(content);
+    }
+
+    private class ItineraryCell extends ListCell<SurfSpot> {
+        private final Label nameLabel = new Label();
+        private final Button deleteButton = new Button("✕");
+        private final HBox layout;
+
+        ItineraryCell() {
+            deleteButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #e74c3c; " +
+                    "-fx-padding: 0 5 0 5; -fx-font-weight: bold; -fx-cursor: hand;");
+            deleteButton.setFocusTraversable(false);
+            deleteButton.setOnAction(e -> removeself());
+
+            Region spacer = new Region();
+            HBox.setHgrow(spacer, Priority.ALWAYS);
+
+            layout = new HBox(nameLabel, spacer, deleteButton);
+            layout.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+        }
+
+        @Override
+        protected void updateItem(SurfSpot item, boolean empty) {
+            super.updateItem(item, empty);
+            setText(null);
+            if (empty || item == null) {
+                setGraphic(null);
+            } else {
+                nameLabel.setText(item.getName());
+                setGraphic(layout);
+            }
+        }
+
+        private void removeself() {
+            SurfSpot item = getItem();
+            if (item != null) {
+                getListView().getItems().remove(item);
+                log.info("Removed spot from itinerary: {}", item.getName());
+            }
+        }
+    }
+
+    @FXML
+    private void handleToggleItinerary() {
+        if (mainSplitPane.getItems().contains(itineraryPanel)) {
+            mainSplitPane.getItems().remove(itineraryPanel);
+        } else {
+            mainSplitPane.getItems().add(itineraryPanel);
+            mainSplitPane.setDividerPositions(0.4, 0.75);
         }
     }
 
@@ -326,10 +285,9 @@ public class SurfSpotListController {
     private void handleEdit() {
         SurfSpot selected = surfSpotTable.getSelectionModel().getSelectedItem();
         if (selected != null) {
-            log.info("Editing surf spot: {}", selected.getId());
             sceneNavigator.navigateToSurfSpotForm(selected);
         } else {
-            log.warn("Edit clicked but no surf spot selected");
+            log.warn("Edit clicked with no surf spot selected");
         }
     }
 
@@ -337,26 +295,15 @@ public class SurfSpotListController {
     private void handleDelete() {
         SurfSpot selected = surfSpotTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            log.warn("Delete clicked but no surf spot selected");
+            log.warn("Delete clicked with no surf spot selected");
             return;
         }
-
         try {
             surfSpotService.delete(selected.getId());
             loadSurfSpots();
-            log.info("Surf spot {} successfully deleted", selected.getName());
+            log.info("Deleted surf spot: {}", selected.getName());
         } catch (Exception e) {
             log.error("Failed to delete surf spot", e);
-        }
-    }
-
-    private void loadDefaultImage() {
-        if (spotImageView == null) return;
-        java.net.URL defaultUrl = getClass().getResource("/images/default.jpg");
-        if (defaultUrl != null) {
-            spotImageView.setImage(new Image(defaultUrl.toExternalForm()));
-        } else {
-            spotImageView.setImage(null);
         }
     }
 
@@ -372,22 +319,19 @@ public class SurfSpotListController {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML Files", "*.xml"));
 
         File file = fileChooser.showSaveDialog(itineraryListView.getScene().getWindow());
+        if (file == null) return;
 
-        if (file != null) {
-            try {
-                XmlMapper xmlMapper = XmlMapper.builder()
-                        .enable(SerializationFeature.INDENT_OUTPUT)
-                        .enable(MapperFeature.PROPAGATE_TRANSIENT_MARKER)
-                        .build();
-
-                xmlMapper.writer()
-                        .withRootName("PlanPutovanja")
-                        .writeValue(file, itineraryListView.getItems());
-
-                log.info("Itinerary successfully exported to: {}", file.getAbsolutePath());
-            } catch (Exception e) {
-                log.error("Export failed", e);
-            }
+        try {
+            XmlMapper xmlMapper = XmlMapper.builder()
+                    .enable(SerializationFeature.INDENT_OUTPUT)
+                    .enable(MapperFeature.PROPAGATE_TRANSIENT_MARKER)
+                    .build();
+            xmlMapper.writer()
+                    .withRootName("PlanPutovanja")
+                    .writeValue(file, itineraryListView.getItems());
+            log.info("Itinerary exported to: {}", file.getAbsolutePath());
+        } catch (Exception e) {
+            log.error("Export failed", e);
         }
     }
 }

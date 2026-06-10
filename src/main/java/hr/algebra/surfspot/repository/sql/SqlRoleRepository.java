@@ -1,6 +1,6 @@
 package hr.algebra.surfspot.repository.sql;
 
-import hr.algebra.surfspot.exception.RepositoryException;
+import hr.algebra.surfspot.exception.PersistenceException;
 import hr.algebra.surfspot.model.Permission;
 import hr.algebra.surfspot.model.Role;
 import hr.algebra.surfspot.repository.RoleRepository;
@@ -53,24 +53,32 @@ public class SqlRoleRepository extends BaseSqlRepository<Role> implements RoleRe
     public Role save(Role role) {
         Long generatedId = insertAndGetId(SAVE_QUERY, role.getName());
 
-        if (generatedId != null) {
-            return Role.builder()
-                    .from(role)
-                    .id(generatedId)
-                    .build();
-        }
-        throw new RepositoryException("Role could not be saved");
+        requireGeneratedId(generatedId, "Could not save instructor");
+
+        return Role.builder()
+                .from(role)
+                .id(generatedId)
+                .build();
     }
 
     @Override
     public Role update(Role role) {
-        executeUpdate(UPDATE_BY_ID_QUERY, role.getName(), role.getId());
+        int affectedRows = executeUpdate(
+                UPDATE_BY_ID_QUERY,
+                role.getName(),
+                role.getId()
+        );
+        requireAffectedRows(affectedRows, "Could not update role with id: " + role.getId());
         return role;
     }
 
     @Override
     public void delete(Long id) {
-        executeUpdate(DELETE_BY_ID_QUERY, id);
+        int affectedRows = executeUpdate(
+                DELETE_BY_ID_QUERY,
+                id
+        );
+        requireAffectedRows(affectedRows, "Could not delete role with id: " + id);
     }
 
     private Role populatePermissions(Role role) {
@@ -96,7 +104,7 @@ public class SqlRoleRepository extends BaseSqlRepository<Role> implements RoleRe
                 }
             }
         } catch (SQLException e) {
-            throw new RepositoryException("Greška pri dohvaćanju dopuštenja za rolu " + roleId, e);
+            throw new PersistenceException("Greška pri dohvaćanju dopuštenja za rolu " + roleId, e);
         }
         return permissions;
     }

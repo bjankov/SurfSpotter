@@ -7,7 +7,7 @@ import hr.algebra.surfspot.controller.instructor.InstructorFormController;
 import hr.algebra.surfspot.controller.school.SurfingSchoolFormController;
 import hr.algebra.surfspot.controller.surfspot.SurfSpotFormController;
 import hr.algebra.surfspot.controller.user.UserFormController;
-import hr.algebra.surfspot.exception.NavigationException;
+import hr.algebra.surfspot.exception.ConfigurationException;
 import hr.algebra.surfspot.model.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -17,6 +17,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 public class SceneNavigator {
 
@@ -35,38 +36,109 @@ public class SceneNavigator {
         loadAuthLayout("/fxml/auth/register.fxml", "Registracija");
     }
 
+    public void navigateToMain() {
+        if (!context.isAuthenticated()) {
+            navigateToLogin();
+            return;
+        }
+        try {
+            Stage stage = context.getPrimaryStage();
+            stage.setTitle("SurfSpot - Aplikacija");
+            stage.setScene(new Scene(loadFXML("/fxml/main_layout.fxml"), 1024, 768));
+            stage.show();
+        } catch (IOException e) {
+            throw new ConfigurationException("Greška pri učitavanju Main ekrana", e);
+        }
+    }
+
     private void loadAuthLayout(String formFxmlPath, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/auth/main_auth_container.fxml"));
             loader.setControllerFactory(context::getController);
-
             Parent root = loader.load();
-            AuthLayoutController layoutController = loader.getController();
-            layoutController.loadForm(formFxmlPath);
+
+            loader.<AuthLayoutController>getController().loadForm(formFxmlPath);
 
             Stage stage = context.getPrimaryStage();
             stage.setTitle("SurfSpot - " + title);
             stage.setScene(new Scene(root, 600, 400));
             stage.show();
         } catch (IOException e) {
-            throw new NavigationException("Greška pri učitavanju AuthLayout-a", e);
+            throw new ConfigurationException("Greška pri učitavanju AuthLayout-a", e);
         }
     }
 
-    public void navigateToMain() {
-        if (!context.isAuthenticated()) {
-            navigateToLogin();
-            return;
-        }
+    public void navigateToSurfSpotList() {
+        navigateTo("/fxml/surf_spot/surf_spot_list.fxml", "Greška pri učitavanju liste surf spotova");
+    }
 
+    public void navigateToSurfSpotForm(SurfSpot spot) {
+        navigateToForm("/fxml/surf_spot/surf_spot_form.fxml", "Greška pri otvaranju forme surf spota",
+                (SurfSpotFormController c) -> c.setSurfSpot(spot));
+    }
+
+    public void navigateToInstructorList() {
+        navigateTo("/fxml/instructor/instructor_list.fxml", "Greška pri učitavanju liste instruktora");
+    }
+
+    public void navigateToInstructorForm(Instructor instructor) {
+        navigateToForm("/fxml/instructor/instructor_form.fxml", "Greška pri otvaranju forme instruktora",
+                (InstructorFormController c) -> c.setInstructor(instructor));
+    }
+
+    public void navigateToSurfingSchoolList() {
+        navigateTo("/fxml/surfing_school/surfing_school_list.fxml", "Greška pri učitavanju liste škola surfanja");
+    }
+
+    public void navigateToSurfingSchoolForm(SurfingSchool school) {
+        navigateToForm("/fxml/surfing_school/surfing_school_form.fxml", "Greška pri otvaranju forme skole",
+                (SurfingSchoolFormController c) -> c.setSurfingSchool(school));
+    }
+
+    public void navigateToCoastList() {
+        navigateTo("/fxml/coast/coast_list.fxml", "Greška pri učitavanju liste obala");
+    }
+
+    public void navigateToCoastForm(Coast coast) {
+        navigateToForm("/fxml/coast/coast_form.fxml", "Greška pri otvaranju forme obala",
+                (CoastFormController c) -> c.setCoast(coast));
+    }
+
+    public void navigateToUserList() {
+        navigateTo("/fxml/user/user_list.fxml", "Greška pri učitavanju liste korisnika");
+    }
+
+    public void navigateToUserForm(User user) {
+        navigateToForm("/fxml/user/user_form.fxml", "Greška pri otvaranju forme korisnika",
+                (UserFormController c) -> c.setUser(user));
+    }
+
+    public void navigateToCountryList() {
+        navigateTo("/fxml/country/country_list.fxml", "Greška pri učitavanju liste drzava");
+    }
+
+    public void navigateToCountryForm(Country country) {
+        navigateToForm("/fxml/country/country_form.fxml", "Greška pri otvaranju forme drzave",
+                (CountryFormController c) -> c.setCountry(country));
+    }
+
+    private void navigateTo(String fxmlPath, String errorMessage) {
         try {
-            Parent root = loadFXML("/fxml/main_layout.fxml");
-            Stage stage = context.getPrimaryStage();
-            stage.setTitle("SurfSpot - Aplikacija");
-            stage.setScene(new Scene(root, 1024, 768));
-            stage.show();
+            displayInMain(loadFXML(fxmlPath));
         } catch (IOException e) {
-            throw new NavigationException("Greška pri učitavanju Main ekrana", e);
+            throw new ConfigurationException(errorMessage, e);
+        }
+    }
+
+    private <T> void navigateToForm(String fxmlPath, String errorMessage, Consumer<T> setup) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            loader.setControllerFactory(context::getController);
+            Parent node = loader.load();
+            setup.accept(loader.getController());
+            displayInMain(node);
+        } catch (IOException e) {
+            throw new ConfigurationException(errorMessage, e);
         }
     }
 
@@ -76,154 +148,9 @@ public class SceneNavigator {
 
     private void displayInMain(Node node) {
         if (mainContentArea == null) {
-            throw new IllegalStateException("MainContentArea nije postavljen. Ne mogu navigirati unutar glavnog prozora.");
+            throw new ConfigurationException("MainContentArea nije postavljen. Ne mogu navigirati unutar glavnog prozora.");
         }
-        mainContentArea.getChildren().clear();
-        mainContentArea.getChildren().add(node);
-    }
-
-    public void navigateToSurfSpotList() {
-        try {
-            Parent listNode = loadFXML("/fxml/surf_spot/surf_spot_list.fxml");
-            displayInMain(listNode);
-        } catch (IOException e) {
-            throw new NavigationException("Greska pri ucitavanju liste surf spotova", e);
-        }
-    }
-
-    public void navigateToSurfSpotForm(SurfSpot spot) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/surf_spot/surf_spot_form.fxml"));
-            loader.setControllerFactory(context::getController);
-            Parent formNode = loader.load();
-
-            SurfSpotFormController controller = loader.getController();
-            controller.setSurfSpot(spot);
-
-            displayInMain(formNode);
-        } catch (IOException e) {
-            throw new NavigationException("Greška pri otvaranju forme surf spota", e);
-        }
-    }
-
-    public void navigateToInstructorList() {
-        try {
-            Parent listNode = loadFXML("/fxml/instructor/instructor_list.fxml");
-            displayInMain(listNode);
-        } catch (IOException e) {
-            throw new NavigationException("Greška pri učitavanju liste instruktora", e);
-        }
-    }
-
-    public void navigateToInstructorForm(Instructor instructor) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/instructor/instructor_form.fxml"));
-            loader.setControllerFactory(context::getController);
-            Parent formNode = loader.load();
-
-            InstructorFormController controller = loader.getController();
-            controller.setInstructor(instructor);
-
-            displayInMain(formNode);
-        } catch (IOException e) {
-            throw new NavigationException("Greška pri otvaranju forme instruktora", e);
-        }
-    }
-
-    public void navigateToSurfingSchoolList() {
-        try {
-            Parent listNode = loadFXML("/fxml/surfing_school/surfing_school_list.fxml");
-            displayInMain(listNode);
-        } catch (IOException e) {
-            throw new NavigationException("Greška pri učitavanju liste škola surfanja", e);
-        }
-    }
-
-    public void navigateToSurfingSchoolForm(SurfingSchool school) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/surfing_school/surfing_school_form.fxml"));
-            loader.setControllerFactory(context::getController);
-            Parent formNode = loader.load();
-
-            SurfingSchoolFormController controller = loader.getController();
-            controller.setSurfingSchool(school);
-
-            displayInMain(formNode);
-        } catch (IOException e) {
-            throw new NavigationException("Greška pri otvaranju forme skole", e);
-        }
-    }
-
-    public void navigateToCoastForm(Coast coast) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/coast/coast_form.fxml"));
-            loader.setControllerFactory(context::getController);
-            Parent formNode = loader.load();
-
-            CoastFormController controller = loader.getController();
-            controller.setCoast(coast);
-
-            displayInMain(formNode);
-        } catch (IOException e) {
-            throw new NavigationException("Greška pri otvaranju forme obala", e);
-        }
-    }
-
-    public void navigateToCoastList() {
-        try {
-            Parent listNode = loadFXML("/fxml/coast/coast_list.fxml");
-            displayInMain(listNode);
-        } catch (IOException e) {
-            throw new NavigationException("Greška pri učitavanju liste obala", e);
-        }
-    }
-
-    public void navigateToUserForm(User user) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/user/user_form.fxml"));
-            loader.setControllerFactory(context::getController);
-            Parent formNode = loader.load();
-
-            UserFormController controller = loader.getController();
-            controller.setUser(user);
-
-            displayInMain(formNode);
-        } catch (IOException e) {
-            throw new NavigationException("Greška pri otvaranju forme korisnika", e);
-        }
-    }
-
-    public void navigateToUserList() {
-        try {
-            Parent listNode = loadFXML("/fxml/user/user_list.fxml");
-            displayInMain(listNode);
-        } catch (IOException e) {
-            throw new NavigationException("Greška pri učitavanju liste korisnika", e);
-        }
-    }
-
-    public void navigateToCountryForm(Country country) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/country/country_form.fxml"));
-            loader.setControllerFactory(context::getController);
-            Parent formNode = loader.load();
-
-            CountryFormController controller = loader.getController();
-            controller.setCountry(country);
-
-            displayInMain(formNode);
-        } catch (IOException e) {
-            throw new NavigationException("Greška pri otvaranju forme drzave", e);
-        }
-    }
-
-    public void navigateToCountryList() {
-        try {
-            Parent listNode = loadFXML("/fxml/country/country_list.fxml");
-            displayInMain(listNode);
-        } catch (IOException e) {
-            throw new NavigationException("Greška pri učitavanju liste drzava", e);
-        }
+        mainContentArea.getChildren().setAll(node);
     }
 
     public Parent loadFXML(String fxmlPath) throws IOException {

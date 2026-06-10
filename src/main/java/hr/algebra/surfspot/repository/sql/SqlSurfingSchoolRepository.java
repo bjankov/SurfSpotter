@@ -1,6 +1,6 @@
 package hr.algebra.surfspot.repository.sql;
 
-import hr.algebra.surfspot.exception.RepositoryException;
+import hr.algebra.surfspot.exception.DuplicateRecordException;
 import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.repository.SurfingSchoolRepository;
 import javax.sql.DataSource;
@@ -38,27 +38,29 @@ public class SqlSurfingSchoolRepository extends BaseSqlRepository<SurfingSchool>
     public SurfingSchool save(SurfingSchool surfingSchool) {
         Long generatedId = insertAndGetId(SAVE_QUERY, surfingSchool.getName());
 
-        if (generatedId != null) {
-            return SurfingSchool.builder()
-                    .from(surfingSchool)
-                    .id(generatedId)
-                    .build();
-        }
-        throw new RepositoryException(String.format("Surfing school with id %d already exists", generatedId));
+        requireGeneratedId(generatedId, "Could not save surfing school");
+
+        return SurfingSchool.builder()
+                .from(surfingSchool)
+                .id(generatedId)
+                .build();
     }
 
     @Override
     public SurfingSchool update(SurfingSchool school) {
-        executeUpdate(UPDATE_BY_ID,
+        int affectedRows = executeUpdate(
+                UPDATE_BY_ID,
                 school.getName(),
                 school.getId()
         );
+        requireAffectedRows(affectedRows, "Could not update surfing school with ID: " + school.getId());
         return school;
     }
 
     @Override
     public void delete(Long id) {
-        executeUpdate(DELETE_BY_ID_QUERY, id);
+        int affactedRows = executeUpdate(DELETE_BY_ID_QUERY, id);
+        requireAffectedRows(affactedRows, "Could not delete surfing school with ID: " + id);
     }
 
 }

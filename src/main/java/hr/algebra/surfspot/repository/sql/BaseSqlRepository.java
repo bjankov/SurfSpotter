@@ -1,7 +1,7 @@
 package hr.algebra.surfspot.repository.sql;
 
-import hr.algebra.surfspot.exception.EntityNotFoundException;
-import hr.algebra.surfspot.exception.RepositoryException;
+import hr.algebra.surfspot.exception.PersistenceException;
+import hr.algebra.surfspot.exception.ResourceNotFoundException;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -28,7 +28,7 @@ public abstract class BaseSqlRepository<T> {
                 }
             }
         } catch (SQLException e) {
-            throw new RepositoryException("Greska u bazi: " + e.getMessage());
+            throw new PersistenceException("Greska u bazi: " + e.getMessage(), e);
         }
         return Optional.empty();
     }
@@ -48,7 +48,7 @@ public abstract class BaseSqlRepository<T> {
             }
 
         } catch (SQLException e) {
-            throw new RepositoryException("Greska u bazi:" + e.getMessage());
+            throw new PersistenceException("Greska u bazi:" + e.getMessage(), e);
         }
         return results;
     }
@@ -63,7 +63,7 @@ public abstract class BaseSqlRepository<T> {
                 return resultSet.next() && (resultSet.getInt(1) > 0 || resultSet.getRow() > 0);
             }
         } catch (SQLException e) {
-            throw new RepositoryException("Greška pri provjeri postojanja: " + e.getMessage());
+            throw new PersistenceException("Greška pri provjeri postojanja: " + e.getMessage(), e);
         }
     }
 
@@ -79,7 +79,7 @@ public abstract class BaseSqlRepository<T> {
                 }
             }
         } catch (SQLException e) {
-            throw new RepositoryException("Greška pri brojanju: " + e.getMessage());
+            throw new PersistenceException("Greška pri brojanju: " + e.getMessage(), e);
         }
         return 0;
     }
@@ -96,10 +96,10 @@ public abstract class BaseSqlRepository<T> {
                 if (generatedKeys.next()) {
                     return generatedKeys.getLong(1);
                 }
-                throw new EntityNotFoundException("No rows affected");
+                throw new ResourceNotFoundException("No rows affected");
             }
         } catch (SQLException e) {
-            throw new RepositoryException("Greska u bazi: " + query + ": " + e.getMessage());
+            throw new PersistenceException("Greska u bazi: " + query + ": " + e.getMessage(), e);
         }
     }
 
@@ -107,13 +107,25 @@ public abstract class BaseSqlRepository<T> {
         try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
-            // TODO: Provjera je li affectedrows 0? Usput provjeri radis li negdje provjere sa affectedRows == 0
             setParams(preparedStatement, params);
             return preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RepositoryException("Greska u bazi:" + query + ": " + e.getMessage());
+            throw new PersistenceException("Greska u bazi:" + query + ": " + e.getMessage(), e);
         }
+    }
+
+    protected void requireAffectedRows(int affectedRows, String errorMessage) {
+        if (affectedRows == 0) {
+            throw new PersistenceException(errorMessage);
+        }
+    }
+
+    protected Long requireGeneratedId(Long generatedId, String errorMessage) {
+        if (generatedId == null) {
+            throw new PersistenceException(errorMessage);
+        }
+        return generatedId;
     }
 
     private void setParams(PreparedStatement preparedStatement, Object... params) throws SQLException {

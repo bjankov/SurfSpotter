@@ -1,6 +1,5 @@
 package hr.algebra.surfspot.repository.sql;
 
-import hr.algebra.surfspot.exception.RepositoryException;
 import hr.algebra.surfspot.model.Country;
 import hr.algebra.surfspot.repository.CountryRepository;
 
@@ -45,22 +44,20 @@ public class SqlCountryRepository extends BaseSqlRepository<Country> implements 
     @Override
     public Country save(Country country) {
         int affectedRows = executeUpdate(SAVE_QUERY, country.code(), country.name());
-        if (affectedRows > 0) {
-            return country;
-        }
-        throw new RepositoryException("Could not save country");
-    }
-
-    @Override
-    public Country update(Country country) {
-        executeUpdate(UPDATE_BY_ID_QUERY,
-                country.name(),
-                country.code());
+        requireAffectedRows(affectedRows, "Could not save country: " + country.code() + ": " + country.name());
         return country;
     }
 
     @Override
-    public void delete(String id) {
-        executeUpdate(DELETE_BY_ID_QUERY, id);
+    public Country update(Country country) {
+        int affectedRows = executeUpdate(UPDATE_BY_ID_QUERY, country.name(), country.code());
+        requireAffectedRows(affectedRows, "Could not update country: " + country.code() + ": " + country.name());
+        return country;
+    }
+
+    @Override
+    public void delete(String code) {
+        int affectedRows = executeUpdate(DELETE_BY_ID_QUERY, code);
+        requireAffectedRows(affectedRows, "Could not delete country with code: " + code);
     }
 }

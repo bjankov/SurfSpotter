@@ -60,52 +60,64 @@ public class SurfSpotFormController {
 
     public void setSurfSpot(SurfSpot spot) {
         this.currentSurfSpot = spot;
-        if (spot != null) {
-            formTitleLabel.setText("Uredi surf spot");
-            nameField.setText(spot.getName());
-
-            if (spot.getLocation() != null) {
-                coastComboBox.setValue(spot.getLocation().getCoast());
-                latitudeField.setText(spot.getLatitude() != null ? spot.getLatitude().toString() : "");
-                longitudeField.setText(spot.getLongitude() != null ? spot.getLongitude().toString() : "");
-            }
-
-            if (spot.getWaveDetails() != null) {
-                waveTypeComboBox.setValue(spot.getWaveType());
-                waveHeightField.setText(spot.getWaveHeight() != null ? spot.getWaveHeight().toString() : "");
-            }
-
-            difficultyComboBox.setValue(spot.getDifficulty());
-            windDirectionField.setText(spot.getWindDirectionDegrees() != null ? spot.getWindDirectionDegrees().toString() : "");
-
-            selectedMonths.clear();
-            if (spot.getBestSeason() != null) {
-                selectedMonths.addAll(spot.getBestSeason());
-            }
-
-            for (MenuItem item : seasonMenuButton.getItems()) {
-                if (item instanceof CustomMenuItem customItem && customItem.getContent() instanceof CheckBox cb) {
-                    Month month = Month.valueOf(cb.getText());
-                    cb.setSelected(selectedMonths.contains(month));
-                }
-            }
-            updateSeasonMenuText();
-
-            if (spot.getImagePath() != null && !spot.getImagePath().isBlank()) {
-                java.nio.file.Path imagePath = ImageStorage.getStorageDir().resolve(spot.getImagePath());
-                if (java.nio.file.Files.exists(imagePath)) {
-                    formImageView.setImage(new Image(imagePath.toUri().toString()));
-                } else {
-                    loadDefaultFormImage();
-                }
-            } else {
-                loadDefaultFormImage();
-            }
-        } else {
+        if (spot == null) {
             formTitleLabel.setText("Novi surf spot");
             clearForm();
             loadDefaultFormImage();
+            return;
         }
+
+        formTitleLabel.setText("Uredi surf spot");
+        populateBasicFields(spot);
+        populateLocationFields(spot);
+        populateWaveFields(spot);
+        populateSeasonFields(spot);
+        populateFormImage(spot.getImagePath());
+    }
+
+    private void populateBasicFields(SurfSpot spot) {
+        nameField.setText(spot.getName());
+        difficultyComboBox.setValue(spot.getDifficulty());
+        windDirectionField.setText(spot.getWindDirectionDegrees() != null
+                ? spot.getWindDirectionDegrees().toString() : "");
+    }
+
+    private void populateLocationFields(SurfSpot spot) {
+        if (spot.getLocation() == null) return;
+        coastComboBox.setValue(spot.getLocation().getCoast());
+        latitudeField.setText(spot.getLatitude() != null ? spot.getLatitude().toString() : "");
+        longitudeField.setText(spot.getLongitude() != null ? spot.getLongitude().toString() : "");
+    }
+
+    private void populateWaveFields(SurfSpot spot) {
+        if (spot.getWaveDetails() == null) return;
+        waveTypeComboBox.setValue(spot.getWaveType());
+        waveHeightField.setText(spot.getWaveHeight() != null ? spot.getWaveHeight().toString() : "");
+    }
+
+    private void populateSeasonFields(SurfSpot spot) {
+        selectedMonths.clear();
+        if (spot.getBestSeason() != null) {
+            selectedMonths.addAll(spot.getBestSeason());
+        }
+
+        for (MenuItem item : seasonMenuButton.getItems()) {
+            if (item instanceof CustomMenuItem customItem && customItem.getContent() instanceof CheckBox cb) {
+                cb.setSelected(selectedMonths.contains(Month.valueOf(cb.getText())));
+            }
+        }
+        updateSeasonMenuText();
+    }
+
+    private void populateFormImage(String imagePath) {
+        if (imagePath != null && !imagePath.isBlank()) {
+            java.nio.file.Path fullPath = ImageStorage.getStorageDir().resolve(imagePath);
+            if (java.nio.file.Files.exists(fullPath)) {
+                formImageView.setImage(new Image(fullPath.toUri().toString()));
+                return;
+            }
+        }
+        loadDefaultFormImage();
     }
 
     private void loadDefaultFormImage() {
@@ -119,47 +131,25 @@ public class SurfSpotFormController {
 
     @FXML
     private void handleSave() {
+        if (nameField.getText().isBlank() || coastComboBox.getValue() == null) {
+            log.warn("Validation failed: Name or Coast is missing.");
+            return;
+        }
+
         try {
-            if (nameField.getText().isBlank() || coastComboBox.getValue() == null) {
-                log.warn("Validation failed: Name or Coast is missing.");
-                return;
-            }
-
-            String imageName = currentSurfSpot != null ? currentSurfSpot.getImagePath() : null;
-
-            if (selectedImageFile != null) {
-                try {
-                    imageName = ImageStorage.saveImage(selectedImageFile);
-                } catch (IOException e) {
-                    log.error("Greška pri spremanju slike", e);
-                }
-            }
-
-            BigDecimal lat = new BigDecimal(latitudeField.getText().trim());
-            BigDecimal lon = new BigDecimal(longitudeField.getText().trim());
-            Coordinates coordinates = new Coordinates(lat, lon);
-
-            Coast selectedCoast = coastComboBox.getValue();
-            Location location = new Location(coordinates, selectedCoast);
-
-            WaveType waveType = waveTypeComboBox.getValue();
-            Double waveHeight = Double.parseDouble(waveHeightField.getText().trim());
-            WaveDetails waveDetails = new WaveDetails(waveType, waveHeight);
-
             SurfSpot spot = SurfSpot.builder()
                     .id(currentSurfSpot != null ? currentSurfSpot.getId() : null)
                     .name(nameField.getText().trim())
-                    .location(location)
-                    .waveDetails(waveDetails)
+                    .location(buildLocation())
+                    .waveDetails(buildWaveDetails())
                     .difficulty(difficultyComboBox.getValue())
                     .windDirectionDegrees(Integer.parseInt(windDirectionField.getText().trim()))
                     .bestSeason(selectedMonths.isEmpty() ? EnumSet.noneOf(Month.class) : EnumSet.copyOf(selectedMonths))
-                    .imagePath(imageName)
+                    .imagePath(resolveImagePath())
                     .build();
 
             surfSpotService.save(spot);
             log.info("Surf spot {} successfully saved.", spot.getName());
-
             handleBack();
 
         } catch (NumberFormatException e) {
@@ -167,6 +157,31 @@ public class SurfSpotFormController {
         } catch (Exception e) {
             log.error("Failed to save surf spot", e);
         }
+    }
+
+    private String resolveImagePath() {
+        if (selectedImageFile == null) {
+            return currentSurfSpot != null ? currentSurfSpot.getImagePath() : null;
+        }
+        try {
+            return ImageStorage.saveImage(selectedImageFile);
+        } catch (IOException e) {
+            log.error("Failed to save image, keeping existing path", e);
+            return currentSurfSpot != null ? currentSurfSpot.getImagePath() : null;
+        }
+    }
+
+    private Location buildLocation() {
+        BigDecimal lat = new BigDecimal(latitudeField.getText().trim());
+        BigDecimal lon = new BigDecimal(longitudeField.getText().trim());
+        return new Location(new Coordinates(lat, lon), coastComboBox.getValue());
+    }
+
+    private WaveDetails buildWaveDetails() {
+        return new WaveDetails(
+                waveTypeComboBox.getValue(),
+                Double.parseDouble(waveHeightField.getText().trim())
+        );
     }
 
     @FXML
