@@ -3,7 +3,6 @@ package hr.algebra.surfspot.controller.auth;
 import hr.algebra.surfspot.context.SceneNavigator;
 import hr.algebra.surfspot.context.UserSession;
 import hr.algebra.surfspot.controller.BaseController;
-import hr.algebra.surfspot.exception.DuplicateRecordException;
 import hr.algebra.surfspot.exception.ValidationException;
 import hr.algebra.surfspot.model.User;
 import hr.algebra.surfspot.service.AuthService;

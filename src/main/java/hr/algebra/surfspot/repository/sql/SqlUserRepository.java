@@ -2,26 +2,25 @@ package hr.algebra.surfspot.repository.sql;
 
 import hr.algebra.surfspot.exception.PersistenceException;
 import hr.algebra.surfspot.model.Permission;
+import hr.algebra.surfspot.model.Role;
 import hr.algebra.surfspot.model.User;
 import hr.algebra.surfspot.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.sql.SQLException;
+import java.util.*;
 
 public class SqlUserRepository extends BaseSqlRepository<User> implements UserRepository {
     private static final Logger log = LoggerFactory.getLogger(SqlUserRepository.class);
     private final RowMapper<User> userMapper;
-    private final RowMapper<Permission> permissionMapper;
+    private final RowMapper<Role> roleMapper;
 
-    public SqlUserRepository(DataSource dataSource, RowMapper<User> userMapper, RowMapper<Permission> permissionMapper) {
+    public SqlUserRepository(DataSource dataSource, RowMapper<User> userMapper, RowMapper<Role> roleMapper) {
         super(dataSource);
         this.userMapper = userMapper;
-        this.permissionMapper = permissionMapper;
+        this.roleMapper = roleMapper;
     }
 
     private static final String UPDATE_BY_ID = "UPDATE users SET username = ?, email = ? WHERE id = ?";
@@ -33,12 +32,15 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM users WHERE id = ?";
     private static final String DELETE_BY_USERNAME_QUERY = "DELETE FROM users WHERE username = ?";
     private static final String DELETE_BY_EMAIL_QUERY = "DELETE FROM users WHERE email = ?";
-    private static final String LOAD_PERMISSIONS_FOR_USER_BY_ID = """
-            SELECT rp.permission_name
-            FROM role_permissions rp
-            JOIN user_roles ur ON rp.role_id = ur.role_id
-            WHERE ur.user_id = ?
-            """;
+    private static final String DELETE_USER_ROLES_BY_USER_ID = "DELETE FROM user_roles WHERE user_id = ?";
+    private static final String INSERT_USER_ROLE = "INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)";
+    private static final String LOAD_ROLES_WITH_PERMISSIONS_FOR_USER = """
+        SELECT r.id AS role_id, r.name AS role_name, rp.permission_name
+        FROM user_roles ur
+        JOIN roles r ON ur.role_id = r.id
+        LEFT JOIN role_permissions rp ON r.id = rp.role_id
+        WHERE ur.user_id = ?
+        """;
 
     @Override
     public Optional<User> findById(Long id) {
@@ -62,7 +64,8 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
         return findAll(FIND_ALL_QUERY, userMapper);
     }
 
-    public User save (final User user) {
+    @Override
+    public User save(final User user) {
         Long generatedId = insertAndGetId(
                 INSERT_USER_QUERY,
                 user.getUsername(),
@@ -72,15 +75,21 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
 
         requireGeneratedId(generatedId, "Could not save user with ID: " + user.getId());
 
+        if (user.getRoles() != null) {
+            for (Role role : user.getRoles()) {
+                executeUpdate(INSERT_USER_ROLE, generatedId, role.getId());
+            }
+        }
+
         return User.builder()
                 .id(generatedId)
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .passwordHash(user.getPasswordHash())
+                .withRoles(user.getRoles())
                 .build();
     }
 
-    // TODO: Sto sa passwordom?
     @Override
     public User update(User user) {
         int affectedRows = executeUpdate(
@@ -90,6 +99,15 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
                 user.getId()
         );
         requireAffectedRows(affectedRows, "Could not update user with ID: " + user.getId());
+
+        executeUpdate(DELETE_USER_ROLES_BY_USER_ID, user.getId());
+
+        if (user.getRoles() != null) {
+            for (Role role : user.getRoles()) {
+                executeUpdate(INSERT_USER_ROLE, user.getId(), role.getId());
+            }
+        }
+
         return user;
     }
 
@@ -121,12 +139,31 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
     }
 
     @Override
-    public Set<Permission> findPermissionsByUserId(Long userId) {
-        List<Permission> permList = findAll(LOAD_PERMISSIONS_FOR_USER_BY_ID, permissionMapper, userId);
+    public Set<Role> findRolesByUserId(Long userId) {
+        return executeQuery(LOAD_ROLES_WITH_PERMISSIONS_FOR_USER, rs -> {
+            Map<Long, Role> roleMap = new HashMap<>();
 
-        Set<Permission> permissions = new HashSet<>(permList);
-        permissions.remove(null);
+            while (rs.next()) {
+                Long roleId = rs.getLong("role_id");
 
-        return permissions;
+                Role role = roleMap.computeIfAbsent(roleId, id -> {
+                    try {
+                        return Role.builder()
+                                .id(id)
+                                .name(rs.getString("role_name"))
+                                .build();
+                    } catch (SQLException e) {
+                        throw new PersistenceException("Greška pri mapiranju role: " + e.getMessage(), e);
+                    }
+                });
+
+                String permName = rs.getString("permission_name");
+                if (permName != null && !permName.isBlank()) {
+                    role.getPermissions().add(Permission.valueOf(permName));
+                }
+            }
+
+            return new HashSet<>(roleMap.values());
+        }, userId);
     }
 }

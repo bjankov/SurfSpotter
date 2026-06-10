@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import hr.algebra.surfspot.util.DisplayConstants;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -228,7 +229,7 @@ public class SurfSpot implements Serializable {
 
     public String getFormattedBestSeason() {
         if (bestSeason == null || bestSeason.isEmpty()) {
-            return "Nije određena";
+            return DisplayConstants.NOT_ENTERED;
         }
         return bestSeason.stream()
                 .map(Enum::name)
@@ -238,24 +239,27 @@ public class SurfSpot implements Serializable {
     @Override
     public String toString() {
         return String.format(
-            "Surf Spot [ID %d]:%n" +
-            "Naziv: %s%n" +
-            "Lokacija: %s%n" +
-            "Tip valova: %s%n" +
-            "Smjer vjetra: %s (%s)%n" +
-            "Tezina: %s%n" +
-            "Mjeseci sezone: %s%n" +
-            "Instruktori: %s%n" +
-            "Path fotografije: %s",
-            id,
-            name,
-            (location != null ? location : "Nije uneseno"),
-            (waveDetails != null ? waveDetails.getWaveType().getDisplayValue() : "Nije uneseno"),
-            windDirectionDegrees, WindDirection.fromDegrees(windDirectionDegrees).getDisplayValue(),
-            (difficulty != null ? difficulty.getDisplayValue() : "Nije uneseno"),
-            (!bestSeason.isEmpty() ? bestSeason.toString() : "Nije uneseno"),
-            (!instructors.isEmpty() ? instructors.toString() : "Nije uneseno"),
-            imagePath);
+                "Surf Spot [ID %d]:%n" +
+                "Naziv: %s%n" +
+                "Lokacija: %s%n" +
+                "Tip vala: %s%n" +
+                "Visina vala: %s%n" +
+                "Smjer vjetra: %s%n" +
+                "Težina: %s%n" +
+                "Sezona: %s%n" +
+                "Instruktori: %s%n" +
+                "Fotografija: %s",
+                id,
+                name,
+                location,
+                waveDetails.getWaveType().getDisplayValue(),
+                waveDetails.getWaveHeight() != null ? waveDetails.getWaveHeight() + "m" : DisplayConstants.NOT_ENTERED,
+                windDirectionDegrees != null ? windDirectionDegrees + "° " + WindDirection.fromDegrees(windDirectionDegrees).getDisplayValue() : DisplayConstants.NOT_ENTERED,
+                difficulty != null ? difficulty.getDisplayValue() : DisplayConstants.NOT_ENTERED,
+                !bestSeason.isEmpty() ? bestSeason.toString() : DisplayConstants.NOT_ENTERED,
+                !instructors.isEmpty() ? instructors.toString() : DisplayConstants.NOT_ENTERED,
+                imagePath != null ? imagePath : DisplayConstants.NOT_ENTERED
+        );
     }
 
     @Override

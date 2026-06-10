@@ -73,7 +73,11 @@ public class Role {
     }
 
     public Set<Permission> getPermissions() {
-        return Collections.unmodifiableSet(permissions);
+        return permissions;
+    }
+
+    public boolean hasPermission(Permission permission) {
+        return permissions.contains(permission);
     }
 
     @Override

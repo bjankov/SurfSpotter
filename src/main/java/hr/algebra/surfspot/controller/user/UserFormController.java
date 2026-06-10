@@ -1,8 +1,13 @@
 package hr.algebra.surfspot.controller.user;
 
 import hr.algebra.surfspot.context.SceneNavigator;
+import hr.algebra.surfspot.exception.ResourceNotFoundException;
+import hr.algebra.surfspot.exception.SurfSpotException;
+import hr.algebra.surfspot.model.Role;
 import hr.algebra.surfspot.model.User;
+import hr.algebra.surfspot.service.RoleService;
 import hr.algebra.surfspot.service.UserService;
+import hr.algebra.surfspot.util.DisplayConstants;
 import javafx.fxml.FXML;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
@@ -19,11 +24,13 @@ public class UserFormController {
     @FXML private CheckBox isAdminCheckbox;
 
     private final UserService userService;
+    private final RoleService roleService;
     private final SceneNavigator sceneNavigator;
     private User currentUser;
 
-    public UserFormController(UserService userService, SceneNavigator sceneNavigator) {
+    public UserFormController(UserService userService, RoleService roleService, SceneNavigator sceneNavigator) {
         this.userService = userService;
+        this.roleService = roleService;
         this.sceneNavigator = sceneNavigator;
     }
 
@@ -33,9 +40,16 @@ public class UserFormController {
             formTitleLabel.setText("Uredi podatke o korisniku");
             usernameField.setText(user.getUsername());
             emailField.setText(user.getEmail());
+
+            boolean isUserAdmin = user.getRoles() != null &&
+                    user.getRoles().stream().anyMatch(role -> DisplayConstants.ADMIN.equals(role.getName()));
+
+            isAdminCheckbox.setSelected(isUserAdmin);
         } else {
             formTitleLabel.setText("Novi korisnik");
             usernameField.clear();
+            emailField.clear();
+            isAdminCheckbox.setSelected(false);
         }
     }
 
@@ -48,18 +62,36 @@ public class UserFormController {
 
         try {
             if (currentUser == null) {
-                User newUser = User.builder()
-                        .username(usernameField.getText())
-                        .email(emailField.getText())
-                        .build();
-                userService.save(newUser);
+                var userBuilder = User.builder()
+                        .username(usernameField.getText().trim())
+                        .email(emailField.getText().trim());
+
+                if (isAdminCheckbox.isSelected()) {
+                    Role adminRole = roleService.findByName(DisplayConstants.ADMIN)
+                            .orElseThrow(() -> new SurfSpotException("Rola ADMIN ne postoji u bazi."));
+                    userBuilder.addRole(adminRole);
+                }
+
+                userService.save(userBuilder.build());
+
             } else {
                 currentUser.setUsername(usernameField.getText().trim());
                 currentUser.setEmail(emailField.getText().trim());
+
+                if (isAdminCheckbox.isSelected()) {
+                    Role adminRole = roleService.findByName(DisplayConstants.ADMIN)
+                            .orElseThrow(() -> new SurfSpotException("Rola ADMIN ne postoji u bazi."));
+                    currentUser.getRoles().add(adminRole);
+                } else {
+                    currentUser.getRoles().removeIf(role -> DisplayConstants.ADMIN.equals(role.getName()));
+                }
+
                 userService.update(currentUser);
             }
+
             sceneNavigator.navigateToUserList();
-        } catch (Exception e) {
+
+        } catch (SurfSpotException e) {
             log.error("Neuspjelo spremanje korisnika", e);
         }
     }

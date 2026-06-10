@@ -5,6 +5,7 @@ import hr.algebra.surfspot.repository.*;
 import hr.algebra.surfspot.repository.sql.*;
 import hr.algebra.surfspot.repository.sql.mapper.*; // Pretpostavka paketa za mappere
 
+import javax.management.relation.Role;
 import javax.sql.DataSource;
 import java.util.Map;
 
@@ -13,7 +14,44 @@ public class RepositoryRegistry {
 
     public RepositoryRegistry(DataSource dataSource) {
 
-        this.registry = Map.of(SurfSpotRepository.class, new SqlSurfSpotRepository(dataSource, new SurfSpotRowMapper(), new InstructorRowMapper()), UserRepository.class, new SqlUserRepository(dataSource, new UserRowMapper(), new PermissionRowMapper()), CoastRepository.class, new SqlCoastRepository(dataSource, new CoastRowMapper()), CountryRepository.class, new SqlCountryRepository(dataSource, new CountryRowMapper()), InstructorRepository.class, new SqlInstructorRepository(dataSource, new InstructorRowMapper()), RoleRepository.class, new SqlRoleRepository(dataSource, new RoleRowMapper()), SurfingSchoolRepository.class, new SqlSurfingSchoolRepository(dataSource, new SurfingSchoolRowMapper()));
+        this.registry = Map.of(
+                SurfSpotRepository.class,
+                new SqlSurfSpotRepository(
+                        dataSource,
+                        new SurfSpotRowMapper(),
+                        new InstructorRowMapper()
+                ),
+                UserRepository.class,
+                new SqlUserRepository(
+                        dataSource,
+                        new UserRowMapper(),
+                        new RoleRowMapper()
+                ),
+                CoastRepository.class,
+                new SqlCoastRepository(
+                        dataSource,
+                        new CoastRowMapper()
+                ),
+                CountryRepository.class,
+                new SqlCountryRepository(
+                        dataSource,
+                        new CountryRowMapper()
+                ),
+                InstructorRepository.class,
+                new SqlInstructorRepository(
+                        dataSource,
+                        new InstructorRowMapper()
+                ),
+                RoleRepository.class,
+                new SqlRoleRepository(
+                        dataSource,
+                        new RoleRowMapper()
+                ),
+                SurfingSchoolRepository.class,
+                new SqlSurfingSchoolRepository(
+                        dataSource,
+                        new SurfingSchoolRowMapper()
+                ));
     }
 
     public <T> T getRepository(Class<T> repositoryInterface) {

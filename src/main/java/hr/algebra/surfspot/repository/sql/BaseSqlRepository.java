@@ -133,4 +133,18 @@ public abstract class BaseSqlRepository<T> {
             preparedStatement.setObject(i + 1, params[i]);
         }
     }
+
+    protected <R> R executeQuery(String query, ResultSetExtractor<R> extractor, Object... params) {
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            setParams(preparedStatement, params);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                return extractor.extract(resultSet);
+            }
+        } catch (SQLException e) {
+            throw new PersistenceException("Greška u bazi kod izvršavanja upita: " + e.getMessage(), e);
+        }
+    }
 }

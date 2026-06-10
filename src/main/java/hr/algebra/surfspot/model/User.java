@@ -11,7 +11,6 @@ public class User {
     private String email;
     private final String passwordHash;
     private Set<Role> roles = new HashSet<>();
-    private Set<Permission> permissions = new HashSet<>();
 
     private User(Builder builder) {
         this.id = builder.id;
@@ -19,7 +18,6 @@ public class User {
         this.passwordHash = builder.passwordHash;
         this.email = builder.email;
         this.roles = builder.roles;
-        this.permissions = builder.permissions;
     }
 
     public static Builder builder() {
@@ -32,7 +30,6 @@ public class User {
         private String passwordHash;
         private String email;
         private Set<Role> roles = new HashSet<>();
-        private Set<Permission> permissions = new HashSet<>();
 
         public Builder id(Long id) {
             this.id = id;
@@ -72,31 +69,12 @@ public class User {
             return this;
         }
 
-        public Builder addPermission(Permission permission) {
-            if (permission == null) {
-                return this;
-            }
-            if (this.permissions == null) {
-                this.permissions = new HashSet<>();
-            }
-            this.permissions.add(permission);
-            return this;
-        }
-
-        public Builder withPermissions(Set<Permission> permissions) {
-            if (permissions != null) {
-                this.permissions = new HashSet<>(permissions);
-            }
-            return this;
-        }
-
         public Builder from(User user) {
             this.id = user.id;
             this.username = user.username;
             this.passwordHash = user.passwordHash;
             this.email = user.email;
             this.roles = new HashSet<>(user.roles);
-            this.permissions = new HashSet<>(user.permissions);
             return this;
         }
 
@@ -130,19 +108,14 @@ public class User {
     }
 
     public Set<Role> getRoles() {
-        return Collections.unmodifiableSet(roles);
+        return roles;
     }
 
-    public Set<Permission> getPermissions() {
-        return Collections.unmodifiableSet(permissions);
-    }
-
-    public void setPermissions(Set<Permission> permissions) {
-        this.permissions = permissions != null ? new HashSet<>(permissions) : new HashSet<>();
-    }
-
-    public Boolean hasPermission(Permission permission) {
-        return permissions != null && permissions.contains(permission);
+    public boolean hasPermission(Permission permission) {
+        if (roles == null || permission == null) {
+            return false;
+        }
+        return roles.stream().anyMatch(role -> role.hasPermission(permission));
     }
 
     @Override

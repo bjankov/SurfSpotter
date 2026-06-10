@@ -1,6 +1,5 @@
 package hr.algebra.surfspot.repository.sql;
 
-import hr.algebra.surfspot.exception.DuplicateRecordException;
 import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.repository.SurfingSchoolRepository;
 import javax.sql.DataSource;

@@ -1,6 +1,6 @@
 package hr.algebra.surfspot.repository;
 
-import hr.algebra.surfspot.model.Permission;
+import hr.algebra.surfspot.model.Role;
 import hr.algebra.surfspot.model.User;
 
 import java.util.Optional;
@@ -11,5 +11,5 @@ public interface UserRepository extends CrudRepository<User, Long> {
     Optional<User> findByName(String usernameOrEmail);
     void deleteByUsername(String username);
     void deleteByEmail(String email);
-    public Set<Permission> findPermissionsByUserId(Long userId);
+    public Set<Role> findRolesByUserId(Long userId);
 }

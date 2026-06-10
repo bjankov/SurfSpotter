@@ -15,6 +15,7 @@ public class ServiceRegistry {
     private final CoastService coastService;
     private final CountryService countryService;
     private final UserService userService;
+    private final RoleService roleService;
     private final PasswordService passwordService;
 
     public ServiceRegistry(RepositoryRegistry repositoryRegistry) {
@@ -47,6 +48,10 @@ public class ServiceRegistry {
         this.userService = new UserServiceImpl(
                 repositoryRegistry.getRepository(UserRepository.class)
         );
+
+        this.roleService = new RoleServiceImpl(
+                repositoryRegistry.getRepository(RoleRepository.class)
+        );
     }
 
     public AuthService getAuthService() { return authService; }
@@ -62,6 +67,8 @@ public class ServiceRegistry {
     public CountryService getCountryService() { return countryService; }
 
     public UserService getUserService() { return userService; }
+
+    public RoleService getRoleService() { return roleService; }
 
     public PasswordService getPasswordService() { return passwordService; }
 }

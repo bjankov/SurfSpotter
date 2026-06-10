@@ -1,6 +1,7 @@
 package hr.algebra.surfspot.service;
 
 import hr.algebra.surfspot.exception.AuthenticationException;
+import hr.algebra.surfspot.model.Role;
 import hr.algebra.surfspot.model.User;
 import hr.algebra.surfspot.repository.UserRepository;
 import hr.algebra.surfspot.security.PasswordService;
@@ -9,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
+import java.util.Set;
 
 public class AuthService {
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
@@ -30,15 +32,18 @@ public class AuthService {
         User user = findUser(usernameOrEmail)
                 .orElseThrow(() -> {
                     log.warn("Login attempt with non-existent identity: {}", usernameOrEmail);
-                    return new AuthenticationException("Neispravni podaci sa prijavu.");
+                    return new AuthenticationException("Neispravni podaci za prijavu.");
                 });
-
-        user.setPermissions(userRepository.findPermissionsByUserId(user.getId()));
 
         if (!passwordService.verify(password, user.getPasswordHash())) {
             log.warn("Failed login attempt for user: {}", user.getUsername());
-            throw new AuthenticationException("Neispravni podaci za prijavu");
+            throw new AuthenticationException("Neispravni podaci za prijavu.");
         }
+
+        Set<Role> userRoles = userRepository.findRolesByUserId(user.getId());
+
+        user.getRoles().clear();
+        user.getRoles().addAll(userRoles);
 
         log.info("Successful login for user: {}", user.getUsername());
         return user;

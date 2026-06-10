@@ -75,8 +75,6 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
     private static final String FIND_BY_SCHOOL = BASE_SELECT +
             " JOIN surfing_school_spots sss ON ss.id = sss.surf_spot_id WHERE sss.school_id = ?";
 
-    // --- OSNOVNE CRUD METODE ---
-
     @Override
     public Optional<SurfSpot> findById(Long id) {
         Optional<SurfSpot> spot = findSingleResult(FIND_BY_ID_QUERY, surfSpotMapper, id);
