@@ -73,14 +73,14 @@ Baza će biti dostupna na `localhost:5432` i spremna za korištenje bez ikakvih 
 
 ## Konfiguracija aplikacije
 
-U korijenu projekta nalazi se datoteka `db.properties.example`. Napravite kopiju te datoteke i uklonite `.example` s kraja naziva:
+U `src/main/resources` nalazi se datoteka `db.properties.example`. Napravite kopiju te datoteke i uklonite `.example` s kraja naziva:
 
 ```bash
 # Windows
-copy db.properties.example db.properties
+copy src\main\resources\db.properties.example src\main\resources\db.properties
 
 # macOS / Linux
-cp db.properties.example db.properties
+copy src\main\resources\db.properties.example src\main\resources\db.properties
 ```
 
 Otvorite `db.properties` i popunite podatke:
