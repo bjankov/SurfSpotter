@@ -1,0 +1,12 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: surf_spot_db
+      POSTGRES_USER: surfspot
+      POSTGRES_PASSWORD: surfspot
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./docker/01_ddl.sql:/docker-entrypoint-initdb.d/01_ddl.sql
+      - ./docker/02_seed.sql:/docker-entrypoint-initdb.d/02_seed.sql

@@ -1,6 +1,5 @@
 package hr.algebra.surfspot.repository.sql;
 
-import hr.algebra.surfspot.exception.PersistenceException;
 import hr.algebra.surfspot.model.Instructor;
 import hr.algebra.surfspot.repository.InstructorRepository;
 import javax.sql.DataSource;
