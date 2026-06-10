@@ -97,7 +97,7 @@ Ako koristite Docker Compose iz ovog projekta, gore navedeni podaci su ispravni 
 
 ## Pokretanje aplikacije
 
-Program možete pokrenuti pokretanjem main() metode u Main klasi.
+Program možete pokrenuti pokretanjem `main()` metode u `Main` klasi.
 
 Alternativno imate opciju pokretanja preko Mavena:
 
