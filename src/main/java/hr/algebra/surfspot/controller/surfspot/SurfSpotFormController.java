@@ -1,6 +1,7 @@
 package hr.algebra.surfspot.controller.surfspot;
 
 import hr.algebra.surfspot.context.SceneNavigator;
+import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.*;
 import hr.algebra.surfspot.service.CoastService;
 import hr.algebra.surfspot.service.SurfSpotService;
@@ -20,7 +21,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class SurfSpotFormController {
+public class SurfSpotFormController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(SurfSpotFormController.class);
     private Path selectedImageFile = null;
 
@@ -233,7 +234,7 @@ public class SurfSpotFormController {
             CustomMenuItem menuItem = new CustomMenuItem(checkBox);
             menuItem.setHideOnClick(false);
 
-            checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            checkBox.selectedProperty().addListener((_, _, newValue) -> {
                 if (Boolean.TRUE.equals(newValue)) {
                     selectedMonths.add(month);
                 } else {

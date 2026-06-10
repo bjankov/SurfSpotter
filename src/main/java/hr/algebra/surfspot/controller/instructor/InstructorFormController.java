@@ -1,6 +1,7 @@
 package hr.algebra.surfspot.controller.instructor;
 
 import hr.algebra.surfspot.context.SceneNavigator;
+import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.Instructor;
 import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.service.InstructorService;
@@ -16,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class InstructorFormController {
+public class InstructorFormController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(InstructorFormController.class);
 
     @FXML private Label formTitleLabel;
@@ -56,7 +57,7 @@ public class InstructorFormController {
         List<SurfingSchool> schools = schoolService.findAll();
         schoolComboBox.setItems(FXCollections.observableArrayList(schools));
 
-        schoolComboBox.setConverter(new StringConverter<SurfingSchool>() {
+        schoolComboBox.setConverter(new StringConverter<>() {
             @Override
             public String toString(SurfingSchool school) {
                 return school != null ? school.getName() : "";

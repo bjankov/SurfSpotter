@@ -1,6 +1,7 @@
 package hr.algebra.surfspot.controller.coast;
 
 import hr.algebra.surfspot.context.SceneNavigator;
+import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.Coast;
 import hr.algebra.surfspot.model.Country;
 import hr.algebra.surfspot.service.CoastService;
@@ -14,7 +15,7 @@ import javafx.util.StringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CoastFormController {
+public class CoastFormController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(CoastFormController.class);
 
     @FXML private Label formTitleLabel;
@@ -35,7 +36,7 @@ public class CoastFormController {
     public void initialize() {
         countryComboBox.setItems(FXCollections.observableArrayList(countryService.findAll()));
 
-        countryComboBox.setConverter(new StringConverter<Country>() {
+        countryComboBox.setConverter(new StringConverter<>() {
             @Override
             public String toString(Country country) {
                 return country == null ? "" : country.name();

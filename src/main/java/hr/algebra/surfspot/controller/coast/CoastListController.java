@@ -1,6 +1,7 @@
 package hr.algebra.surfspot.controller.coast;
 
 import hr.algebra.surfspot.context.SceneNavigator;
+import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.Coast;
 import hr.algebra.surfspot.service.CoastService;
 import javafx.collections.FXCollections;
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class CoastListController {
+public class CoastListController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(CoastListController.class);
 
     @FXML private TableView<Coast> coastTable;

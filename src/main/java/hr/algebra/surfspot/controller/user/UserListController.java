@@ -1,6 +1,7 @@
 package hr.algebra.surfspot.controller.user;
 
 import hr.algebra.surfspot.context.SceneNavigator;
+import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.User;
 import hr.algebra.surfspot.service.UserService;
 import javafx.collections.FXCollections;
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class UserListController {
+public class UserListController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(UserListController.class);
 
     @FXML private TableView<User> userTable;

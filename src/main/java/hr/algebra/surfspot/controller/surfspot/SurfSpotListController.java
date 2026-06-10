@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import hr.algebra.surfspot.context.SceneNavigator;
+import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.Instructor;
 import hr.algebra.surfspot.model.SurfSpot;
 import hr.algebra.surfspot.service.SurfSpotService;
@@ -31,7 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-public class SurfSpotListController {
+public class SurfSpotListController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(SurfSpotListController.class);
 
     @FXML private TableView<SurfSpot> surfSpotTable;
@@ -69,7 +70,7 @@ public class SurfSpotListController {
 
         loadSurfSpots();
         surfSpotTable.getSelectionModel().selectedItemProperty().addListener(
-                (obs, oldVal, newVal) -> populateDetails(newVal)
+                (_, _, newVal) -> populateDetails(newVal)
         );
 
         mainSplitPane.getItems().remove(itineraryPanel);
@@ -140,7 +141,7 @@ public class SurfSpotListController {
     private void setupDragAndDrop() {
         setupTableAsDragSource();
         setupListAsDropTarget();
-        itineraryListView.setCellFactory(lv -> createItineraryCell());
+        itineraryListView.setCellFactory(_ -> createItineraryCell());
     }
 
     private void setupTableAsDragSource() {
@@ -226,16 +227,16 @@ public class SurfSpotListController {
         db.setContent(content);
     }
 
-    private class ItineraryCell extends ListCell<SurfSpot> {
+    private static class ItineraryCell extends ListCell<SurfSpot> {
         private final Label nameLabel = new Label();
-        private final Button deleteButton = new Button("✕");
         private final HBox layout;
 
         ItineraryCell() {
+            Button deleteButton = new Button("✕");
             deleteButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #e74c3c; " +
                     "-fx-padding: 0 5 0 5; -fx-font-weight: bold; -fx-cursor: hand;");
             deleteButton.setFocusTraversable(false);
-            deleteButton.setOnAction(e -> removeself());
+            deleteButton.setOnAction(_ -> removeself());
 
             Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);

@@ -1,6 +1,7 @@
 package hr.algebra.surfspot.controller.school;
 
 import hr.algebra.surfspot.context.SceneNavigator;
+import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.service.SurfingSchoolService;
 import javafx.fxml.FXML;
@@ -9,7 +10,7 @@ import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SurfingSchoolFormController {
+public class SurfingSchoolFormController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(SurfingSchoolFormController.class);
 
     @FXML private Label formTitleLabel;

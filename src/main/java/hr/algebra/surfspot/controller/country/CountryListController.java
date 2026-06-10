@@ -1,6 +1,7 @@
 package hr.algebra.surfspot.controller.country;
 
 import hr.algebra.surfspot.context.SceneNavigator;
+import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.Country;
 import hr.algebra.surfspot.service.CountryService;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public class CountryListController {
+public class CountryListController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(CountryListController.class);
 
     @FXML private TableView<Country> countryTable;

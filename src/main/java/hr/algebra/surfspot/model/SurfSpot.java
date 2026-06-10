@@ -1,29 +1,35 @@
 package hr.algebra.surfspot.model;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import hr.algebra.surfspot.util.DisplayConstants;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.*;
 
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
 @JacksonXmlRootElement(localName = "SurfSpot")
-public class SurfSpot implements Serializable {
-    private transient Long id;
+public class SurfSpot {
+    @JsonIgnore
+    private Long id;
     private String name;
-    private transient Location location;
-    private transient WaveDetails waveDetails;
-    private transient Integer windDirectionDegrees;
+    @JsonIgnore
+    private Location location;
+    @JsonIgnore
+    private WaveDetails waveDetails;
+    @JsonIgnore
+    private Integer windDirectionDegrees;
     private DifficultyLevel difficulty;
     @JacksonXmlElementWrapper(localName = "bestSeason")
     @JacksonXmlProperty(localName = "month")
     private Set<Month> bestSeason = EnumSet.noneOf(Month.class);
-    private transient Set<Instructor> instructors = new HashSet<>();
-    private transient String imagePath;
+    @JsonIgnore
+    private Set<Instructor> instructors = new HashSet<>();
+    @JsonIgnore
+    private String imagePath;
 
     public static Builder builder() {
         return new Builder();

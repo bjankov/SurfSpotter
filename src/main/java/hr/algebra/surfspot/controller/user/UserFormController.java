@@ -1,7 +1,7 @@
 package hr.algebra.surfspot.controller.user;
 
 import hr.algebra.surfspot.context.SceneNavigator;
-import hr.algebra.surfspot.exception.ResourceNotFoundException;
+import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.exception.SurfSpotException;
 import hr.algebra.surfspot.model.Role;
 import hr.algebra.surfspot.model.User;
@@ -15,7 +15,7 @@ import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UserFormController {
+public class UserFormController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(UserFormController.class);
 
     @FXML private Label formTitleLabel;

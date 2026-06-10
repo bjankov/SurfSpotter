@@ -9,7 +9,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.StackPane;
 
-public class MainLayoutController {
+public class MainLayoutController extends BaseController {
 
     @FXML private StackPane contentArea;
     @FXML private ToggleGroup navigationGroup;
@@ -72,14 +72,21 @@ public class MainLayoutController {
 
     @FXML
     private void showUsers() {
-        if (Boolean.TRUE.equals(ApplicationContext.getInstance().getSession().getCurrentUser().hasPermission(Permission.MANAGE_USERS))) {
+        if (ApplicationContext.getInstance()
+                .getSession()
+                .getCurrentUser()
+                .hasPermission(Permission.MANAGE_USERS)) {
             navigator.navigateToUserList();
         }
     }
 
     @FXML
     private void showCountries() {
-        if (Boolean.TRUE.equals(ApplicationContext.getInstance().getSession().getCurrentUser().hasPermission(Permission.MANAGE_COUNTRIES))) {
+        if (ApplicationContext.getInstance()
+                .getSession().
+                getCurrentUser()
+                .hasPermission(Permission.MANAGE_COUNTRIES)) {
+
             navigator.navigateToCountryList();
         }
     }

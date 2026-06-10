@@ -1,6 +1,7 @@
 package hr.algebra.surfspot.controller.country;
 
 import hr.algebra.surfspot.context.SceneNavigator;
+import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.Country;
 import hr.algebra.surfspot.service.CountryService;
 import javafx.fxml.FXML;
@@ -9,7 +10,7 @@ import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CountryFormController {
+public class CountryFormController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(CountryFormController.class);
 
     @FXML private Label formTitleLabel;
