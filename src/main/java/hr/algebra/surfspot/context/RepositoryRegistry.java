@@ -3,9 +3,8 @@ package hr.algebra.surfspot.context;
 import hr.algebra.surfspot.exception.PersistenceException;
 import hr.algebra.surfspot.repository.*;
 import hr.algebra.surfspot.repository.sql.*;
-import hr.algebra.surfspot.repository.sql.mapper.*; // Pretpostavka paketa za mappere
+import hr.algebra.surfspot.repository.sql.mapper.*;
 
-import javax.management.relation.Role;
 import javax.sql.DataSource;
 import java.util.Map;
 
@@ -24,8 +23,7 @@ public class RepositoryRegistry {
                 UserRepository.class,
                 new SqlUserRepository(
                         dataSource,
-                        new UserRowMapper(),
-                        new RoleRowMapper()
+                        new UserRowMapper()
                 ),
                 CoastRepository.class,
                 new SqlCoastRepository(

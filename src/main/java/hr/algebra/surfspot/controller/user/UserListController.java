@@ -2,8 +2,10 @@ package hr.algebra.surfspot.controller.user;
 
 import hr.algebra.surfspot.context.SceneNavigator;
 import hr.algebra.surfspot.controller.BaseController;
+import hr.algebra.surfspot.model.Role;
 import hr.algebra.surfspot.model.User;
 import hr.algebra.surfspot.service.UserService;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -14,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Set;
 
 public class UserListController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(UserListController.class);
@@ -21,6 +24,7 @@ public class UserListController extends BaseController {
     @FXML private TableView<User> userTable;
     @FXML private TableColumn<User, String> usernameColumn;
     @FXML private TableColumn<User, String> emailColumn;
+    @FXML public TableColumn<User, String> roleColumn;
 
     private final UserService userService;
     private final SceneNavigator sceneNavigator;
@@ -34,7 +38,12 @@ public class UserListController extends BaseController {
     public void initialize() {
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
-
+        roleColumn.setCellValueFactory(cellData -> {
+                    Set<Role> roles = cellData.getValue().getRoles();
+                    return new SimpleStringProperty(roles.stream()
+                            .anyMatch(role -> role.getName().equals("ADMIN")) ?
+                            "ADMIN" : "USER");
+                });
         loadUsers();
     }
 

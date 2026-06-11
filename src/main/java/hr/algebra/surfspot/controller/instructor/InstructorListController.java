@@ -3,7 +3,9 @@ package hr.algebra.surfspot.controller.instructor;
 import hr.algebra.surfspot.context.SceneNavigator;
 import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.Instructor;
+import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.service.InstructorService;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -35,15 +37,10 @@ public class InstructorListController extends BaseController {
     public void initialize() {
         firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
         lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastName"));
-
         schoolColumn.setCellValueFactory(cellData -> {
-            Instructor instructor = cellData.getValue();
-            if (instructor.getSchool() != null) {
-                return new javafx.beans.property.SimpleStringProperty(instructor.getSchool().getName());
-            }
-            return new javafx.beans.property.SimpleStringProperty("Nema škole");
+            SurfingSchool school = cellData.getValue().getSchool();
+            return new SimpleStringProperty(school != null ? school.getName() : "Nema škole");
         });
-
         loadInstructors();
     }
 

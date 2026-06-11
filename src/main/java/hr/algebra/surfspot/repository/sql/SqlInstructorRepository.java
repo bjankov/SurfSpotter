@@ -54,13 +54,14 @@ public class SqlInstructorRepository extends BaseSqlRepository<Instructor> imple
 
     @Override
     public Instructor save(Instructor instructor) {
+        Long schoolId = instructor.getSchool() != null ? instructor.getSchool().getId() : null;
+
         Long generatedId = insertAndGetId(
                 SAVE_QUERY,
                 instructor.getFirstName(),
                 instructor.getLastName(),
-                instructor.getSchool().getId());
+                schoolId);
         requireGeneratedId(generatedId, "Could not save instructor");
-
         return Instructor.builder()
                 .from(instructor)
                 .id(generatedId)

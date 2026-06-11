@@ -15,12 +15,10 @@ import java.util.*;
 public class SqlUserRepository extends BaseSqlRepository<User> implements UserRepository {
     private static final Logger log = LoggerFactory.getLogger(SqlUserRepository.class);
     private final RowMapper<User> userMapper;
-    private final RowMapper<Role> roleMapper;
 
-    public SqlUserRepository(DataSource dataSource, RowMapper<User> userMapper, RowMapper<Role> roleMapper) {
+    public SqlUserRepository(DataSource dataSource, RowMapper<User> userMapper) {
         super(dataSource);
         this.userMapper = userMapper;
-        this.roleMapper = roleMapper;
     }
 
     private static final String UPDATE_BY_ID = "UPDATE users SET username = ?, email = ? WHERE id = ?";
