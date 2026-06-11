@@ -40,11 +40,6 @@ public class RepositoryRegistry {
                         dataSource,
                         new InstructorRowMapper()
                 ),
-                RoleRepository.class,
-                new SqlRoleRepository(
-                        dataSource,
-                        new RoleRowMapper()
-                ),
                 SurfingSchoolRepository.class,
                 new SqlSurfingSchoolRepository(
                         dataSource,

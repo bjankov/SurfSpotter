@@ -97,7 +97,7 @@ public class ApplicationContext {
                 new UserListController(getUserService(), getSceneNavigator()));
 
         controllerFactories.put(UserFormController.class, () ->
-                new UserFormController(getUserService(), getRoleService(), getSceneNavigator()));
+                new UserFormController(getUserService(), getSceneNavigator()));
     }
 
     public Object getController(Class<?> controllerClass) {
@@ -115,7 +115,6 @@ public class ApplicationContext {
     public CoastService getCoastService() { return services.getCoastService(); }
     public CountryService getCountryService() { return services.getCountryService(); }
     public UserService getUserService() { return services.getUserService(); }
-    public RoleService getRoleService() { return services.getRoleService(); }
     public UserSession getSession() { return session; }
     public SceneNavigator getSceneNavigator() { return navigator; }
 

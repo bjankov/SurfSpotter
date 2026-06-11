@@ -40,9 +40,7 @@ public class UserListController extends BaseController {
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
         roleColumn.setCellValueFactory(cellData -> {
                     Set<Role> roles = cellData.getValue().getRoles();
-                    return new SimpleStringProperty(roles.stream()
-                            .anyMatch(role -> role.getName().equals("ADMIN")) ?
-                            "ADMIN" : "USER");
+                    return new SimpleStringProperty(roles.contains(Role.ADMIN) ? "ADMIN" : "USER");
                 });
         loadUsers();
     }

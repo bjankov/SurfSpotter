@@ -6,10 +6,10 @@
 <BorderPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.surfspot.controller.MainLayoutController">
    <left>
        <VBox prefHeight="400.0" prefWidth="148.0" BorderPane.alignment="CENTER">
-           <fx:define>
+           <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showSurfSpots" text="Mjesta za surfanje">
+            <toggleGroup>
                <ToggleGroup fx:id="navigationGroup" />
-           </fx:define>
-           <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showSurfSpots" text="Mjesta za surfanje" toggleGroup="$navigationGroup"/>
+            </toggleGroup></ToggleButton>
            <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showSurfingSchools" text="Skole surfanja" toggleGroup="$navigationGroup" />
            <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showInstructors" text="Instruktori surfanja" toggleGroup="$navigationGroup" />
            <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showCoasts" text="Obale" toggleGroup="$navigationGroup" />
@@ -29,7 +29,7 @@
                <MenuItem mnemonicParsing="false" text="About" />
            </Menu>
            <Menu mnemonicParsing="false" text="Account">
-               <MenuItem mnemonicParsing="false" text="Logout" onAction="#handleLogout"/>
+               <MenuItem mnemonicParsing="false" onAction="#handleLogout" text="Logout" />
            </Menu>
        </MenuBar>
    </top>

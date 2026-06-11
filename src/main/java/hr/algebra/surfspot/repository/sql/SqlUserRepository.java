@@ -75,7 +75,7 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
 
         if (user.getRoles() != null) {
             for (Role role : user.getRoles()) {
-                executeUpdate(INSERT_USER_ROLE, generatedId, role.getId());
+                executeUpdate(INSERT_USER_ROLE, generatedId, role);
             }
         }
 
@@ -139,29 +139,21 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
     @Override
     public Set<Role> findRolesByUserId(Long userId) {
         return executeQuery(LOAD_ROLES_WITH_PERMISSIONS_FOR_USER, rs -> {
-            Map<Long, Role> roleMap = new HashMap<>();
+            Set<Role> roles = new HashSet<>();
 
             while (rs.next()) {
-                Long roleId = rs.getLong("role_id");
+                String roleName = rs.getString("role_name");
 
-                Role role = roleMap.computeIfAbsent(roleId, id -> {
+                if (roleName != null && !roleName.isBlank()) {
                     try {
-                        return Role.builder()
-                                .id(id)
-                                .name(rs.getString("role_name"))
-                                .build();
-                    } catch (SQLException e) {
-                        throw new PersistenceException("Greška pri mapiranju role: " + e.getMessage(), e);
+                        roles.add(Role.valueOf(roleName.toUpperCase()));
+                    } catch (IllegalArgumentException e) {
+                        log.warn("Nepoznata uloga u bazi podataka: {}", roleName);
                     }
-                });
-
-                String permName = rs.getString("permission_name");
-                if (permName != null && !permName.isBlank()) {
-                    role.getPermissions().add(Permission.valueOf(permName));
                 }
             }
 
-            return new HashSet<>(roleMap.values());
+            return roles;
         }, userId);
     }
 }
