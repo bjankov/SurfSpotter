@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:16
+    image: postgres:18.4
     environment:
       POSTGRES_DB: surf_spot_db
       POSTGRES_USER: surfspot
