@@ -13,6 +13,12 @@ JavaFX aplikacija za upravljanje surf spotovima. Omogućuje pregled, dodavanje, 
 ---
 
 ## Instalacija Dockera
+Provjerite imate li već instaliran Docker na svojem računalu:
+```shell
+docker --version
+```
+Ako dobijete output poput `` Docker version XX.X.X ``, možete prijeći na [Postavljanje baze podataka](#postavljanje-baze-podataka).
+U suprotnom, nastavite pratiti upute za vaš operacijski sustav.
 
 ### Windows
 
@@ -20,7 +26,7 @@ JavaFX aplikacija za upravljanje surf spotovima. Omogućuje pregled, dodavanje, 
 2. Pokrenite instalacijski program i slijedite upute
 3. Nakon instalacije pokrenite Docker Desktop
 4. Provjerite instalaciju u terminalu:
-   ```
+   ```shell
    docker --version
    ```
 
@@ -30,7 +36,7 @@ JavaFX aplikacija za upravljanje surf spotovima. Omogućuje pregled, dodavanje, 
 2. Otvorite `.dmg` datoteku i povucite Docker u Applications
 3. Pokrenite Docker iz Applications foldera
 4. Provjerite instalaciju u terminalu:
-   ```
+   ```shell
    docker --version
    ```
 
