@@ -23,7 +23,7 @@ public class ServiceRegistry {
 
         this.passwordService = new BCryptPasswordService();
 
-        this.authService = new AuthService(userRepository, passwordService, userValidator);
+        this.authService = new AuthServiceImpl(userRepository, passwordService, userValidator);
 
         this.surfSpotService = new SurfSpotServiceImpl(
                 repositoryRegistry.getRepository(SurfSpotRepository.class)

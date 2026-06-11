@@ -1,6 +1,8 @@
 package hr.algebra.surfspot.context;
 
+import hr.algebra.surfspot.exception.ConfigurationException;
 import hr.algebra.surfspot.exception.PersistenceException;
+import hr.algebra.surfspot.exception.ResourceNotFoundException;
 import hr.algebra.surfspot.repository.*;
 import hr.algebra.surfspot.repository.sql.*;
 import hr.algebra.surfspot.repository.sql.mapper.*;
@@ -51,7 +53,7 @@ public class RepositoryRegistry {
         @SuppressWarnings("unchecked")
         T repository = (T) registry.get(repositoryInterface);
         if (repository == null) {
-            throw new PersistenceException("No repository found for interface " + repositoryInterface.getName());
+            throw new ResourceNotFoundException("No repository found for interface " + repositoryInterface.getName());
         }
         return repository;
     }
