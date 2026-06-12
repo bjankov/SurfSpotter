@@ -236,7 +236,7 @@ public class SurfSpotListController extends BaseController {
             deleteButton.setStyle("-fx-background-color: transparent; -fx-text-fill: #e74c3c; " +
                     "-fx-padding: 0 5 0 5; -fx-font-weight: bold; -fx-cursor: hand;");
             deleteButton.setFocusTraversable(false);
-            deleteButton.setOnAction(_ -> removeself());
+            deleteButton.setOnAction(_ -> removeSelf());
 
             Region spacer = new Region();
             HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -257,7 +257,7 @@ public class SurfSpotListController extends BaseController {
             }
         }
 
-        private void removeself() {
+        private void removeSelf() {
             SurfSpot item = getItem();
             if (item != null) {
                 getListView().getItems().remove(item);

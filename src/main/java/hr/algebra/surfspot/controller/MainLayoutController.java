@@ -1,7 +1,7 @@
 package hr.algebra.surfspot.controller;
 
-import hr.algebra.surfspot.context.ApplicationContext;
 import hr.algebra.surfspot.context.SceneNavigator;
+import hr.algebra.surfspot.context.UserSession;
 import hr.algebra.surfspot.model.Permission;
 import hr.algebra.surfspot.model.User;
 import javafx.fxml.FXML;
@@ -20,16 +20,18 @@ public class MainLayoutController extends BaseController {
     @FXML private ToggleButton instructorsToggleButton;
 
     private final SceneNavigator navigator;
+    private final UserSession session;
 
-    public MainLayoutController(SceneNavigator navigator) {
+    public MainLayoutController(SceneNavigator navigator, UserSession session) {
         this.navigator = navigator;
+        this.session = session;
     }
 
     @FXML
     public void initialize() {
         navigator.setMainContentArea(contentArea);
 
-        User currentUser = ApplicationContext.getInstance().getSession().getCurrentUser();
+        User currentUser = session.getCurrentUser();
 
         setupForUser(currentUser);
 
@@ -66,27 +68,20 @@ public class MainLayoutController extends BaseController {
 
     @FXML
     private void handleLogout() {
-        ApplicationContext.getInstance().getSession().logout();
+        session.logout();
         navigator.navigateToLogin();
     }
 
     @FXML
     private void showUsers() {
-        if (ApplicationContext.getInstance()
-                .getSession()
-                .getCurrentUser()
-                .hasPermission(Permission.MANAGE_USERS)) {
+        if (session.getCurrentUser().hasPermission(Permission.MANAGE_USERS)) {
             navigator.navigateToUserList();
         }
     }
 
     @FXML
     private void showCountries() {
-        if (ApplicationContext.getInstance()
-                .getSession().
-                getCurrentUser()
-                .hasPermission(Permission.MANAGE_COUNTRIES)) {
-
+        if (session.getCurrentUser().hasPermission(Permission.MANAGE_COUNTRIES)) {
             navigator.navigateToCountryList();
         }
     }

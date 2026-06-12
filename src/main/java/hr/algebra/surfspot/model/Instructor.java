@@ -113,11 +113,9 @@ public class Instructor {
     @Override
     public String toString() {
         return String.format(
-                "Instruktor [ID %d]:%n" +
-                "Ime: %s%n" +
-                "Prezime: %s%n" +
-                "Škola: %s%n",
-                id, firstName, lastName, (school != null ? school.getName() : "Samostalan"));
+                "%s %s " +
+                "[%s]%n",
+                firstName, lastName, (school != null ? school.getName() : "Samostalan"));
     }
 
     @Override

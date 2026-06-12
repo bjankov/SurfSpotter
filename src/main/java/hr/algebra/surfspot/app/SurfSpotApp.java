@@ -13,7 +13,7 @@ public class SurfSpotApp extends Application {
     public void start(Stage primaryStage) {
         log.info("Starting SurfSpot application");
 
-        ApplicationContext context = ApplicationContext.getInstance();
+        ApplicationContext context = new ApplicationContext();
         context.setPrimaryStage(primaryStage);
 
         context.getSceneNavigator().navigateToMain();

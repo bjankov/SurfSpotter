@@ -1,7 +1,6 @@
 package hr.algebra.surfspot.repository.sql;
 
 import hr.algebra.surfspot.exception.PersistenceException;
-import hr.algebra.surfspot.model.Permission;
 import hr.algebra.surfspot.model.Role;
 import hr.algebra.surfspot.model.User;
 import hr.algebra.surfspot.repository.UserRepository;
@@ -9,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.*;
 
 public class SqlUserRepository extends BaseSqlRepository<User> implements UserRepository {
@@ -147,7 +145,7 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
                 if (roleName != null && !roleName.isBlank()) {
                     try {
                         roles.add(Role.valueOf(roleName.toUpperCase()));
-                    } catch (IllegalArgumentException e) {
+                    } catch (IllegalArgumentException _) {
                         log.warn("Nepoznata uloga u bazi podataka: {}", roleName);
                     }
                 }

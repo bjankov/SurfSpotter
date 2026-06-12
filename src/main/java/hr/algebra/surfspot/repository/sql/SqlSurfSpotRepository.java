@@ -38,9 +38,18 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
     private static final String DELETE_MONTHS_QUERY = "DELETE FROM surf_spot_months WHERE surf_spot_id = ?";
 
     private static final String FIND_INSTRUCTORS_BY_SPOT_ID = """
-            SELECT i.* FROM instructors i
-            JOIN surf_spot_instructors ssi ON i.id = ssi.instructor_id
-            WHERE ssi.surf_spot_id = ?;""";
+        SELECT
+            i.id as instructor_id,
+            i.first_name,
+            i.last_name,
+            i.surfing_school_id as school_id,
+            sch.id as school_id,
+            sch.name as school_name
+        FROM instructors i
+                 JOIN surfing_schools sch ON sch.id = i.id
+                 JOIN surf_spot_schools sss ON sss.school_id = sch.id
+        WHERE sss.surf_spot_id = ?;
+        """;
 
     private static final String COUNT_BY_COUNTRY_CODE_QUERY = "SELECT COUNT(*) FROM surf_spots ss JOIN coasts c ON ss.coast_id = c.id WHERE c.country_code = ?";
     private static final String COUNT_BY_DIFFICULTY_QUERY = "SELECT COUNT(*) FROM surf_spots WHERE difficulty = ?";

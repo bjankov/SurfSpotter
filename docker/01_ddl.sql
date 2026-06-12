@@ -52,13 +52,13 @@ CREATE TABLE surf_spots
             REFERENCES coasts (id)
 );
 
-CREATE TABLE surf_spot_instructors
+CREATE TABLE surf_spot_schools
 (
     surf_spot_id  BIGINT NOT NULL,
-    instructor_id BIGINT NOT NULL,
-    PRIMARY KEY (surf_spot_id, instructor_id),
+    school_id BIGINT NOT NULL,
+    PRIMARY KEY (surf_spot_id, school_id),
     FOREIGN KEY (surf_spot_id) REFERENCES surf_spots (id) ON DELETE CASCADE,
-    FOREIGN KEY (instructor_id) REFERENCES instructors (id) ON DELETE CASCADE
+    FOREIGN KEY (school_id) REFERENCES surfing_schools (id) ON DELETE CASCADE
 );
 
 CREATE TABLE surf_spot_months

@@ -86,6 +86,15 @@ VALUES (1, 'Pipeline', 21.6640, -158.0539, 1, 'REEF_BREAK', 5.0, 'EXPERT', 90),
        (6, 'Nazare', 39.6010, -9.0830, 6, 'BEACH_BREAK', 24.0, 'EXPERT', 90),
        (7, 'Hossegor', 43.6667, -1.4333, 7, 'BEACH_BREAK', 2.5, 'INTERMEDIATE', 90);
 
+INSERT INTO surf_spot_schools(surf_spot_id, school_id)
+VALUES (1, 1),
+       (2, 2),
+       (3, 3),
+       (4, 4),
+       (5, 5),
+       (6, 6),
+       (7, 7);
+
 INSERT INTO users (id, username, email, password_hash)
 VALUES (1, 'admin', 'admin@surfspot.com', '$2a$12$ylGEN5C3SY4lROgwj4YN2OuQ2ET/ueSrOxmMiTiS2z6A0uqkekWUu');
 
