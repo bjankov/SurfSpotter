@@ -54,6 +54,10 @@ public class SqlInstructorRepository extends BaseSqlRepository<Instructor> imple
 
     @Override
     public Instructor save(Instructor instructor) {
+        if (instructor.getId() == null) {
+            return update(instructor);
+        }
+
         Long schoolId = instructor.getSchool() != null ? instructor.getSchool().getId() : null;
 
         Long generatedId = insertAndGetId(

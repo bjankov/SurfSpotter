@@ -24,7 +24,6 @@ public class UserFormController extends BaseController {
     private final SceneNavigator sceneNavigator;
     private User currentUser;
 
-    // 1. Uklonjen RoleService iz konstruktora
     public UserFormController(UserService userService, SceneNavigator sceneNavigator) {
         this.userService = userService;
         this.sceneNavigator = sceneNavigator;

@@ -105,7 +105,6 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
 
     @Override
     public SurfSpot save(SurfSpot spot) {
-        // TODO: Mozda korisno?
         if (spot.getId() != null) {
             return update(spot);
         }

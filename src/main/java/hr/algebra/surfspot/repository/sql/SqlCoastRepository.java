@@ -56,6 +56,10 @@ public class SqlCoastRepository extends BaseSqlRepository<Coast> implements Coas
 
     @Override
     public Coast save(final Coast coast) {
+        if (coast.getId() == null) {
+            return update(coast);
+        }
+
         Long generatedId = insertAndGetId(
                 SAVE_QUERY,
                 coast.getName(),

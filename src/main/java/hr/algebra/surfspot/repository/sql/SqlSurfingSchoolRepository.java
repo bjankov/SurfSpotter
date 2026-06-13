@@ -35,6 +35,9 @@ public class SqlSurfingSchoolRepository extends BaseSqlRepository<SurfingSchool>
     }
 
     public SurfingSchool save(SurfingSchool surfingSchool) {
+        if (surfingSchool.getId() != null) {
+            return update(surfingSchool);
+        }
         Long generatedId = insertAndGetId(SAVE_QUERY, surfingSchool.getName());
 
         requireGeneratedId(generatedId, "Could not save surfing school");

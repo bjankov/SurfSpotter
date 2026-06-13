@@ -21,7 +21,18 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
 
     private static final String UPDATE_BY_ID = "UPDATE users SET username = ?, email = ? WHERE id = ?";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
-    private static final String FIND_BY_USERNAME_QUERY = "SELECT * FROM users WHERE username = ?";
+    private static final String FIND_BY_USERNAME_QUERY = """
+            SELECT
+                u.id,
+                u.username,
+                u.email,
+                u.password_hash,
+                r.name as role
+            FROM users u
+            JOIN user_roles ur ON ur.user_id = u.id
+            JOIN roles r ON r.id = ur.role_id
+            WHERE u.username = ?
+            """;
     private static final String FIND_BY_EMAIL_QUERY = "SELECT * FROM users WHERE email = ?";
     private static final String FIND_ALL_QUERY = "SELECT * FROM users";
     private static final String INSERT_USER_QUERY = "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)";
@@ -44,7 +55,11 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
     }
 
     public Optional<User> findByName(String username) {
-        return findSingleResult(FIND_BY_USERNAME_QUERY, userMapper, username);
+        Optional<User> userOpt = findSingleResult(FIND_BY_USERNAME_QUERY, userMapper, username);
+        return userOpt.map(user -> User.builder()
+                .from(user)
+                .withRoles(findRolesByUserId(user.getId()))
+                .build());
     }
 
     @Override
@@ -57,11 +72,21 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
 
     @Override
     public List<User> findAll() {
-        return findAll(FIND_ALL_QUERY, userMapper);
+        List<User> users = findAll(FIND_ALL_QUERY, userMapper);
+        return users.stream()
+                .map(user -> User.builder()
+                        .from(user)
+                        .withRoles(findRolesByUserId(user.getId()))
+                        .build())
+                .toList();
     }
 
     @Override
     public User save(final User user) {
+        if (user.getId() != null) {
+            return update(user);
+        }
+
         Long generatedId = insertAndGetId(
                 INSERT_USER_QUERY,
                 user.getUsername(),
@@ -73,7 +98,7 @@ public class SqlUserRepository extends BaseSqlRepository<User> implements UserRe
 
         if (user.getRoles() != null) {
             for (Role role : user.getRoles()) {
-                executeUpdate(INSERT_USER_ROLE, generatedId, role);
+                executeUpdate(INSERT_USER_ROLE, generatedId, role.getId());
             }
         }
 

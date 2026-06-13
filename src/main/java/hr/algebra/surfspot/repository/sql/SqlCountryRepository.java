@@ -43,6 +43,10 @@ public class SqlCountryRepository extends BaseSqlRepository<Country> implements 
 
     @Override
     public Country save(Country country) {
+        if (country.code() == null) {
+            return update(country);
+        }
+
         int affectedRows = executeUpdate(SAVE_QUERY, country.code(), country.name());
         requireAffectedRows(affectedRows, "Could not save country: " + country.code() + ": " + country.name());
         return country;

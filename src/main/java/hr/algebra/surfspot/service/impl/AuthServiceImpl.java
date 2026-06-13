@@ -59,6 +59,7 @@ public class AuthServiceImpl implements AuthService {
                 .username(username)
                 .email(email)
                 .passwordHash(hashedPassword)
+                .addRole(Role.USER)
                 .build();
 
         log.info("User registered successfully: {}", username);
