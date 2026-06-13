@@ -9,7 +9,7 @@ public class User {
     private String username;
     private String email;
     private final String passwordHash;
-    private Set<Role> roles = new HashSet<>();
+    private final Set<Role> roles;
 
     private User(Builder builder) {
         this.id = builder.id;

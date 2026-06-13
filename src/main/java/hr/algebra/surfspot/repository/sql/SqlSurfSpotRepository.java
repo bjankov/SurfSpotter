@@ -42,13 +42,13 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
             i.id as instructor_id,
             i.first_name,
             i.last_name,
-            i.surfing_school_id as school_id,
-            sch.id as school_id,
-            sch.name as school_name
+            i.surfing_school_id AS surfing_school_id,
+            sch.name AS surfing_school_name
         FROM instructors i
-                 JOIN surfing_schools sch ON sch.id = i.id
-                 JOIN surf_spot_schools sss ON sss.school_id = sch.id
-        WHERE sss.surf_spot_id = ?;
+            JOIN surfing_schools sch ON i.surfing_school_id = sch.id
+            JOIN surf_spot_schools sss ON sss.school_id = sch.id
+            JOIN surf_spots ss ON sss.surf_spot_id = ss.id
+        WHERE ss.id = ?
         """;
 
     private static final String COUNT_BY_COUNTRY_CODE_QUERY = "SELECT COUNT(*) FROM surf_spots ss JOIN coasts c ON ss.coast_id = c.id WHERE c.country_code = ?";

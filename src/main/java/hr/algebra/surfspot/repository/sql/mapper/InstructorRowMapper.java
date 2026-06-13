@@ -11,8 +11,8 @@ public class InstructorRowMapper implements RowMapper<Instructor> {
     @Override
     public Instructor map(ResultSet resultSet) throws SQLException {
         SurfingSchool school = new SurfingSchool(
-                resultSet.getLong("school_id"),
-                resultSet.getString("school_name")
+                resultSet.getLong("surfing_school_id"),
+                resultSet.getString("surfing_school_name")
         );
 
         return Instructor.builder()

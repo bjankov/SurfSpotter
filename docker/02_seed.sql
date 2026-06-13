@@ -69,13 +69,48 @@ VALUES (1, 'North Shore', 'US'),
        (7, 'Nouvelle-Aquitaine', 'FR');
 
 INSERT INTO instructors (id, first_name, last_name, surfing_school_id)
-VALUES (1, 'Jamie', 'O''Brien', 1),
-       (2, 'Matahi', 'Drollet', 2),
-       (3, 'Wayan', 'Suputra', 3),
-       (4, 'Cheron', 'Kraak', 4),
-       (5, 'Cahill', 'Bell-Warren', 5),
-       (6, 'Garrett', 'McNamara', 6),
-       (7, 'Joan', 'Duru', 7);
+VALUES
+    (1, 'Jamie', 'O''Brien', 1),
+    (2, 'Kaimana', 'Kahale', 1),
+    (3, 'Noelani', 'Akana', 1),
+    (4, 'Keoni', 'Paoa', 1),
+    (5, 'Malia', 'Kalama', 1),
+
+    (6, 'Matahi', 'Drollet', 2),
+    (7, 'Heimanu', 'Tehei', 2),
+    (8, 'Vaihere', 'Temauri', 2),
+    (9, 'Teiva', 'Tetuanui', 2),
+    (10, 'Maeva', 'Faatauira', 2),
+
+    (11, 'Wayan', 'Suputra', 3),
+    (12, 'Made', 'Putra', 3),
+    (13, 'Kadek', 'Dewi', 3),
+    (14, 'Nyoman', 'Arta', 3),
+    (15, 'Komang', 'Sari', 3),
+
+    (16, 'Cheron', 'Kraak', 4),
+    (17, 'Sipho', 'Ndlovu', 4),
+    (18, 'Thandeka', 'Mabaso', 4),
+    (19, 'Pieter', 'Botha', 4),
+    (20, 'Lerato', 'Dlamini', 4),
+
+    (21, 'Cahill', 'Bell-Warren', 5),
+    (22, 'Jack', 'Sheppard', 5),
+    (23, 'Ella', 'Whitfield', 5),
+    (24, 'Lachlan', 'Marsh', 5),
+    (25, 'Mia', 'Coleman', 5),
+
+    (26, 'Garrett', 'McNamara', 6),
+    (27, 'Joao', 'Ferreira', 6),
+    (28, 'Ines', 'Carvalho', 6),
+    (29, 'Rui', 'Tavares', 6),
+    (30, 'Catarina', 'Pereira', 6),
+
+    (31, 'Joan', 'Duru', 7),
+    (32, 'Antoine', 'Lefevre', 7),
+    (33, 'Camille', 'Moreau', 7),
+    (34, 'Mathieu', 'Bertrand', 7),
+    (35, 'Lea', 'Girard', 7);
 
 INSERT INTO surf_spots (id, name, latitude, longitude, coast_id, wave_type, wave_height, difficulty, wind_direction)
 VALUES (1, 'Pipeline', 21.6640, -158.0539, 1, 'REEF_BREAK', 5.0, 'EXPERT', 90),

@@ -22,8 +22,8 @@ public class SqlInstructorRepository extends BaseSqlRepository<Instructor> imple
                 i.id AS instructor_id,
                 i.first_name,
                 i.last_name,
-                ss.id AS school_id,
-                ss.name AS school_name
+                ss.id AS surfing_school_id,
+                ss.name AS surfing_school_name
             FROM instructors i
             LEFT JOIN surfing_schools ss
             ON ss.id = i.surfing_school_id
