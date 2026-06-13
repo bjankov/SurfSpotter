@@ -112,14 +112,14 @@ VALUES
     (34, 'Mathieu', 'Bertrand', 7),
     (35, 'Lea', 'Girard', 7);
 
-INSERT INTO surf_spots (id, name, latitude, longitude, coast_id, wave_type, wave_height, difficulty, wind_direction)
-VALUES (1, 'Pipeline', 21.6640, -158.0539, 1, 'REEF_BREAK', 5.0, 'EXPERT', 90),
-       (2, 'Teahupoo', -17.8470, -149.2670, 2, 'REEF_BREAK', 6.5, 'EXPERT', 45),
-       (3, 'Uluwatu', -8.8149, 115.0884, 3, 'REEF_BREAK', 3.0, 'ADVANCED', 135),
-       (4, 'Jeffreys Bay', -34.0333, 24.9167, 4, 'POINT_BREAK', 3.5, 'ADVANCED', 270),
-       (5, 'Bells Beach', -38.3670, 144.2830, 5, 'POINT_BREAK', 4.0, 'ADVANCED', 315),
-       (6, 'Nazare', 39.6010, -9.0830, 6, 'BEACH_BREAK', 24.0, 'EXPERT', 90),
-       (7, 'Hossegor', 43.6667, -1.4333, 7, 'BEACH_BREAK', 2.5, 'INTERMEDIATE', 90);
+INSERT INTO surf_spots (id, name, latitude, longitude, coast_id, wave_type, wave_height, difficulty, wind_direction, image_path)
+VALUES (1, 'Pipeline', 21.6640, -158.0539, 1, 'REEF_BREAK', 5.0, 'EXPERT', 90, 'pipeline.jpg'),
+       (2, 'Teahupoo', -17.8470, -149.2670, 2, 'REEF_BREAK', 6.5, 'EXPERT', 45, 'teahupoo.jpg'),
+       (3, 'Uluwatu', -8.8149, 115.0884, 3, 'REEF_BREAK', 3.0, 'ADVANCED', 135, 'uluwatu.jpg'),
+       (4, 'Jeffreys Bay', -34.0333, 24.9167, 4, 'POINT_BREAK', 3.5, 'ADVANCED', 270, 'jeffreys-bay.jpg'),
+       (5, 'Bells Beach', -38.3670, 144.2830, 5, 'POINT_BREAK', 4.0, 'ADVANCED', 315, 'bells-beach.jpg'),
+       (6, 'Nazare', 39.6010, -9.0830, 6, 'BEACH_BREAK', 24.0, 'EXPERT', 90, 'nazare.jpg'),
+       (7, 'Hossegor', 43.6667, -1.4333, 7, 'BEACH_BREAK', 2.5, 'INTERMEDIATE', 90, 'hossegor.jpg');
 
 INSERT INTO surf_spot_schools(surf_spot_id, school_id)
 VALUES (1, 1),
