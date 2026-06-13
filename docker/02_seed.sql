@@ -100,7 +100,7 @@ VALUES
     (24, 'Lachlan', 'Marsh', 5),
     (25, 'Mia', 'Coleman', 5),
 
-    (26, 'Garrett', 'McNamara', 6),
+    (26, 'Rafael', 'Sousa', 6),
     (27, 'Joao', 'Ferreira', 6),
     (28, 'Ines', 'Carvalho', 6),
     (29, 'Rui', 'Tavares', 6),
