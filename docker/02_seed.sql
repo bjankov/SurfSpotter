@@ -130,6 +130,43 @@ VALUES (1, 1),
        (6, 6),
        (7, 7);
 
+INSERT INTO surf_spot_months (surf_spot_id, month_name)
+VALUES
+    (1, 'NOVEMBER'),
+    (1, 'DECEMBER'),
+    (1, 'JANUARY'),
+    (1, 'FEBRUARY'),
+
+    (2, 'APRIL'),
+    (2, 'MAY'),
+    (2, 'JUNE'),
+    (2, 'JULY'),
+    (2, 'AUGUST'),
+
+    (3, 'MAY'),
+    (3, 'JUNE'),
+    (3, 'JULY'),
+    (3, 'AUGUST'),
+    (3, 'SEPTEMBER'),
+
+    (4, 'JUNE'),
+    (4, 'JULY'),
+    (4, 'AUGUST'),
+    (4, 'SEPTEMBER'),
+
+    (5, 'MARCH'),
+    (5, 'APRIL'),
+    (5, 'MAY'),
+
+    (6, 'OCTOBER'),
+    (6, 'NOVEMBER'),
+    (6, 'DECEMBER'),
+    (6, 'JANUARY'),
+    (6, 'FEBRUARY'),
+
+    (7, 'SEPTEMBER'),
+    (7, 'OCTOBER');
+
 INSERT INTO users (id, username, email, password_hash)
 VALUES (1, 'admin', 'admin@surfspot.com', '$2a$12$ylGEN5C3SY4lROgwj4YN2OuQ2ET/ueSrOxmMiTiS2z6A0uqkekWUu');
 
