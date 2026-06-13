@@ -140,16 +140,8 @@ public class SurfSpot {
         return location;
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
     public WaveDetails getWaveDetails() {
         return waveDetails;
-    }
-
-    public void setWaveDetails(WaveDetails waveDetails) {
-        this.waveDetails = waveDetails;
     }
 
     public Integer getWindDirectionDegrees() {
@@ -161,16 +153,8 @@ public class SurfSpot {
         return String.format("%s (%d°)", direction.getDisplayValue(), windDirectionDegrees);
     }
 
-    public void setWindDirectionDegrees(Integer windDirectionDegrees) {
-        this.windDirectionDegrees = windDirectionDegrees;
-    }
-
     public DifficultyLevel getDifficulty() {
         return difficulty;
-    }
-
-    public void setDifficulty(DifficultyLevel difficulty) {
-        this.difficulty = difficulty;
     }
 
     public Set<Month> getBestSeason() {
@@ -189,16 +173,8 @@ public class SurfSpot {
         this.instructors = instructors;
     }
 
-    public void addInstructor(Instructor instructor) {
-        this.instructors.add(instructor);
-    }
-
     public String getImagePath() {
         return imagePath;
-    }
-
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
     }
 
     public BigDecimal getLatitude() {
@@ -209,10 +185,6 @@ public class SurfSpot {
         return location.getCoordinates().longitude();
     }
 
-    public String getCountryCode() {
-        return location.getCoast().getCountry().code();
-    }
-
     public String getCountryName() {
         return location.getCoast().getCountry().name();
     }
@@ -221,12 +193,12 @@ public class SurfSpot {
         return location.getCoast().getId();
     }
 
-    public WaveType getWaveType() {
-        return waveDetails.getWaveType();
+    public String getCoastName() {
+        return location.getCoast().getName();
     }
 
-    public String getDifficultyDisplayValue() {
-        return difficulty.getDisplayValue();
+    public WaveType getWaveType() {
+        return waveDetails.getWaveType();
     }
 
     public Double getWaveHeight() {
@@ -244,28 +216,7 @@ public class SurfSpot {
 
     @Override
     public String toString() {
-        return String.format(
-                "Surf Spot [ID %d]:%n" +
-                "Naziv: %s%n" +
-                "Lokacija: %s%n" +
-                "Tip vala: %s%n" +
-                "Visina vala: %s%n" +
-                "Smjer vjetra: %s%n" +
-                "Težina: %s%n" +
-                "Sezona: %s%n" +
-                "Instruktori: %s%n" +
-                "Fotografija: %s",
-                id,
-                name,
-                location,
-                waveDetails.getWaveType().getDisplayValue(),
-                waveDetails.getWaveHeight() != null ? waveDetails.getWaveHeight() + "m" : DisplayConstants.NOT_ENTERED,
-                windDirectionDegrees != null ? windDirectionDegrees + "° " + WindDirection.fromDegrees(windDirectionDegrees).getDisplayValue() : DisplayConstants.NOT_ENTERED,
-                difficulty != null ? difficulty.getDisplayValue() : DisplayConstants.NOT_ENTERED,
-                !bestSeason.isEmpty() ? bestSeason.toString() : DisplayConstants.NOT_ENTERED,
-                !instructors.isEmpty() ? instructors.toString() : DisplayConstants.NOT_ENTERED,
-                imagePath != null ? imagePath : DisplayConstants.NOT_ENTERED
-        );
+        return getName() + ", " + getCoastName() + ", " + getCountryName();
     }
 
     @Override

@@ -7,8 +7,6 @@ import hr.algebra.surfspot.repository.sql.mapper.*;
 import javax.sql.DataSource;
 
 public class RepositoryFactory {
-    private final DataSource dataSource;
-
     private final UserRepository userRepository;
     private final SurfSpotRepository surfSpotRepository;
     private final InstructorRepository instructorRepository;
@@ -17,8 +15,6 @@ public class RepositoryFactory {
     private final CountryRepository countryRepository;
 
     public RepositoryFactory(DataSource dataSource) {
-        this.dataSource = dataSource;
-
         this.userRepository = new SqlUserRepository(
                 dataSource,
                 new UserRowMapper()
@@ -34,7 +30,8 @@ public class RepositoryFactory {
         );
         this.surfingSchoolRepository = new SqlSurfingSchoolRepository(
                 dataSource,
-                new SurfingSchoolRowMapper()
+                new SurfingSchoolRowMapper(),
+                new SurfSpotRowMapper()
         );
         this.coastRepository = new SqlCoastRepository(
                 dataSource,
@@ -45,8 +42,6 @@ public class RepositoryFactory {
                 new CountryRowMapper()
         );
     }
-
-    public DataSource getDataSource() { return dataSource; }
 
     public UserRepository getUserRepository() { return userRepository; }
     public SurfSpotRepository getSurfSpotRepository() { return surfSpotRepository; }

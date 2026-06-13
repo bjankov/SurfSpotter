@@ -1,5 +1,6 @@
 package hr.algebra.surfspot.service.impl;
 
+import hr.algebra.surfspot.model.SurfSpot;
 import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.repository.SurfingSchoolRepository;
 import hr.algebra.surfspot.service.SurfingSchoolService;
@@ -37,5 +38,10 @@ public class SurfingSchoolServiceImpl implements SurfingSchoolService {
     @Override
     public void delete(Long id) {
         surfingSchoolRepository.delete(id);
+    }
+
+    @Override
+    public List<SurfSpot> findSurfSpotsForSchool(Long schoolId) {
+        return surfingSchoolRepository.findSurfSpotsForSchool(schoolId);
     }
 }

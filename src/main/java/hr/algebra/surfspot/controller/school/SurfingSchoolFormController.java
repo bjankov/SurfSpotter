@@ -5,8 +5,7 @@ import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.service.SurfingSchoolService;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

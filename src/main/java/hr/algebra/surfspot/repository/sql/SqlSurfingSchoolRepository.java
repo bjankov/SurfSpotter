@@ -1,5 +1,6 @@
 package hr.algebra.surfspot.repository.sql;
 
+import hr.algebra.surfspot.model.SurfSpot;
 import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.repository.SurfingSchoolRepository;
 import javax.sql.DataSource;
@@ -8,10 +9,15 @@ import java.util.Optional;
 
 public class SqlSurfingSchoolRepository extends BaseSqlRepository<SurfingSchool> implements SurfingSchoolRepository {
     private final RowMapper<SurfingSchool> surfingSchoolMapper;
+    private final RowMapper<SurfSpot> surfSpotMapper;
 
-    public SqlSurfingSchoolRepository(DataSource dataSource, RowMapper<SurfingSchool> surfingSchoolMapper) {
+    public SqlSurfingSchoolRepository(
+            DataSource dataSource,
+            RowMapper<SurfingSchool> surfingSchoolMapper,
+            RowMapper<SurfSpot> surfSpotMapper) {
         super(dataSource);
         this.surfingSchoolMapper = surfingSchoolMapper;
+        this.surfSpotMapper = surfSpotMapper;
     }
 
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM surfing_schools WHERE id = ?";
@@ -20,7 +26,30 @@ public class SqlSurfingSchoolRepository extends BaseSqlRepository<SurfingSchool>
     private static final String SAVE_QUERY = "INSERT INTO surfing_schools (name) VALUES (?)";
     private static final String UPDATE_BY_ID = "UPDATE surfing_schools SET name = ? WHERE id = ?";
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM surfing_schools WHERE id = ?";
+    private static final String FIND_SPOTS_FOR_SCHOOL_ID_QUERY = """
+    SELECT
+        ss.id AS id,
+        ss.name AS surf_spot_name,
+        cnt.code AS country_code,
+        cnt.name AS country_name,
+        cst.id AS coast_id,
+        cst.name AS coast_name,
+        wind_direction,
+        wave_type,
+        wave_height,
+        latitude,
+        longitude,
+        difficulty,
+        image_path
+    FROM surfing_schools sch
+        JOIN surf_spot_schools sss ON sss.school_id = sch.id
+        JOIN surf_spots ss ON ss.id = sss.surf_spot_id
+        JOIN coasts cst ON cst.id = ss.coast_id
+        JOIN countries cnt ON cnt.code = cst.country_code
+    WHERE school_id = ?
+    """;
 
+    @Override
     public Optional<SurfingSchool> findById(Long id) {
         return findSingleResult(FIND_BY_ID_QUERY, surfingSchoolMapper, id);
     }
@@ -61,8 +90,12 @@ public class SqlSurfingSchoolRepository extends BaseSqlRepository<SurfingSchool>
 
     @Override
     public void delete(Long id) {
-        int affactedRows = executeUpdate(DELETE_BY_ID_QUERY, id);
-        requireAffectedRows(affactedRows, "Could not delete surfing school with ID: " + id);
+        int affectedRows = executeUpdate(DELETE_BY_ID_QUERY, id);
+        requireAffectedRows(affectedRows, "Could not delete surfing school with ID: " + id);
     }
 
+    @Override
+    public List<SurfSpot> findSurfSpotsForSchool(Long schoolId) {
+        return findAll(FIND_SPOTS_FOR_SCHOOL_ID_QUERY, surfSpotMapper, schoolId);
+    }
 }

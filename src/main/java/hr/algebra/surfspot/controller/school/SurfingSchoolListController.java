@@ -2,14 +2,13 @@ package hr.algebra.surfspot.controller.school;
 
 import hr.algebra.surfspot.context.SceneNavigator;
 import hr.algebra.surfspot.controller.BaseController;
+import hr.algebra.surfspot.model.SurfSpot;
 import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.service.SurfingSchoolService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.ListView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,32 +17,52 @@ import java.util.List;
 public class SurfingSchoolListController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(SurfingSchoolListController.class);
 
-    @FXML private TableView<SurfingSchool> surfingSchoolTable;
-    @FXML private TableColumn<SurfingSchool, String> schoolNameColumn;
+    @FXML
+    private ListView<SurfingSchool> surfingSchoolListView;
+
+    @FXML
+    private ListView<SurfSpot> surfSpotListView;
 
     private final SurfingSchoolService surfingSchoolService;
     private final SceneNavigator sceneNavigator;
 
-    public SurfingSchoolListController(SurfingSchoolService surfingSchoolService , SceneNavigator sceneNavigator) {
+    public SurfingSchoolListController(SurfingSchoolService surfingSchoolService, SceneNavigator sceneNavigator) {
         this.surfingSchoolService = surfingSchoolService;
         this.sceneNavigator = sceneNavigator;
     }
 
     @FXML
     public void initialize() {
-        schoolNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        surfingSchoolListView.getSelectionModel().selectedItemProperty().addListener(
+                (_, _, newVal) -> populateSurfSpots(newVal)
+        );
 
         loadSurfingSchools();
     }
 
     private void loadSurfingSchools() {
         try {
-            List<SurfingSchool> data = surfingSchoolService.findAll();
-            ObservableList<SurfingSchool> observableData = FXCollections.observableArrayList(data);
-            surfingSchoolTable.setItems(observableData);
-            log.info("Loaded {} surfing schools into table", data.size());
+            List<SurfingSchool> schools = surfingSchoolService.findAll();
+            ObservableList<SurfingSchool> observableData = FXCollections.observableArrayList(schools);
+            surfingSchoolListView.setItems(observableData);
+            log.info("Loaded {} surfing schools into list", schools.size());
         } catch (Exception e) {
             log.error("Failed to load surfing schools from service", e);
+        }
+    }
+
+    private void populateSurfSpots(SurfingSchool school) {
+        if (school == null) {
+            surfSpotListView.getItems().clear();
+            return;
+        }
+
+        try {
+            List<SurfSpot> spots = surfingSchoolService.findSurfSpotsForSchool(school.getId());
+            surfSpotListView.setItems(FXCollections.observableArrayList(spots));
+            log.info("Loaded {} surf spots for school {}", spots.size(), school.getName());
+        } catch (Exception e) {
+            log.error("Failed to load surf spots for school {}", school.getId(), e);
         }
     }
 
@@ -55,7 +74,7 @@ public class SurfingSchoolListController extends BaseController {
 
     @FXML
     private void handleEdit() {
-        SurfingSchool selectedSchool = surfingSchoolTable.getSelectionModel().getSelectedItem();
+        SurfingSchool selectedSchool = surfingSchoolListView.getSelectionModel().getSelectedItem();
         if (selectedSchool != null) {
             log.info("Editing surfing school: {}", selectedSchool.getId());
             sceneNavigator.navigateToSurfingSchoolForm(selectedSchool);
@@ -66,7 +85,7 @@ public class SurfingSchoolListController extends BaseController {
 
     @FXML
     private void handleDelete() {
-        SurfingSchool selectedSurfingSchool = surfingSchoolTable.getSelectionModel().getSelectedItem();
+        SurfingSchool selectedSurfingSchool = surfingSchoolListView.getSelectionModel().getSelectedItem();
 
         if (selectedSurfingSchool == null) {
             log.warn("Pokušaj brisanja bez odabrane skole.");

@@ -45,6 +45,7 @@ public class SceneNavigator {
             Stage stage = context.getPrimaryStage();
             stage.setTitle("SurfSpot - Aplikacija");
             stage.setScene(new Scene(loadFXML("/fxml/main_layout.fxml"), 1024, 768));
+            stage.setMaximized(true);
             stage.show();
         } catch (IOException e) {
             throw new ConfigurationException("Greška pri učitavanju Main ekrana", e);
