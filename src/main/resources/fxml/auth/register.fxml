@@ -9,19 +9,19 @@
 
 <VBox alignment="CENTER" maxWidth="Infinity" maxHeight="Infinity" xmlns="http://javafx.com/javafx/25"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.surfspot.controller.auth.RegisterController">
-   <Label text="Kreiraj racun"/>
+   <Label text="Registracija"/>
 
-   <TextField fx:id="usernameField" promptText="korisnicko ime"/>
+   <TextField fx:id="usernameField" promptText="korisničko ime"/>
 
-   <TextField fx:id="emailField" promptText="email (nije obavezan)"/>
+   <TextField fx:id="emailField" promptText="email"/>
 
-   <PasswordField fx:id="passwordField" promptText="Lozinka"/>
+   <PasswordField fx:id="passwordField" promptText="lozinka"/>
 
-   <PasswordField fx:id="repeatPasswordField" promptText="Ponovite lozinku"/>
+   <PasswordField fx:id="repeatPasswordField" promptText="ponovite lozinku"/>
 
-   <Button defaultButton="true" onAction="#handleRegister" text="REGISTRIRAJ SE"/>
+   <Button defaultButton="true" onAction="#handleRegister" text="REGISTRIRAJ"/>
 
-   <Label text="Vec imas korisnicki racun?"/>
+   <Label text="Već imaš korisnički račun?"/>
 
    <Hyperlink onAction="#handleLoginLink" text="Prijavi se"/>
 </VBox>

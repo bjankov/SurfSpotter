@@ -5,6 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
+<?import org.controlsfx.control.SearchableComboBox?>
 <VBox prefHeight="600.0" prefWidth="800.0" spacing="20.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.surfspot.controller.coast.CoastFormController">
     <padding>
         <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
@@ -31,7 +32,7 @@
         <Label text="Ime:" GridPane.rowIndex="0" />
         <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
       <Label text="Drzava" GridPane.rowIndex="1" />
-      <ComboBox fx:id="countryComboBox" prefWidth="150.0" promptText="- Odaberi drzavu -" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+      <SearchableComboBox fx:id="countryComboBox" prefWidth="150.0" promptText="- Odaberi drzavu -" GridPane.columnIndex="1" GridPane.rowIndex="1" />
     </GridPane>
 
     <HBox alignment="CENTER_LEFT" maxWidth="500.0" spacing="15.0">

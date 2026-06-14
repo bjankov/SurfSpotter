@@ -27,7 +27,7 @@
     <TableView fx:id="coastTable" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="coastNameColumn" prefWidth="200.0" text="Ime" />
-         <TableColumn fx:id="coastCountryColumn" prefWidth="200.0" text="Drzava" />
+         <TableColumn fx:id="coastCountryColumn" prefWidth="200.0" text="Država" />
         </columns>
         <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

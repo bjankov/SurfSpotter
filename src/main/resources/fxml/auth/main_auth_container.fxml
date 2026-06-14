@@ -8,7 +8,7 @@
       fx:controller="hr.algebra.surfspot.controller.auth.AuthLayoutController"
       style="-fx-background-color: #f0f0f0; -fx-padding: 50;">
 
-    <Label text="SurfSpot - Dobrodosli" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+    <Label text="Surf Spot Manager" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
 
     <StackPane fx:id="formContainer" />
 

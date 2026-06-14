@@ -10,10 +10,10 @@
             <toggleGroup>
                <ToggleGroup fx:id="navigationGroup" />
             </toggleGroup></ToggleButton>
-           <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showSurfingSchools" text="Skole surfanja" toggleGroup="$navigationGroup" />
+           <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showSurfingSchools" text="Škole surfanja" toggleGroup="$navigationGroup" />
            <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showInstructors" text="Instruktori surfanja" toggleGroup="$navigationGroup" />
            <ToggleButton maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showCoasts" text="Obale" toggleGroup="$navigationGroup" />
-           <ToggleButton fx:id="countriesToggleButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showCountries" text="Drzave" toggleGroup="$navigationGroup" />
+           <ToggleButton fx:id="countriesToggleButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showCountries" text="Države" toggleGroup="$navigationGroup" />
            <ToggleButton fx:id="usersToggleButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#showUsers" text="Korisnici" toggleGroup="$navigationGroup" />
        </VBox>
    </left>

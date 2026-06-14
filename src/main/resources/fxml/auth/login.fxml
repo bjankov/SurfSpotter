@@ -9,7 +9,7 @@
 
 <VBox alignment="CENTER" xmlns="http://javafx.com/javafx/25"
       xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.surfspot.controller.auth.LoginController">
-   <Label text="Prijavi se u Surf Spotter"/>
+   <Label text="Prijava"/>
 
    <TextField fx:id="usernameField" promptText="korisnicko ime ili email"/>
 
@@ -17,7 +17,7 @@
 
    <Button defaultButton="true" onAction="#handleLogin" text="PRIJAVA"/>
 
-   <Label text="Nemas korisnicki racun?"/>
+   <Label text="Nemaš korisnickki račun?"/>
 
-   <Hyperlink onAction="#handleRegisterLink" text="Kreiraj korisnicki racun"/>
+   <Hyperlink onAction="#handleRegisterLink" text="Kreiraj korisnički račun"/>
 </VBox>

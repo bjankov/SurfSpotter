@@ -62,13 +62,13 @@ public class SurfSpotFormController extends BaseController {
     public void setSurfSpot(SurfSpot spot) {
         this.currentSurfSpot = spot;
         if (spot == null) {
-            formTitleLabel.setText("Novi surf spot");
+            formTitleLabel.setText("Novo mjesto za surfanje");
             clearForm();
             loadDefaultFormImage();
             return;
         }
 
-        formTitleLabel.setText("Uredi surf spot");
+        formTitleLabel.setText("Uredi mjesto za surfanje");
         populateBasicFields(spot);
         populateLocationFields(spot);
         populateWaveFields(spot);

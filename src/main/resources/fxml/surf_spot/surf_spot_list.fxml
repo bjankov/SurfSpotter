@@ -45,7 +45,7 @@
                 <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
             </padding>
 
-            <Label text="Detalji spota" textFill="#2c3e50">
+            <Label text="Detalji mjesta za surfanje" textFill="#2c3e50">
                 <font>
                     <Font name="System Bold" size="18.0" />
                 </font>

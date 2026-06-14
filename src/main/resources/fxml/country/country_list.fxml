@@ -16,7 +16,7 @@
     </padding>
 
     <HBox alignment="CENTER_LEFT" spacing="10.0">
-        <Label text="Drzave" textFill="#2c3e50">
+        <Label text="Države" textFill="#2c3e50">
             <font>
                 <Font name="System Bold" size="24.0" />
             </font>

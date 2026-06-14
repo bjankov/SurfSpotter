@@ -54,7 +54,7 @@ public class SqlInstructorRepository extends BaseSqlRepository<Instructor> imple
 
     @Override
     public Instructor save(Instructor instructor) {
-        if (instructor.getId() == null) {
+        if (instructor.getId() != null) {
             return update(instructor);
         }
 

@@ -43,7 +43,7 @@ public class SceneNavigator {
         }
         try {
             Stage stage = context.getPrimaryStage();
-            stage.setTitle("SurfSpot - Aplikacija");
+            stage.setTitle("Surf Spot Manager");
             stage.setScene(new Scene(loadFXML("/fxml/main_layout.fxml"), 1024, 768));
             stage.setMaximized(true);
             stage.show();

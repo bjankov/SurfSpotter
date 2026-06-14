@@ -1,12 +1,8 @@
 package hr.algebra.surfspot.model;
 
 import hr.algebra.surfspot.exception.ValidationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public record Country (String code, String name){
-    private static final Logger log = LoggerFactory.getLogger(Country.class);
-
     public Country {
         if (code == null || code.length() != 2) {
             throw new ValidationException("Country code length must be 2");
@@ -19,9 +15,6 @@ public record Country (String code, String name){
 
     @Override
     public String toString() {
-        return String.format(
-                "Država [ID: %s]%n" +
-                "Naziv: %s%n",
-                code, name);
+        return name;
     }
 }

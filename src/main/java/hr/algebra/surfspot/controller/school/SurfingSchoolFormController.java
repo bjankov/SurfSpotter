@@ -45,11 +45,11 @@ public class SurfingSchoolFormController extends BaseController {
     public void setSurfingSchool(SurfingSchool school) {
         this.currentSurfingSchool = school;
         if (school != null) {
-            formTitleLabel.setText("Uredi surfing school");
+            formTitleLabel.setText("Uredi školu surfanja");
             nameField.setText(school.getName());
             populateSurfSpotFields(school);
         } else {
-            formTitleLabel.setText("Novi surfing school");
+            formTitleLabel.setText("Nova škola surfanja");
             nameField.clear();
             clearSurfSpotFields();
         }
