@@ -53,7 +53,7 @@ public class ControllerFactory {
                 new SurfingSchoolListController(services.getSurfingSchoolService(), navigator));
 
         controllerFactories.put(SurfingSchoolFormController.class, () ->
-                new SurfingSchoolFormController(services.getSurfingSchoolService(), navigator));
+                new SurfingSchoolFormController(services.getSurfingSchoolService(), services.getSurfSpotService(), navigator));
 
         controllerFactories.put(CoastListController.class, () ->
                 new CoastListController(services.getCoastService(), navigator));

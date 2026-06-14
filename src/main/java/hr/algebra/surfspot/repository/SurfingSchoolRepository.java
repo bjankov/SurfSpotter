@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface SurfingSchoolRepository extends CrudRepository<SurfingSchool, Long> {
     List<SurfSpot> findSurfSpotsForSchool(Long schoolId);
+    void replaceSurfSpotsForSchool(Long schoolId, List<Long> surfSpotIds);
 }

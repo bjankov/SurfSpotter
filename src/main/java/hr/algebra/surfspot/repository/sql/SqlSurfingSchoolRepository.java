@@ -48,6 +48,10 @@ public class SqlSurfingSchoolRepository extends BaseSqlRepository<SurfingSchool>
         JOIN countries cnt ON cnt.code = cst.country_code
     WHERE school_id = ?
     """;
+    private static final String DELETE_SURF_SPOTS_FOR_SCHOOL_QUERY =
+            "DELETE FROM surf_spot_schools WHERE school_id = ?";
+    private static final String INSERT_SURF_SPOT_SCHOOL_QUERY =
+            "INSERT INTO surf_spot_schools (school_id, surf_spot_id) VALUES (?, ?)";
 
     @Override
     public Optional<SurfingSchool> findById(Long id) {
@@ -97,5 +101,17 @@ public class SqlSurfingSchoolRepository extends BaseSqlRepository<SurfingSchool>
     @Override
     public List<SurfSpot> findSurfSpotsForSchool(Long schoolId) {
         return findAll(FIND_SPOTS_FOR_SCHOOL_ID_QUERY, surfSpotMapper, schoolId);
+    }
+
+    @Override
+    public void replaceSurfSpotsForSchool(Long schoolId, List<Long> surfSpotIds) {
+        List<Object[]> insertParams = surfSpotIds.stream()
+                .map(spotId -> new Object[]{schoolId, spotId})
+                .toList();
+
+        executeDeleteAndBatchInsert(
+                DELETE_SURF_SPOTS_FOR_SCHOOL_QUERY, new Object[]{schoolId},
+                INSERT_SURF_SPOT_SCHOOL_QUERY, insertParams
+        );
     }
 }

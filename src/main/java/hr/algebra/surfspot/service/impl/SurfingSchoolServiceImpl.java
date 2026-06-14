@@ -31,8 +31,8 @@ public class SurfingSchoolServiceImpl implements SurfingSchoolService {
     }
 
     @Override
-    public void update(SurfingSchool school) {
-        surfingSchoolRepository.update(school);
+    public SurfingSchool update(SurfingSchool school) {
+        return surfingSchoolRepository.update(school);
     }
 
     @Override
@@ -43,5 +43,10 @@ public class SurfingSchoolServiceImpl implements SurfingSchoolService {
     @Override
     public List<SurfSpot> findSurfSpotsForSchool(Long schoolId) {
         return surfingSchoolRepository.findSurfSpotsForSchool(schoolId);
+    }
+
+    @Override
+    public void updateSurfSpots(Long schoolId, List<Long> surfSpotIds) {
+        surfingSchoolRepository.replaceSurfSpotsForSchool(schoolId, surfSpotIds);
     }
 }

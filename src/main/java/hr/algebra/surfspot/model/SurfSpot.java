@@ -157,6 +157,12 @@ public class SurfSpot {
         return difficulty;
     }
 
+    // Used reflectively
+    @SuppressWarnings("unused")
+    public String getDifficultyDisplayValue() {
+        return difficulty.getDisplayValue();
+    }
+
     public Set<Month> getBestSeason() {
         return bestSeason;
     }

@@ -30,8 +30,8 @@ public class CoastServiceImpl implements CoastService {
     }
 
     @Override
-    public void update(Coast coast) {
-        coastRepository.update(coast);
+    public Coast update(Coast coast) {
+        return coastRepository.update(coast);
     }
 
     @Override

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings("SqlSourceToSinkFlow")
 public abstract class BaseSqlRepository<T> {
     protected final DataSource dataSource;
 
@@ -18,7 +19,7 @@ public abstract class BaseSqlRepository<T> {
 
     protected Optional<T> findSingleResult(String query, RowMapper<T> mapper, Object ... params) {
         try (Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             setParams(preparedStatement, params);
 
@@ -37,7 +38,7 @@ public abstract class BaseSqlRepository<T> {
         List<R> results = new ArrayList<>();
 
         try (Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(query)){
+             PreparedStatement preparedStatement = connection.prepareStatement(query)){
 
             setParams(preparedStatement, params);
 
@@ -86,7 +87,7 @@ public abstract class BaseSqlRepository<T> {
 
     protected Long insertAndGetId(String query, Object... params) {
         try (Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
 
             setParams(preparedStatement, params);
 
@@ -105,7 +106,7 @@ public abstract class BaseSqlRepository<T> {
 
     protected int executeUpdate(String query, Object... params) {
         try (Connection connection = dataSource.getConnection();
-        PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             setParams(preparedStatement, params);
             return preparedStatement.executeUpdate();
@@ -121,11 +122,10 @@ public abstract class BaseSqlRepository<T> {
         }
     }
 
-    protected Long requireGeneratedId(Long generatedId, String errorMessage) {
+    protected void requireGeneratedId(Long generatedId, String errorMessage) {
         if (generatedId == null) {
             throw new PersistenceException(errorMessage);
         }
-        return generatedId;
     }
 
     private void setParams(PreparedStatement preparedStatement, Object... params) throws SQLException {
@@ -146,5 +146,48 @@ public abstract class BaseSqlRepository<T> {
         } catch (SQLException e) {
             throw new PersistenceException("Greška u bazi kod izvršavanja upita: " + e.getMessage(), e);
         }
+    }
+
+    protected void executeInTransaction(TransactionalWork work) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            work.execute(connection);
+            connection.commit();
+        } catch (Exception e) {
+            throw new PersistenceException("Greška u transakciji: " + e.getMessage(), e);
+        }
+    }
+
+    protected void executeDeleteAndBatchInsert(
+            String deleteQuery, Object[] deleteParams,
+            String insertQuery, List<Object[]> insertParamSets) {
+        executeInTransaction(connection -> {
+            executeUpdate(connection, deleteQuery, deleteParams);
+            if (!insertParamSets.isEmpty()) {
+                executeBatchUpdate(connection, insertQuery, insertParamSets);
+            }
+        });
+    }
+
+    private void executeUpdate(Connection connection, String query, Object... params) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            setParams(preparedStatement, params);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+    private void executeBatchUpdate(Connection connection, String query, List<Object[]> paramSets) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            for (Object[] params : paramSets) {
+                setParams(preparedStatement, params);
+                preparedStatement.addBatch();
+            }
+            preparedStatement.executeBatch();
+        }
+    }
+
+    @FunctionalInterface
+    protected interface TransactionalWork {
+        void execute(Connection connection) throws SQLException;
     }
 }

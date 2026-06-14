@@ -30,8 +30,8 @@ public class SurfSpotServiceImpl implements SurfSpotService {
     }
 
     @Override
-    public void update(SurfSpot spot) {
-        surfSpotRepository.update(spot);
+    public SurfSpot update(SurfSpot spot) {
+        return surfSpotRepository.update(spot);
     }
 
     @Override

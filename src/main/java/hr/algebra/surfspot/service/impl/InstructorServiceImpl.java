@@ -30,8 +30,8 @@ public class InstructorServiceImpl implements InstructorService {
     }
 
     @Override
-    public void update(Instructor instructor) {
-        instructorRepository.update(instructor);
+    public Instructor update(Instructor instructor) {
+        return instructorRepository.update(instructor);
     }
 
     @Override
