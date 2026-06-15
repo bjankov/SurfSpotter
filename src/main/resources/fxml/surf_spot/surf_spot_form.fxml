@@ -34,8 +34,8 @@
 
         <GridPane hgap="15.0" vgap="15.0" HBox.hgrow="ALWAYS">
             <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="125.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="200.0" prefWidth="250.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="-Infinity" prefWidth="150.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="235.0" minWidth="200.0" prefWidth="213.0" />
             </columnConstraints>
             <rowConstraints>
                 <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
@@ -64,7 +64,7 @@
             <Label text="Tip vala:" GridPane.rowIndex="4" />
             <ComboBox fx:id="waveTypeComboBox" maxWidth="1.1797693134862315E308" promptText="Odaberi tip vala" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
-            <Label text="Visina vala (m):" GridPane.rowIndex="5" />
+            <Label text="Prosječna visina vala (m):" GridPane.rowIndex="5" />
             <TextField fx:id="waveHeightField" promptText="npr. 2.5" GridPane.columnIndex="1" GridPane.rowIndex="5" />
 
             <Label text="Težina:" GridPane.rowIndex="6" />
@@ -73,7 +73,7 @@
             <Label text="Smjer vjetra (°):" GridPane.rowIndex="7" />
             <TextField fx:id="windDirectionField" promptText="0 - 359" GridPane.columnIndex="1" GridPane.rowIndex="7" />
 
-            <Label text="Najbolja sezona:" GridPane.rowIndex="8" />
+            <Label text="Sezona:" GridPane.rowIndex="8" />
             <MenuButton fx:id="seasonMenuButton" maxWidth="1.7976931348623157E308" text="Odaberi mjesece" GridPane.columnIndex="1" GridPane.rowIndex="8" />
         </GridPane>
 
@@ -81,7 +81,7 @@
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>
-            <Label text="Slika spota" textFill="#7f8c8d">
+            <Label text="Slika mjesta za surfanje" textFill="#7f8c8d">
                 <font>
                     <Font name="System Bold" size="14.0" />
                 </font>

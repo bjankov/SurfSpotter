@@ -12,6 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
+import javafx.util.StringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +55,30 @@ public class SurfSpotFormController extends BaseController {
         coastComboBox.setItems(FXCollections.observableArrayList(coasts));
 
         waveTypeComboBox.setItems(FXCollections.observableArrayList(WaveType.values()));
+        waveTypeComboBox.setConverter(new  StringConverter<>() {
+            @Override
+            public String toString(WaveType waveType) {
+                return (waveType != null) ? waveType.getDisplayValue() : "";
+            }
+
+            @Override
+            public WaveType fromString(String string) {
+                return null;
+            }
+        });
+
         difficultyComboBox.setItems(FXCollections.observableArrayList(DifficultyLevel.values()));
+        difficultyComboBox.setConverter(new  StringConverter<>() {
+            @Override
+            public String toString(DifficultyLevel difficultyLevel) {
+                return (difficultyLevel != null) ? difficultyLevel.getDisplayValue() : "";
+            }
+
+            @Override
+            public DifficultyLevel fromString(String string) {
+                return null;
+            }
+        });
 
         setupSeasonMenu();
     }
