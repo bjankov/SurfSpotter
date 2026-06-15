@@ -86,7 +86,7 @@ U `src/main/resources` nalazi se datoteka `db.properties.example`. Napravite kop
 copy src\main\resources\db.properties.example src\main\resources\db.properties
 
 # macOS / Linux
-copy src\main\resources\db.properties.example src\main\resources\db.properties
+cp src/main/resources/db.properties.example src/main/resources/db.properties
 ```
 
 Otvorite `db.properties` i popunite podatke:
