@@ -8,5 +8,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./docker/01_ddl.sql:/docker-entrypoint-initdb.d/01_ddl.sql
-      - ./docker/02_seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
+      - ./docker/01_ddl.sql:/docker-entrypoint-initdb.d/01_ddl.sql:z
+      - ./docker/02_seed.sql:/docker-entrypoint-initdb.d/02_seed.sql:z
+      # Persistent volume
+      - surf_spot_data:/var/lib/postgresql
+volumes:
+  surf_spot_data:
