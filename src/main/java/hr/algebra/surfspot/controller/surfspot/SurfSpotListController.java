@@ -9,6 +9,7 @@ import hr.algebra.surfspot.model.Instructor;
 import hr.algebra.surfspot.model.SurfSpot;
 import hr.algebra.surfspot.service.SurfSpotService;
 import hr.algebra.surfspot.util.ImageStorage;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -82,8 +83,10 @@ public class SurfSpotListController extends BaseController {
     private void loadSurfSpots() {
         try {
             List<SurfSpot> spots = surfSpotService.findAll();
-            surfSpotTable.setItems(FXCollections.observableArrayList(spots));
-            log.info("Loaded {} surf spots into table", spots.size());
+            Platform.runLater(() -> {
+                surfSpotTable.setItems(FXCollections.observableArrayList(spots));
+                log.info("Loaded {} surf spots into table", spots.size());
+            });
         } catch (Exception e) {
             log.error("Failed to load surf spots", e);
         }
@@ -301,8 +304,10 @@ public class SurfSpotListController extends BaseController {
         }
         try {
             surfSpotService.delete(selected.getId());
-            loadSurfSpots();
-            log.info("Deleted surf spot: {}", selected.getName());
+            Platform.runLater(() -> {
+                loadSurfSpots();
+                log.info("Deleted surf spot: {}", selected.getName());
+            });
         } catch (Exception e) {
             log.error("Failed to delete surf spot", e);
         }

@@ -5,6 +5,7 @@ import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.SurfSpot;
 import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.service.SurfingSchoolService;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -43,9 +44,10 @@ public class SurfingSchoolListController extends BaseController {
     private void loadSurfingSchools() {
         try {
             List<SurfingSchool> schools = surfingSchoolService.findAll();
-            ObservableList<SurfingSchool> observableData = FXCollections.observableArrayList(schools);
-            surfingSchoolListView.setItems(observableData);
-            log.info("Loaded {} surfing schools into list", schools.size());
+            Platform.runLater(() -> {
+                surfingSchoolListView.setItems(FXCollections.observableArrayList(schools));
+                log.info("Loaded {} surfing schools into list", schools.size());
+            });
         } catch (Exception e) {
             log.error("Failed to load surfing schools from service", e);
         }
@@ -94,9 +96,10 @@ public class SurfingSchoolListController extends BaseController {
 
         try {
             surfingSchoolService.delete(selectedSurfingSchool.getId());
-
-            loadSurfingSchools();
-            log.info("Surfing school {} uspješno obrisan.", selectedSurfingSchool.getName());
+            Platform.runLater(() -> {
+                loadSurfingSchools();
+                log.info("Surfing school {} uspješno obrisan.", selectedSurfingSchool.getName());
+            });
         } catch (Exception e) {
             log.error("Greška pri brisanju surfing school", e);
         }

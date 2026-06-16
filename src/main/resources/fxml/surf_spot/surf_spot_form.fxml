@@ -14,8 +14,8 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-
 <?import org.controlsfx.control.SearchableComboBox?>
+
 <VBox prefHeight="750.0" prefWidth="800.0" spacing="20.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.surfspot.controller.surfspot.SurfSpotFormController">
     <padding>
         <Insets bottom="30.0" left="40.0" right="40.0" top="30.0" />
@@ -30,12 +30,12 @@
         </Label>
     </HBox>
 
-    <HBox spacing="40.0" VBox.vgrow="ALWAYS">
+    <HBox alignment="CENTER_LEFT" spacing="40.0" VBox.vgrow="ALWAYS">
 
         <GridPane hgap="15.0" vgap="15.0" HBox.hgrow="ALWAYS">
             <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="-Infinity" prefWidth="150.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="235.0" minWidth="200.0" prefWidth="213.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="160.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="400.0" />
             </columnConstraints>
             <rowConstraints>
                 <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
@@ -49,11 +49,11 @@
                 <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
             </rowConstraints>
 
-            <Label text="Ime spota:" GridPane.rowIndex="0" />
+            <Label text="Ime mjesta za surfanje:" GridPane.rowIndex="0" />
             <TextField fx:id="nameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
             <Label text="Obala:" GridPane.rowIndex="1" />
-            <SearchableComboBox fx:id="coastComboBox" maxWidth="1.1797693134862315E308" promptText="Odaberi obalu" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <SearchableComboBox fx:id="coastComboBox" maxWidth="1.7976931348623157E308" promptText="Odaberi obalu" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
             <Label text="Latitude (Širina):" GridPane.rowIndex="2" />
             <TextField fx:id="latitudeField" promptText="npr. 45.8150" GridPane.columnIndex="1" GridPane.rowIndex="2" />
@@ -62,22 +62,22 @@
             <TextField fx:id="longitudeField" promptText="npr. 15.9819" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
             <Label text="Tip vala:" GridPane.rowIndex="4" />
-            <ComboBox fx:id="waveTypeComboBox" maxWidth="1.1797693134862315E308" promptText="Odaberi tip vala" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <ComboBox fx:id="waveTypeComboBox" maxWidth="1.7976931348623157E308" promptText="Odaberi tip vala" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
             <Label text="Prosječna visina vala (m):" GridPane.rowIndex="5" />
             <TextField fx:id="waveHeightField" promptText="npr. 2.5" GridPane.columnIndex="1" GridPane.rowIndex="5" />
 
             <Label text="Težina:" GridPane.rowIndex="6" />
-            <ComboBox fx:id="difficultyComboBox" maxWidth="1.1797693134862315E308" promptText="Odaberi razinu težine" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <ComboBox fx:id="difficultyComboBox" maxWidth="1.7976931348623157E308" promptText="Odaberi razinu težine" GridPane.columnIndex="1" GridPane.rowIndex="6" />
 
-            <Label text="Smjer vjetra (°):" GridPane.rowIndex="7" />
+            <Label text="Prosječan smjer vjetra (°):" GridPane.rowIndex="7" />
             <TextField fx:id="windDirectionField" promptText="0 - 359" GridPane.columnIndex="1" GridPane.rowIndex="7" />
 
             <Label text="Sezona:" GridPane.rowIndex="8" />
             <MenuButton fx:id="seasonMenuButton" maxWidth="1.7976931348623157E308" text="Odaberi mjesece" GridPane.columnIndex="1" GridPane.rowIndex="8" />
         </GridPane>
 
-        <VBox alignment="TOP_CENTER" minWidth="300.0" spacing="15.0" style="-fx-background-color: #f8f9fa; -fx-border-color: #ecf0f1; -fx-border-radius: 5; -fx-background-radius: 5;">
+        <VBox alignment="TOP_CENTER" minWidth="300.0" spacing="15.0" style="-fx-background-color: #f8f9fa; -fx-border-color: #ecf0f1; -fx-border-radius: 5; -fx-background-radius: 5;" GridPane.halignment="LEFT">
             <padding>
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>

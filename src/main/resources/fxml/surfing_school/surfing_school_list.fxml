@@ -33,7 +33,7 @@
             <ListView fx:id="surfingSchoolListView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
         </VBox>
         <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
-            <Label text="Odabrana škola drži satove surfanja na:" />
+            <Label text="Odabrana škola održava satove surfanja na:" />
             <ListView fx:id="surfSpotListView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
         </VBox>
     </HBox>

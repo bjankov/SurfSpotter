@@ -5,6 +5,7 @@ import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.Instructor;
 import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.service.InstructorService;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -47,13 +48,16 @@ public class InstructorListController extends BaseController {
     private void loadInstructors() {
         try {
             List<Instructor> data = instructorService.findAll();
-            ObservableList<Instructor> observableData = FXCollections.observableArrayList(data);
-            instructorTable.setItems(observableData);
-            log.info("Loaded {} instructors into table", data.size());
+            Platform.runLater(() -> {
+                ObservableList<Instructor> observableData = FXCollections.observableArrayList(data);
+                instructorTable.setItems(observableData);
+                log.info("Loaded {} instructors into table", data.size());
+            });
         } catch (Exception e) {
             log.error("Failed to load instructors from service", e);
         }
     }
+
 
     @FXML
     private void handleAdd() {
@@ -84,10 +88,13 @@ public class InstructorListController extends BaseController {
         try {
             instructorService.delete(selectedInstructor.getId());
 
-            loadInstructors();
-            log.info("Instruktor {} uspješno obrisan.", selectedInstructor.getFirstName() + " " + selectedInstructor.getLastName());
+            Platform.runLater(() -> {
+                loadInstructors();
+                log.info("Instruktor {} uspješno obrisan.", selectedInstructor.getFirstName() + " " + selectedInstructor.getLastName());
+            });
         } catch (Exception e) {
             log.error("Greška pri brisanju instruktora", e);
         }
     }
+
 }

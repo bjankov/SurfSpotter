@@ -4,6 +4,7 @@ import hr.algebra.surfspot.context.SceneNavigator;
 import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.Country;
 import hr.algebra.surfspot.service.CountryService;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -41,9 +42,11 @@ public class CountryListController extends BaseController {
     private void loadCountries() {
         try {
             List<Country> data = countryService.findAll();
-            ObservableList<Country> observableData = FXCollections.observableArrayList(data);
-            countryTable.setItems(observableData);
-            log.info("Loaded {} countries into table", data.size());
+            Platform.runLater(() -> {
+                ObservableList<Country> observableData = FXCollections.observableArrayList(data);
+                countryTable.setItems(observableData);
+                log.info("Loaded {} countries into table", data.size());
+            });
         } catch (Exception e) {
             log.error("Failed to load countries from service", e);
         }
@@ -78,8 +81,10 @@ public class CountryListController extends BaseController {
         try {
             countryService.delete(selectedCountry.code());
 
-            loadCountries();
-            log.info("Zemlja {} uspješno obrisana.", selectedCountry.name());
+            Platform.runLater(() -> {
+                loadCountries();
+                log.info("Zemlja {} uspješno obrisana.", selectedCountry.name());
+            });
         } catch (Exception e) {
             log.error("Greška pri brisanju zemlje.", e);
         }
