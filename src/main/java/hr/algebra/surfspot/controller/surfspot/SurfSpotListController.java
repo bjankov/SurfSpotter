@@ -346,7 +346,7 @@ public class SurfSpotListController extends BaseController {
 
         task.setOnSucceeded(_ -> {
             log.info("Deleted surf spot: {}", selected.getName());
-            loadSurfSpots(); // reload on JAT via its own task
+            loadSurfSpots();
         });
 
         task.setOnFailed(_ -> log.error("Failed to delete surf spot", task.getException()));

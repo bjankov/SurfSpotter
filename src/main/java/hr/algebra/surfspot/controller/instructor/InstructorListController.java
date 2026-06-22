@@ -7,7 +7,6 @@ import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.service.InstructorService;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
@@ -17,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+
+import static javafx.collections.FXCollections.observableArrayList;
 
 public class InstructorListController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(InstructorListController.class);
@@ -49,7 +50,7 @@ public class InstructorListController extends BaseController {
         try {
             List<Instructor> data = instructorService.findAll();
             Platform.runLater(() -> {
-                ObservableList<Instructor> observableData = FXCollections.observableArrayList(data);
+                ObservableList<Instructor> observableData = observableArrayList(data);
                 instructorTable.setItems(observableData);
                 log.info("Loaded {} instructors into table", data.size());
             });

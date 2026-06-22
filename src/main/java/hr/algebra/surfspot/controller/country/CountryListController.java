@@ -6,7 +6,6 @@ import hr.algebra.surfspot.model.Country;
 import hr.algebra.surfspot.service.CountryService;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
@@ -15,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+
+import static javafx.collections.FXCollections.observableArrayList;
 
 public class CountryListController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(CountryListController.class);
@@ -43,7 +44,7 @@ public class CountryListController extends BaseController {
         try {
             List<Country> data = countryService.findAll();
             Platform.runLater(() -> {
-                ObservableList<Country> observableData = FXCollections.observableArrayList(data);
+                ObservableList<Country> observableData = observableArrayList(data);
                 countryTable.setItems(observableData);
                 log.info("Loaded {} countries into table", data.size());
             });

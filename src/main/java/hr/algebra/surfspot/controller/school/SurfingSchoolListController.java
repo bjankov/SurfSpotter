@@ -6,14 +6,14 @@ import hr.algebra.surfspot.model.SurfSpot;
 import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.service.SurfingSchoolService;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+
+import static javafx.collections.FXCollections.observableArrayList;
 
 public class SurfingSchoolListController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(SurfingSchoolListController.class);
@@ -45,7 +45,7 @@ public class SurfingSchoolListController extends BaseController {
         try {
             List<SurfingSchool> schools = surfingSchoolService.findAll();
             Platform.runLater(() -> {
-                surfingSchoolListView.setItems(FXCollections.observableArrayList(schools));
+                surfingSchoolListView.setItems(observableArrayList(schools));
                 log.info("Loaded {} surfing schools into list", schools.size());
             });
         } catch (Exception e) {
@@ -61,7 +61,7 @@ public class SurfingSchoolListController extends BaseController {
 
         try {
             List<SurfSpot> spots = surfingSchoolService.findSurfSpotsForSchool(school.getId());
-            surfSpotListView.setItems(FXCollections.observableArrayList(spots));
+            surfSpotListView.setItems(observableArrayList(spots));
             log.info("Loaded {} surf spots for school {}", spots.size(), school.getName());
         } catch (Exception e) {
             log.error("Failed to load surf spots for school {}", school.getId(), e);

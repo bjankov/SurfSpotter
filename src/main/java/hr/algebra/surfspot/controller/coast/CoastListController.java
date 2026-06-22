@@ -4,7 +4,6 @@ import hr.algebra.surfspot.context.SceneNavigator;
 import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.Coast;
 import hr.algebra.surfspot.service.CoastService;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
@@ -14,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+
+import static javafx.collections.FXCollections.observableArrayList;
 
 public class CoastListController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(CoastListController.class);
@@ -40,7 +41,7 @@ public class CoastListController extends BaseController {
     private void loadCoasts() {
         try {
             List<Coast> data = coastService.findAll();
-            ObservableList<Coast> observableData = FXCollections.observableArrayList(data);
+            ObservableList<Coast> observableData = observableArrayList(data);
             coastTable.setItems(observableData);
             log.info("Loaded {} coasts into table", data.size());
         } catch (Exception e) {

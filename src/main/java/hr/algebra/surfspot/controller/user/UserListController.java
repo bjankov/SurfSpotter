@@ -5,8 +5,8 @@ import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.Role;
 import hr.algebra.surfspot.model.User;
 import hr.algebra.surfspot.service.UserService;
+import hr.algebra.surfspot.util.DisplayConstants;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
@@ -17,6 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Set;
+
+import static javafx.collections.FXCollections.observableArrayList;
 
 public class UserListController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(UserListController.class);
@@ -40,7 +42,7 @@ public class UserListController extends BaseController {
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
         roleColumn.setCellValueFactory(cellData -> {
                     Set<Role> roles = cellData.getValue().getRoles();
-                    return new SimpleStringProperty(roles.contains(Role.ADMIN) ? "ADMIN" : "USER");
+                    return new SimpleStringProperty(roles.contains(Role.ADMIN) ? DisplayConstants.ADMIN : DisplayConstants.USER);
                 });
         loadUsers();
     }
@@ -48,7 +50,7 @@ public class UserListController extends BaseController {
     private void loadUsers() {
         try {
             List<User> data = userService.findAll();
-            ObservableList<User> observableData = FXCollections.observableArrayList(data);
+            ObservableList<User> observableData = observableArrayList(data);
             userTable.setItems(observableData);
             log.info("Loaded {} users into table", data.size());
         } catch (Exception e) {
