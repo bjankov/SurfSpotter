@@ -30,7 +30,6 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);""";
 
     private static final String DELETE_BY_ID_QUERY = "DELETE FROM surf_spots WHERE id = ?";
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM surf_spots WHERE id = ?";
     private static final String FIND_BY_NAME_QUERY = "SELECT * FROM surf_spots WHERE name = ?";
 
     private static final String FIND_MONTHS_BY_SPOT_ID = "SELECT month_name FROM surf_spot_months WHERE surf_spot_id = ?";
@@ -68,6 +67,7 @@ public class SqlSurfSpotRepository extends BaseSqlRepository<SurfSpot> implement
             JOIN countries ON coasts.country_code = countries.code
             """;
 
+    private static final String FIND_BY_ID_QUERY = BASE_SELECT + " WHERE ss.id = ?";
     private static final String FIND_ALL_QUERY = BASE_SELECT;
     private static final String FIND_BY_COUNTRY_NAME = BASE_SELECT + " WHERE countries.name = ?";
     private static final String FIND_BY_DIFFICULTY = BASE_SELECT + " WHERE ss.difficulty = ?";

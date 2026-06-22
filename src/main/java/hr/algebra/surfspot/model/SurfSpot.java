@@ -220,6 +220,10 @@ public class SurfSpot {
                 .collect(java.util.stream.Collectors.joining(", "));
     }
 
+    public Country getCountry() {
+        return location.getCoast().getCountry();
+    }
+
     @Override
     public String toString() {
         return getName() + ", " + getCoastName() + ", " + getCountryName();

@@ -5,13 +5,14 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import hr.algebra.surfspot.context.SceneNavigator;
 import hr.algebra.surfspot.controller.BaseController;
+import hr.algebra.surfspot.exception.ResourceNotFoundException;
 import hr.algebra.surfspot.model.Instructor;
 import hr.algebra.surfspot.model.SurfSpot;
 import hr.algebra.surfspot.service.SurfSpotService;
 import hr.algebra.surfspot.util.ImageStorage;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -81,16 +82,24 @@ public class SurfSpotListController extends BaseController {
     }
 
     private void loadSurfSpots() {
-        try {
-            List<SurfSpot> spots = surfSpotService.findAll();
-            Platform.runLater(() -> {
-                surfSpotTable.setItems(FXCollections.observableArrayList(spots));
-                log.info("Loaded {} surf spots into table", spots.size());
-            });
-        } catch (Exception e) {
-            log.error("Failed to load surf spots", e);
-        }
+        Task<List<SurfSpot>> task = new Task<>() {
+            @Override
+            protected List<SurfSpot> call() {
+                return surfSpotService.findAll();
+            }
+        };
+
+        task.setOnSucceeded(_ -> {
+            surfSpotTable.setItems(FXCollections.observableArrayList(task.getValue()));
+            log.info("Loaded {} surf spots", task.getValue().size());
+        });
+
+        task.setOnFailed(_ -> log.error("Failed to load surf spots", task.getException()));
+
+        Thread.startVirtualThread(task);
     }
+
+    private Task<SurfSpot> pendingDetailTask;
 
     private void populateDetails(SurfSpot spot) {
         if (spot == null) {
@@ -98,21 +107,44 @@ public class SurfSpotListController extends BaseController {
             return;
         }
 
-        String coastName = (spot.getLocation() != null && spot.getLocation().getCoast() != null)
-                ? spot.getLocation().getCoast().getName() : "?";
+        if (pendingDetailTask != null && pendingDetailTask.isRunning()) {
+            pendingDetailTask.cancel();
+        }
 
-        locationLabel.setText(String.format("%s, %s", coastName, spot.getCountryName()));
-        coordinatesLabel.setText(spot.getLocation().getCoordinates().toString());
-        waveDetailsLabel.setText(spot.getWaveDetails().toString());
-        windDetailsLabel.setText(spot.getWindDirectionDegrees() != null ? spot.getFormattedWindDetails() : "Nije unesen");
-        seasonLabel.setText(spot.getBestSeason() != null && !spot.getBestSeason().isEmpty()
-                ? spot.getFormattedBestSeason() : "Nije određena");
+        Task<SurfSpot> task = new Task<>() {
+            @Override
+            protected SurfSpot call() {
+                return surfSpotService.findById(spot.getId()).orElseThrow(() -> new ResourceNotFoundException("Nije pronađeno mjesto za surfanje sa IDjem " + spot.getId()));
+            }
+        };
 
-        instructorListView.setItems(spot.getInstructors() != null
-                ? FXCollections.observableArrayList(spot.getInstructors())
-                : FXCollections.emptyObservableList());
+        task.setOnSucceeded(_ -> {
+            SurfSpot loaded = task.getValue();
 
-        loadSpotImage(spot.getImagePath());
+            String coastName = (loaded.getLocation() != null && loaded.getLocation().getCoast() != null)
+                    ? loaded.getLocation().getCoast().getName() : "?";
+
+            locationLabel.setText(String.format("%s, %s", coastName, loaded.getCountryName()));
+            coordinatesLabel.setText(loaded.getLocation().getCoordinates().toString());
+            waveDetailsLabel.setText(loaded.getWaveDetails().toString());
+            windDetailsLabel.setText(loaded.getWindDirectionDegrees() != null
+                    ? loaded.getFormattedWindDetails() : "Nije unesen");
+            seasonLabel.setText(loaded.getBestSeason() != null && !loaded.getBestSeason().isEmpty()
+                    ? loaded.getFormattedBestSeason() : "Nije određena");
+
+            instructorListView.setItems(loaded.getInstructors() != null
+                    ? FXCollections.observableArrayList(loaded.getInstructors())
+                    : FXCollections.emptyObservableList());
+
+            loadSpotImage(loaded.getImagePath());
+        });
+
+        task.setOnCancelled(_ -> log.debug("Detail load cancelled for: {}", spot.getName()));
+        task.setOnFailed(_ -> log.error("Failed to load spot details", task.getException()));
+
+        pendingDetailTask = task;
+
+        Thread.startVirtualThread(task);
     }
 
     private void clearDetails() {
@@ -129,7 +161,8 @@ public class SurfSpotListController extends BaseController {
         if (imagePath != null && !imagePath.isBlank()) {
             Path fullPath = ImageStorage.getStorageDir().resolve(imagePath);
             if (Files.exists(fullPath)) {
-                spotImageView.setImage(new Image(fullPath.toUri().toString()));
+                // backgroundLoading = true -> ucitavanje se odvija na zasebnom threadu
+                spotImageView.setImage(new Image(fullPath.toUri().toString(), true));
                 return;
             }
         }
@@ -302,15 +335,23 @@ public class SurfSpotListController extends BaseController {
             log.warn("Delete clicked with no surf spot selected");
             return;
         }
-        try {
-            surfSpotService.delete(selected.getId());
-            Platform.runLater(() -> {
-                loadSurfSpots();
-                log.info("Deleted surf spot: {}", selected.getName());
-            });
-        } catch (Exception e) {
-            log.error("Failed to delete surf spot", e);
-        }
+
+        Task<Void> task = new Task<>() {
+            @Override
+            protected Void call() {
+                surfSpotService.delete(selected.getId());
+                return null;
+            }
+        };
+
+        task.setOnSucceeded(_ -> {
+            log.info("Deleted surf spot: {}", selected.getName());
+            loadSurfSpots(); // reload on JAT via its own task
+        });
+
+        task.setOnFailed(_ -> log.error("Failed to delete surf spot", task.getException()));
+
+        Thread.startVirtualThread(task);
     }
 
     @FXML
