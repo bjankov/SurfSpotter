@@ -1,12 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import org.controlsfx.control.CheckComboBox?>
 
-<VBox prefHeight="600.0" prefWidth="1150.0" spacing="15.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.surfspot.controller.surfspot.SurfSpotListController">
+<VBox prefHeight="600.0" prefWidth="1150.0" spacing="15.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.surfspot.controller.surfspot.SurfSpotListController">
     <padding>
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
@@ -26,6 +39,31 @@
         <Button mnemonicParsing="false" onAction="#handleEdit" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="Uredi" />
         <Button mnemonicParsing="false" onAction="#handleDelete" style="-fx-background-color: #e74c3c; -fx-text-fill: white;" text="Obriši" />
     </HBox>
+
+    <VBox spacing="10.0" style="-fx-background-color: #f8f9fa; -fx-padding: 10; -fx-border-color: #e0e0e0; -fx-border-radius: 5;">
+        <HBox alignment="CENTER_LEFT" spacing="10.0">
+            <Label text="Pretraga i filteri:">
+                <font>
+                    <Font name="System Bold" size="14.0" />
+                </font>
+            </Label>
+            <TextField fx:id="spotSearchField" prefWidth="250.0" promptText="Upiši ime spota..." />
+            <Button mnemonicParsing="false" onAction="#handleClearFilters" text="Očisti filtere" />
+        </HBox>
+        <FlowPane alignment="CENTER_LEFT" hgap="10.0" vgap="10.0">
+            <CheckComboBox fx:id="difficultyComboBox" prefWidth="130.0" title="Težina" />
+         <CheckComboBox fx:id="waveTypeComboBox" title="Tip vala" />
+
+            <HBox alignment="CENTER_LEFT" spacing="5.0">
+                <Label text="Prosječna visina vala (m):" textFill="#7f8c8d" />
+                <TextField fx:id="minWaveHeightField" prefWidth="60.0" promptText="Min" />
+                <Label text="-" textFill="#7f8c8d" />
+                <TextField fx:id="maxWaveHeightField" prefWidth="60.0" promptText="Max" />
+            </HBox>
+         <CheckComboBox fx:id="coastComboBox" title="Obala" />
+         <CheckComboBox fx:id="countryComboBox" title="Država" />
+        </FlowPane>
+    </VBox>
 
     <SplitPane fx:id="mainSplitPane" dividerPositions="0.4, 0.75" VBox.vgrow="ALWAYS">
 
@@ -51,8 +89,7 @@
                 </font>
             </Label>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-                <ImageView fx:id="spotImageView" fitHeight="150.0" fitWidth="250.0" pickOnBounds="true"
-                           preserveRatio="true"/>
+                <ImageView fx:id="spotImageView" fitHeight="150.0" fitWidth="250.0" pickOnBounds="true" preserveRatio="true" />
             </HBox>
 
             <GridPane hgap="10.0" vgap="10.0">
@@ -85,13 +122,13 @@
                     <font><Font name="System Bold" size="12.0" /></font>
                 </Label>
                 <Label fx:id="windDetailsLabel" text="-" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                <rowConstraints>
-                    <RowConstraints />
-                    <RowConstraints />
-                    <RowConstraints />
-                    <RowConstraints />
-                    <RowConstraints />
-                </rowConstraints>
+            <rowConstraints>
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+               <RowConstraints />
+            </rowConstraints>
             </GridPane>
 
             <Label text="Instruktori:">

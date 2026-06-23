@@ -6,13 +6,17 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import hr.algebra.surfspot.context.SceneNavigator;
 import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.exception.ResourceNotFoundException;
-import hr.algebra.surfspot.model.Instructor;
-import hr.algebra.surfspot.model.SurfSpot;
+import hr.algebra.surfspot.model.*;
+import hr.algebra.surfspot.service.CoastService;
+import hr.algebra.surfspot.service.CountryService;
 import hr.algebra.surfspot.service.SurfSpotService;
 import hr.algebra.surfspot.util.ImageStorage;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -27,6 +31,8 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.util.StringConverter;
+import org.controlsfx.control.CheckComboBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +40,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.function.DoublePredicate;
 
 import static javafx.collections.FXCollections.observableArrayList;
 
@@ -57,13 +64,29 @@ public class SurfSpotListController extends BaseController {
     @FXML private VBox itineraryPanel;
     @FXML private ListView<SurfSpot> itineraryListView;
 
-    private SurfSpot draggedSpot;
+    // Filteri
+    @FXML private TextField spotSearchField;
+    @FXML private CheckComboBox<DifficultyLevel> difficultyComboBox;
+    @FXML private CheckComboBox<WaveType> waveTypeComboBox;
+    @FXML private TextField minWaveHeightField;
+    @FXML private TextField maxWaveHeightField;
+    @FXML private CheckComboBox<Coast> coastComboBox;
+    @FXML private CheckComboBox<Country> countryComboBox;
 
+    private final ObservableList<SurfSpot> masterSpotData = FXCollections.observableArrayList();
+    private FilteredList<SurfSpot> filteredSpots;
+
+    private SurfSpot draggedSpot;
     private final SurfSpotService surfSpotService;
     private final SceneNavigator sceneNavigator;
+    private final CoastService coastService;
+    private final CountryService countryService;
+    private Thread pendingDetailThread;
 
-    public SurfSpotListController(SurfSpotService surfSpotService, SceneNavigator sceneNavigator) {
+    public SurfSpotListController(SurfSpotService surfSpotService, CoastService coastService, CountryService countryService, SceneNavigator sceneNavigator) {
         this.surfSpotService = surfSpotService;
+        this.coastService = coastService;
+        this.countryService = countryService;
         this.sceneNavigator = sceneNavigator;
     }
 
@@ -73,7 +96,14 @@ public class SurfSpotListController extends BaseController {
         locationColumn.setCellValueFactory(new PropertyValueFactory<>("location"));
         difficultyColumn.setCellValueFactory(new PropertyValueFactory<>("difficultyDisplayValue"));
 
+        filteredSpots = new FilteredList<>(masterSpotData, _ -> true);
+        SortedList<SurfSpot> sortedData = new SortedList<>(filteredSpots);
+        sortedData.comparatorProperty().bind(surfSpotTable.comparatorProperty());
+        surfSpotTable.setItems(sortedData);
+
+        setupFilterListeners();
         loadSurfSpots();
+
         surfSpotTable.getSelectionModel().selectedItemProperty().addListener(
                 (_, _, newVal) -> populateDetails(newVal)
         );
@@ -84,12 +114,119 @@ public class SurfSpotListController extends BaseController {
         clearDetails();
     }
 
+    private void setupFilterListeners() {
+        difficultyComboBox.getItems().addAll(DifficultyLevel.values());
+        difficultyComboBox.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(DifficultyLevel level) {
+                return level == null ? "" : level.getDisplayValue();
+            }
+
+            @Override
+            public DifficultyLevel fromString(String string) {
+                return null;
+            }
+        });
+        waveTypeComboBox.getItems().addAll(WaveType.values());
+        waveTypeComboBox.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(WaveType type) {
+                return type == null ? "" : type.getDisplayValue();
+            }
+
+            @Override
+            public WaveType fromString(String string) {
+                return null;
+            }
+        });
+        coastComboBox.getItems().addAll(coastService.findAll());
+        countryComboBox.getItems().addAll(countryService.findAll());
+
+        coastComboBox.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Coast coast) {
+                return coast == null ? "" : coast.getName();
+            }
+            @Override
+            public Coast fromString(String string) { return null; }
+        });
+
+        countryComboBox.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Country country) {
+                return country == null ? "" : country.name();
+            }
+            @Override
+            public Country fromString(String string) { return null; }
+        });
+
+        spotSearchField.textProperty().addListener((_, _, _) -> applyFilters());
+        difficultyComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<DifficultyLevel>) _ -> applyFilters());
+        waveTypeComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<WaveType>) _ -> applyFilters());
+
+        minWaveHeightField.textProperty().addListener((_, _, _) -> applyFilters());
+        maxWaveHeightField.textProperty().addListener((_, _, _) -> applyFilters());
+
+        coastComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<Coast>) _ -> applyFilters());
+        countryComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<Country>) _ -> applyFilters());
+    }
+
+    private void applyFilters() {
+        filteredSpots.setPredicate(spot -> {
+
+            String searchText = spotSearchField.getText();
+            if (searchText != null && !searchText.isBlank()) {
+                return spot.getName().toLowerCase().contains(searchText.toLowerCase().trim());
+            }
+
+            ObservableList<DifficultyLevel> difficulties = difficultyComboBox.getCheckModel().getCheckedItems();
+            if (!difficulties.isEmpty() && !difficulties.contains(spot.getDifficulty())) {
+                return false;
+            }
+
+            ObservableList<WaveType> waveTypes = waveTypeComboBox.getCheckModel().getCheckedItems();
+            if (!waveTypes.isEmpty() && !waveTypes.contains(spot.getWaveType())) {
+                return false;
+            }
+
+            Double avgHeight = spot.getWaveHeight();
+            if (avgHeight != null) {
+                if (!isValidWaveHeightFilter(minWaveHeightField, min -> avgHeight < min)) return false;
+                if (!isValidWaveHeightFilter(maxWaveHeightField, max -> avgHeight > max)) return false;
+            }
+
+            ObservableList<Coast> coasts = coastComboBox.getCheckModel().getCheckedItems();
+            if (!coasts.isEmpty() && !coasts.contains(spot.getCoast())) {
+                return false;
+            }
+
+            ObservableList<Country> countries = countryComboBox.getCheckModel().getCheckedItems();
+            if (!countries.isEmpty()) {
+                Country spotCountry = (spot.getCoast() != null) ? spot.getCoast().getCountry() : null;
+                return countries.contains(spotCountry);
+            }
+
+            return true;
+        });
+    }
+
+    @FXML
+    private void handleClearFilters() {
+        spotSearchField.clear();
+        difficultyComboBox.getCheckModel().clearChecks();
+        waveTypeComboBox.getCheckModel().clearChecks();
+        minWaveHeightField.clear();
+        maxWaveHeightField.clear();
+        coastComboBox.getCheckModel().clearChecks();
+        countryComboBox.getCheckModel().clearChecks();
+    }
+
     private void loadSurfSpots() {
         Thread.startVirtualThread(() -> {
             try {
                 List<SurfSpot> surfSpots = this.surfSpotService.findAll();
                 Platform.runLater(() -> {
-                    surfSpotTable.setItems(observableArrayList(surfSpots));
+                    masterSpotData.setAll(surfSpots);
                     log.info("Loaded {} surf spots", surfSpots.size());
                 });
             } catch (Exception e) {
@@ -97,8 +234,6 @@ public class SurfSpotListController extends BaseController {
             }
         });
     }
-
-    private Thread pendingDetailThread;
 
     private void populateDetails(SurfSpot spot) {
         if (spot == null) {
@@ -113,34 +248,26 @@ public class SurfSpotListController extends BaseController {
         pendingDetailThread = Thread.startVirtualThread(() -> {
             try {
                 SurfSpot loaded = surfSpotService.findById(spot.getId())
-                                                 .orElseThrow(() -> new ResourceNotFoundException("Nije pronađeno..."));
+                        .orElseThrow(() -> new ResourceNotFoundException("Nije pronađeno..."));
 
-                if (Thread.currentThread()
-                          .isInterrupted()) {
+                if (Thread.currentThread().isInterrupted()) {
                     throw new InterruptedException();
                 }
 
                 Platform.runLater(() -> {
-                    String coastName = (loaded.getLocation() != null && loaded.getLocation()
-                                                                              .getCoast() != null) ? loaded.getLocation()
-                                                                                                           .getCoast()
-                                                                                                           .getName() : "?";
+                    String coastName = (loaded.getLocation() != null && loaded.getLocation().getCoast() != null)
+                            ? loaded.getLocation().getCoast().getName() : "?";
 
                     locationLabel.setText(String.format("%s, %s", coastName, loaded.getCountryName()));
-                    coordinatesLabel.setText(loaded.getLocation()
-                                                   .getCoordinates()
-                                                   .toString());
-                    waveDetailsLabel.setText(loaded.getWaveDetails()
-                                                   .toString());
+                    coordinatesLabel.setText(loaded.getLocation().getCoordinates().toString());
+                    waveDetailsLabel.setText(loaded.getWaveDetails().toString());
                     windDetailsLabel.setText(loaded.getWindDirectionDegrees() != null ? loaded.getFormattedWindDetails() : "Nije unesen");
-                    seasonLabel.setText(loaded.getBestSeason() != null && !loaded.getBestSeason()
-                                                                                 .isEmpty() ? loaded.getFormattedBestSeason() : "Nije određena");
+                    seasonLabel.setText(loaded.getBestSeason() != null && !loaded.getBestSeason().isEmpty() ? loaded.getFormattedBestSeason() : "Nije određena");
 
                     instructorListView.setItems(loaded.getInstructors() != null ? observableArrayList(loaded.getInstructors()) : FXCollections.emptyObservableList());
 
                     loadSpotImage(loaded.getImagePath());
                 });
-
 
             } catch (InterruptedException _) {
                 log.debug("Detail load cancelled for: {}", spot.getName());
@@ -165,7 +292,6 @@ public class SurfSpotListController extends BaseController {
         if (imagePath != null && !imagePath.isBlank()) {
             Path fullPath = ImageStorage.getStorageDir().resolve(imagePath);
             if (Files.exists(fullPath)) {
-                // backgroundLoading = true -> ucitavanje se odvija na zasebnom threadu
                 spotImageView.setImage(new Image(fullPath.toUri().toString(), true));
                 return;
             }
@@ -375,16 +501,38 @@ public class SurfSpotListController extends BaseController {
         Thread.startVirtualThread(() -> {
             try {
                 XmlMapper xmlMapper = XmlMapper.builder()
-                                               .enable(SerializationFeature.INDENT_OUTPUT)
-                                               .enable(MapperFeature.PROPAGATE_TRANSIENT_MARKER)
-                                               .build();
+                        .enable(SerializationFeature.INDENT_OUTPUT)
+                        .enable(MapperFeature.PROPAGATE_TRANSIENT_MARKER)
+                        .build();
                 xmlMapper.writer()
-                         .withRootName("PlanPutovanja")
-                         .writeValue(file, itineraryListView.getItems());
+                        .withRootName("PlanPutovanja")
+                        .writeValue(file, itineraryListView.getItems());
                 Platform.runLater(() -> log.info("Itinerary exported to: {}", file.getAbsolutePath()));
             } catch (Exception e) {
                 Platform.runLater(() -> log.error("Export failed", e));
             }
         });
+    }
+
+    private boolean isValidWaveHeightFilter(TextField field, DoublePredicate condition) {
+        String text = field.getText();
+        if (text == null || text.isBlank()) {
+            field.setStyle("");
+            return true;
+        }
+
+        try {
+            double value = Double.parseDouble(text.replace(',', '.'));
+            field.setStyle("");
+
+            if (condition.test(value)) {
+                return false;
+            }
+        } catch (NumberFormatException _) {
+            field.setStyle("-fx-border-color: red; -fx-border-width: 2;");
+            return false;
+        }
+
+        return true;
     }
 }

@@ -224,6 +224,10 @@ public class SurfSpot {
         return location.getCoast().getCountry();
     }
 
+    public Coast getCoast() {
+        return location.getCoast();
+    }
+
     @Override
     public String toString() {
         return getName() + ", " + getCoastName() + ", " + getCountryName();
