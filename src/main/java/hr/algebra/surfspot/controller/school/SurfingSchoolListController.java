@@ -42,15 +42,17 @@ public class SurfingSchoolListController extends BaseController {
     }
 
     private void loadSurfingSchools() {
-        try {
-            List<SurfingSchool> schools = surfingSchoolService.findAll();
-            Platform.runLater(() -> {
-                surfingSchoolListView.setItems(observableArrayList(schools));
-                log.info("Loaded {} surfing schools into list", schools.size());
-            });
-        } catch (Exception e) {
-            log.error("Failed to load surfing schools from service", e);
-        }
+        Thread.startVirtualThread(() -> {
+            try {
+                List<SurfingSchool> schools = surfingSchoolService.findAll();
+                Platform.runLater(() -> {
+                    surfingSchoolListView.setItems(observableArrayList(schools));
+                    log.info("Loaded {} surfing schools into list", schools.size());
+                });
+            } catch (Exception e) {
+                log.error("Failed to load surfing schools from service", e);
+            }
+        });
     }
 
     private void populateSurfSpots(SurfingSchool school) {
@@ -59,13 +61,18 @@ public class SurfingSchoolListController extends BaseController {
             return;
         }
 
-        try {
-            List<SurfSpot> spots = surfingSchoolService.findSurfSpotsForSchool(school.getId());
-            surfSpotListView.setItems(observableArrayList(spots));
-            log.info("Loaded {} surf spots for school {}", spots.size(), school.getName());
-        } catch (Exception e) {
-            log.error("Failed to load surf spots for school {}", school.getId(), e);
-        }
+        Thread.startVirtualThread(() -> {
+            try {
+                List<SurfSpot> spots = surfingSchoolService.findSurfSpotsForSchool(school.getId());
+                Platform.runLater(() -> {
+                    surfSpotListView.setItems(observableArrayList(spots));
+                    log.info("Loaded {} surf spots for school {}", spots.size(), school.getName());
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> log.error("Failed to load surf spots for school {}", school.getId(), e));
+            }
+        });
+
     }
 
     @FXML
@@ -81,7 +88,7 @@ public class SurfingSchoolListController extends BaseController {
             log.info("Editing surfing school: {}", selectedSchool.getId());
             sceneNavigator.navigateToSurfingSchoolForm(selectedSchool);
         } else {
-            log.warn("Edit clicked but no surfing school selected");
+            log.warn("Edit attempted but no surfing school selected");
         }
     }
 
@@ -90,18 +97,17 @@ public class SurfingSchoolListController extends BaseController {
         SurfingSchool selectedSurfingSchool = surfingSchoolListView.getSelectionModel().getSelectedItem();
 
         if (selectedSurfingSchool == null) {
-            log.warn("Pokušaj brisanja bez odabrane skole.");
+            log.warn("Deletion attempted, but no surfing school was selected.");
             return;
         }
 
-        try {
-            surfingSchoolService.delete(selectedSurfingSchool.getId());
-            Platform.runLater(() -> {
-                loadSurfingSchools();
-                log.info("Surfing school {} uspješno obrisan.", selectedSurfingSchool.getName());
-            });
-        } catch (Exception e) {
-            log.error("Greška pri brisanju surfing school", e);
-        }
+        Thread.startVirtualThread(() -> {
+            try {
+                surfingSchoolService.delete(selectedSurfingSchool.getId());
+                Platform.runLater(() -> log.info("Deleted surfing school with ID: {}", selectedSurfingSchool.getId()));
+            } catch (Exception e) {
+                Platform.runLater(() -> log.error("Failed to delete surfing school with ID: {}", selectedSurfingSchool.getId(), e));
+            }
+        });
     }
 }

@@ -4,7 +4,7 @@ import hr.algebra.surfspot.context.SceneNavigator;
 import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.Coast;
 import hr.algebra.surfspot.service.CoastService;
-import javafx.collections.ObservableList;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -39,14 +39,17 @@ public class CoastListController extends BaseController {
     }
 
     private void loadCoasts() {
-        try {
-            List<Coast> data = coastService.findAll();
-            ObservableList<Coast> observableData = observableArrayList(data);
-            coastTable.setItems(observableData);
-            log.info("Loaded {} coasts into table", data.size());
-        } catch (Exception e) {
-            log.error("Failed to load coasts from service", e);
-        }
+        Thread.startVirtualThread(() -> {
+            try {
+                List<Coast> coasts = coastService.findAll();
+                Platform.runLater(() -> {
+                    coastTable.setItems(observableArrayList(coasts));
+                    log.info("Loaded {} coasts", coasts.size());
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> log.error("Failed to load coasts", e));
+            }
+        });
     }
 
     @FXML
@@ -75,13 +78,13 @@ public class CoastListController extends BaseController {
             return;
         }
 
-        try {
-            coastService.delete(selectedCoast.getId());
-
-            loadCoasts();
-            log.info("Obala {} uspješno obrisanq.", selectedCoast.getName());
-        } catch (Exception e) {
-            log.error("Greška pri brisanju obale", e);
-        }
+        Thread.startVirtualThread(() -> {
+            try {
+                coastService.delete(selectedCoast.getId());
+                Platform.runLater(() -> log.info("Deleted coast with ID: {}", selectedCoast.getId()));
+            } catch (Exception e) {
+                log.error("Failed to delete coast with ID: {}", selectedCoast.getId(), e);
+            }
+                });
     }
 }

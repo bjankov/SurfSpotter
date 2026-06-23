@@ -7,7 +7,6 @@ import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.service.InstructorService;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -47,18 +46,19 @@ public class InstructorListController extends BaseController {
     }
 
     private void loadInstructors() {
-        try {
-            List<Instructor> data = instructorService.findAll();
-            Platform.runLater(() -> {
-                ObservableList<Instructor> observableData = observableArrayList(data);
-                instructorTable.setItems(observableData);
-                log.info("Loaded {} instructors into table", data.size());
-            });
-        } catch (Exception e) {
-            log.error("Failed to load instructors from service", e);
-        }
-    }
+        Thread.startVirtualThread( () -> {
+            try {
+                List<Instructor> instructors = this.instructorService.findAll();
 
+                Platform.runLater(() -> {
+                    instructorTable.setItems(observableArrayList(instructors));
+                    log.info("Loaded {} instructors", instructors.size());
+                });
+            } catch (Exception ex) {
+                Platform.runLater(() -> log.error("Failed to load instructors", ex));
+            }
+        });
+    }
 
     @FXML
     private void handleAdd() {
@@ -86,16 +86,14 @@ public class InstructorListController extends BaseController {
             return;
         }
 
-        try {
-            instructorService.delete(selectedInstructor.getId());
-
-            Platform.runLater(() -> {
-                loadInstructors();
-                log.info("Instruktor {} uspješno obrisan.", selectedInstructor.getFirstName() + " " + selectedInstructor.getLastName());
-            });
-        } catch (Exception e) {
-            log.error("Greška pri brisanju instruktora", e);
-        }
+        Thread.startVirtualThread(() -> {
+            try {
+                instructorService.delete(selectedInstructor.getId());
+                Platform.runLater(() -> log.info("Deleted instructor with ID: {}", selectedInstructor.getId()));
+            } catch (Exception e) {
+                Platform.runLater(() -> log.warn("Failed to delete instructor with ID: {}", selectedInstructor.getId(), e));
+            }
+        });
     }
 
 }

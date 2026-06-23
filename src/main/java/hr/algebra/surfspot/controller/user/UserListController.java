@@ -6,8 +6,8 @@ import hr.algebra.surfspot.model.Role;
 import hr.algebra.surfspot.model.User;
 import hr.algebra.surfspot.service.UserService;
 import hr.algebra.surfspot.util.DisplayConstants;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -49,12 +49,13 @@ public class UserListController extends BaseController {
 
     private void loadUsers() {
         try {
-            List<User> data = userService.findAll();
-            ObservableList<User> observableData = observableArrayList(data);
-            userTable.setItems(observableData);
-            log.info("Loaded {} users into table", data.size());
+            List<User> users = userService.findAll();
+            Platform.runLater(() -> {
+                userTable.setItems(observableArrayList(users));
+                log.info("Loaded {} users into table", users.size());
+            });
         } catch (Exception e) {
-            log.error("Failed to load users from service", e);
+            Platform.runLater(() -> log.error("Failed to load users", e));
         }
     }
 
@@ -78,13 +79,13 @@ public class UserListController extends BaseController {
             return;
         }
 
-        try {
-            userService.delete(selectedUser.getId());
-
-            loadUsers();
-            log.info("Korisnik {} uspješno obrisan.", selectedUser.getUsername());
-        } catch (Exception e) {
-            log.error("Greška pri brisanju korisnika", e);
-        }
+        Thread.startVirtualThread(() -> {
+            try {
+                userService.delete(selectedUser.getId());
+                Platform.runLater(() -> log.info("Korisnik {} uspješno obrisan.", selectedUser.getUsername()));
+            } catch (Exception e) {
+                Platform.runLater(() -> log.error("Failed to delete user with IDL: {}", selectedUser.getId(), e));
+            }
+        });
     }
 }

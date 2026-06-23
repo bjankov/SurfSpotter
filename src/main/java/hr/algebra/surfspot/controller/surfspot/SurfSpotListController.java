@@ -10,6 +10,7 @@ import hr.algebra.surfspot.model.Instructor;
 import hr.algebra.surfspot.model.SurfSpot;
 import hr.algebra.surfspot.service.SurfSpotService;
 import hr.algebra.surfspot.util.ImageStorage;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -33,6 +34,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+
+import static javafx.collections.FXCollections.observableArrayList;
 
 public class SurfSpotListController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(SurfSpotListController.class);
@@ -82,24 +85,20 @@ public class SurfSpotListController extends BaseController {
     }
 
     private void loadSurfSpots() {
-        Task<List<SurfSpot>> task = new Task<>() {
-            @Override
-            protected List<SurfSpot> call() {
-                return surfSpotService.findAll();
+        Thread.startVirtualThread(() -> {
+            try {
+                List<SurfSpot> surfSpots = this.surfSpotService.findAll();
+                Platform.runLater(() -> {
+                    surfSpotTable.setItems(observableArrayList(surfSpots));
+                    log.info("Loaded {} surf spots", surfSpots.size());
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> log.error("Failed to load surf spots", e));
             }
-        };
-
-        task.setOnSucceeded(_ -> {
-            surfSpotTable.setItems(FXCollections.observableArrayList(task.getValue()));
-            log.info("Loaded {} surf spots", task.getValue().size());
         });
-
-        task.setOnFailed(_ -> log.error("Failed to load surf spots", task.getException()));
-
-        Thread.startVirtualThread(task);
     }
 
-    private Task<SurfSpot> pendingDetailTask;
+    private Thread pendingDetailThread;
 
     private void populateDetails(SurfSpot spot) {
         if (spot == null) {
@@ -107,44 +106,49 @@ public class SurfSpotListController extends BaseController {
             return;
         }
 
-        if (pendingDetailTask != null && pendingDetailTask.isRunning()) {
-            pendingDetailTask.cancel();
+        if (pendingDetailThread != null && pendingDetailThread.isAlive()) {
+            pendingDetailThread.interrupt();
         }
 
-        Task<SurfSpot> task = new Task<>() {
-            @Override
-            protected SurfSpot call() {
-                return surfSpotService.findById(spot.getId()).orElseThrow(() -> new ResourceNotFoundException("Nije pronađeno mjesto za surfanje sa IDjem " + spot.getId()));
+        pendingDetailThread = Thread.startVirtualThread(() -> {
+            try {
+                SurfSpot loaded = surfSpotService.findById(spot.getId())
+                                                 .orElseThrow(() -> new ResourceNotFoundException("Nije pronađeno..."));
+
+                if (Thread.currentThread()
+                          .isInterrupted()) {
+                    throw new InterruptedException();
+                }
+
+                Platform.runLater(() -> {
+                    String coastName = (loaded.getLocation() != null && loaded.getLocation()
+                                                                              .getCoast() != null) ? loaded.getLocation()
+                                                                                                           .getCoast()
+                                                                                                           .getName() : "?";
+
+                    locationLabel.setText(String.format("%s, %s", coastName, loaded.getCountryName()));
+                    coordinatesLabel.setText(loaded.getLocation()
+                                                   .getCoordinates()
+                                                   .toString());
+                    waveDetailsLabel.setText(loaded.getWaveDetails()
+                                                   .toString());
+                    windDetailsLabel.setText(loaded.getWindDirectionDegrees() != null ? loaded.getFormattedWindDetails() : "Nije unesen");
+                    seasonLabel.setText(loaded.getBestSeason() != null && !loaded.getBestSeason()
+                                                                                 .isEmpty() ? loaded.getFormattedBestSeason() : "Nije određena");
+
+                    instructorListView.setItems(loaded.getInstructors() != null ? observableArrayList(loaded.getInstructors()) : FXCollections.emptyObservableList());
+
+                    loadSpotImage(loaded.getImagePath());
+                });
+
+
+            } catch (InterruptedException _) {
+                log.debug("Detail load cancelled for: {}", spot.getName());
+                Thread.currentThread().interrupt();
+            } catch (Exception e) {
+                Platform.runLater(() -> log.error("Failed to load spot details", e));
             }
-        };
-
-        task.setOnSucceeded(_ -> {
-            SurfSpot loaded = task.getValue();
-
-            String coastName = (loaded.getLocation() != null && loaded.getLocation().getCoast() != null)
-                    ? loaded.getLocation().getCoast().getName() : "?";
-
-            locationLabel.setText(String.format("%s, %s", coastName, loaded.getCountryName()));
-            coordinatesLabel.setText(loaded.getLocation().getCoordinates().toString());
-            waveDetailsLabel.setText(loaded.getWaveDetails().toString());
-            windDetailsLabel.setText(loaded.getWindDirectionDegrees() != null
-                    ? loaded.getFormattedWindDetails() : "Nije unesen");
-            seasonLabel.setText(loaded.getBestSeason() != null && !loaded.getBestSeason().isEmpty()
-                    ? loaded.getFormattedBestSeason() : "Nije određena");
-
-            instructorListView.setItems(loaded.getInstructors() != null
-                    ? FXCollections.observableArrayList(loaded.getInstructors())
-                    : FXCollections.emptyObservableList());
-
-            loadSpotImage(loaded.getImagePath());
         });
-
-        task.setOnCancelled(_ -> log.debug("Detail load cancelled for: {}", spot.getName()));
-        task.setOnFailed(_ -> log.error("Failed to load spot details", task.getException()));
-
-        pendingDetailTask = task;
-
-        Thread.startVirtualThread(task);
     }
 
     private void clearDetails() {
@@ -330,8 +334,8 @@ public class SurfSpotListController extends BaseController {
 
     @FXML
     private void handleDelete() {
-        SurfSpot selected = surfSpotTable.getSelectionModel().getSelectedItem();
-        if (selected == null) {
+        SurfSpot selectedSpot = surfSpotTable.getSelectionModel().getSelectedItem();
+        if (selectedSpot == null) {
             log.warn("Delete clicked with no surf spot selected");
             return;
         }
@@ -339,13 +343,13 @@ public class SurfSpotListController extends BaseController {
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() {
-                surfSpotService.delete(selected.getId());
+                surfSpotService.delete(selectedSpot.getId());
                 return null;
             }
         };
 
         task.setOnSucceeded(_ -> {
-            log.info("Deleted surf spot: {}", selected.getName());
+            log.info("Deleted surf spot: {}", selectedSpot.getName());
             loadSurfSpots();
         });
 
@@ -368,17 +372,19 @@ public class SurfSpotListController extends BaseController {
         File file = fileChooser.showSaveDialog(itineraryListView.getScene().getWindow());
         if (file == null) return;
 
-        try {
-            XmlMapper xmlMapper = XmlMapper.builder()
-                    .enable(SerializationFeature.INDENT_OUTPUT)
-                    .enable(MapperFeature.PROPAGATE_TRANSIENT_MARKER)
-                    .build();
-            xmlMapper.writer()
-                    .withRootName("PlanPutovanja")
-                    .writeValue(file, itineraryListView.getItems());
-            log.info("Itinerary exported to: {}", file.getAbsolutePath());
-        } catch (Exception e) {
-            log.error("Export failed", e);
-        }
+        Thread.startVirtualThread(() -> {
+            try {
+                XmlMapper xmlMapper = XmlMapper.builder()
+                                               .enable(SerializationFeature.INDENT_OUTPUT)
+                                               .enable(MapperFeature.PROPAGATE_TRANSIENT_MARKER)
+                                               .build();
+                xmlMapper.writer()
+                         .withRootName("PlanPutovanja")
+                         .writeValue(file, itineraryListView.getItems());
+                Platform.runLater(() -> log.info("Itinerary exported to: {}", file.getAbsolutePath()));
+            } catch (Exception e) {
+                Platform.runLater(() -> log.error("Export failed", e));
+            }
+        });
     }
 }

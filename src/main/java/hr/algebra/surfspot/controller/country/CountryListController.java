@@ -6,7 +6,6 @@ import hr.algebra.surfspot.model.Country;
 import hr.algebra.surfspot.service.CountryService;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -42,14 +41,13 @@ public class CountryListController extends BaseController {
 
     private void loadCountries() {
         try {
-            List<Country> data = countryService.findAll();
+            List<Country> countries = countryService.findAll();
             Platform.runLater(() -> {
-                ObservableList<Country> observableData = observableArrayList(data);
-                countryTable.setItems(observableData);
-                log.info("Loaded {} countries into table", data.size());
+                countryTable.setItems(observableArrayList(countries));
+                log.info("Loaded {} countries into table", countries.size());
             });
         } catch (Exception e) {
-            log.error("Failed to load countries from service", e);
+            Platform.runLater(() -> log.error("Failed to load countries from service", e));
         }
     }
 
@@ -79,15 +77,13 @@ public class CountryListController extends BaseController {
             return;
         }
 
-        try {
-            countryService.delete(selectedCountry.code());
-
-            Platform.runLater(() -> {
-                loadCountries();
-                log.info("Zemlja {} uspješno obrisana.", selectedCountry.name());
-            });
-        } catch (Exception e) {
-            log.error("Greška pri brisanju zemlje.", e);
-        }
+        Thread.startVirtualThread(() -> {
+            try {
+                countryService.delete(selectedCountry.code());
+                Platform.runLater(() -> log.info("Zemlja {} uspješno obrisana.", selectedCountry.name()));
+            } catch (Exception e) {
+                Platform.runLater(() -> log.error("Greška pri brisanju zemlje.", e));
+            }
+        });
     }
 }
