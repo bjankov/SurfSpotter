@@ -42,6 +42,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.function.DoublePredicate;
 
+import static java.util.Collections.disjoint;
 import static javafx.collections.FXCollections.observableArrayList;
 
 public class SurfSpotListController extends BaseController {
@@ -70,6 +71,7 @@ public class SurfSpotListController extends BaseController {
     @FXML private CheckComboBox<WaveType> waveTypeComboBox;
     @FXML private TextField minWaveHeightField;
     @FXML private TextField maxWaveHeightField;
+    @FXML private CheckComboBox<Month> seasonComboBox;
     @FXML private CheckComboBox<Coast> coastComboBox;
     @FXML private CheckComboBox<Country> countryComboBox;
 
@@ -140,7 +142,6 @@ public class SurfSpotListController extends BaseController {
             }
         });
         coastComboBox.getItems().addAll(coastService.findAll());
-        countryComboBox.getItems().addAll(countryService.findAll());
 
         coastComboBox.setConverter(new StringConverter<>() {
             @Override
@@ -151,6 +152,8 @@ public class SurfSpotListController extends BaseController {
             public Coast fromString(String string) { return null; }
         });
 
+        countryComboBox.getItems().addAll(countryService.findAll());
+
         countryComboBox.setConverter(new StringConverter<>() {
             @Override
             public String toString(Country country) {
@@ -160,6 +163,16 @@ public class SurfSpotListController extends BaseController {
             public Country fromString(String string) { return null; }
         });
 
+        seasonComboBox.getItems().addAll(Month.values());
+        seasonComboBox.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Month month) {
+                return month == null ? "" : month.getDisplayValue();
+            }
+            @Override
+            public Month fromString(String string) { return null; }
+        });
+
         spotSearchField.textProperty().addListener((_, _, _) -> applyFilters());
         difficultyComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<DifficultyLevel>) _ -> applyFilters());
         waveTypeComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<WaveType>) _ -> applyFilters());
@@ -167,6 +180,7 @@ public class SurfSpotListController extends BaseController {
         minWaveHeightField.textProperty().addListener((_, _, _) -> applyFilters());
         maxWaveHeightField.textProperty().addListener((_, _, _) -> applyFilters());
 
+        seasonComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<Month>) _ -> applyFilters());
         coastComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<Coast>) _ -> applyFilters());
         countryComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<Country>) _ -> applyFilters());
     }
@@ -195,6 +209,11 @@ public class SurfSpotListController extends BaseController {
                 if (!isValidWaveHeightFilter(maxWaveHeightField, max -> avgHeight > max)) return false;
             }
 
+            ObservableList<Month> months = seasonComboBox.getCheckModel().getCheckedItems();
+            if (!months.isEmpty() && disjoint(months, spot.getBestSeason())) {
+                return false;
+            }
+
             ObservableList<Coast> coasts = coastComboBox.getCheckModel().getCheckedItems();
             if (!coasts.isEmpty() && !coasts.contains(spot.getCoast())) {
                 return false;
@@ -217,6 +236,7 @@ public class SurfSpotListController extends BaseController {
         waveTypeComboBox.getCheckModel().clearChecks();
         minWaveHeightField.clear();
         maxWaveHeightField.clear();
+        seasonComboBox.getCheckModel().clearChecks();
         coastComboBox.getCheckModel().clearChecks();
         countryComboBox.getCheckModel().clearChecks();
     }
