@@ -216,7 +216,7 @@ public class SurfSpot {
             return DisplayConstants.NOT_ENTERED;
         }
         return bestSeason.stream()
-                .map(Enum::name)
+                .map(Month::getDisplayValue)
                 .collect(java.util.stream.Collectors.joining(", "));
     }
 
