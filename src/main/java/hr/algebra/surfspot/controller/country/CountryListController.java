@@ -6,15 +6,17 @@ import hr.algebra.surfspot.model.Country;
 import hr.algebra.surfspot.service.CountryService;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-
-import static javafx.collections.FXCollections.observableArrayList;
 
 public class CountryListController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(CountryListController.class);
@@ -23,8 +25,13 @@ public class CountryListController extends BaseController {
     @FXML private TableColumn<Country, String> codeColumn;
     @FXML private TableColumn<Country, String> nameColumn;
 
+    @FXML private TextField countrySearchBox;
+
     private final CountryService countryService;
     private final SceneNavigator sceneNavigator;
+
+    private final ObservableList<Country> countryObservableList = FXCollections.observableArrayList();
+    private FilteredList<Country> filteredCountries;
 
     public CountryListController(CountryService countryService , SceneNavigator sceneNavigator) {
         this.countryService = countryService;
@@ -33,22 +40,40 @@ public class CountryListController extends BaseController {
 
     @FXML
     public void initialize() {
+        filteredCountries = new FilteredList<>(countryObservableList, _ -> true);
+        countryTable.setItems(filteredCountries);
+
         codeColumn.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().code()));
         nameColumn.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().name()));
+
+        countrySearchBox.textProperty().addListener((_, _, _) -> updateFilters());
 
         loadCountries();
     }
 
+    private void updateFilters() {
+        String searchText = countrySearchBox.getText() == null ? "" : countrySearchBox.getText().toLowerCase().trim();
+
+        filteredCountries.setPredicate(country -> {
+            if (!searchText.isEmpty()) {
+                return country.name().toLowerCase().trim().contains(searchText);
+            }
+            return true;
+        });
+    }
+
     private void loadCountries() {
-        try {
-            List<Country> countries = countryService.findAll();
-            Platform.runLater(() -> {
-                countryTable.setItems(observableArrayList(countries));
-                log.info("Loaded {} countries into table", countries.size());
-            });
-        } catch (Exception e) {
-            Platform.runLater(() -> log.error("Failed to load countries from service", e));
-        }
+        Thread.startVirtualThread(() -> {
+            try {
+                List<Country> countries = countryService.findAll();
+                Platform.runLater(() -> {
+                    countryObservableList.setAll(countries);
+                    log.info("Loaded {} countries into table", countries.size());
+                });
+            } catch (Exception e) {
+                Platform.runLater(() -> log.error("Failed to load countries from service", e));
+            }
+        });
     }
 
     @FXML
@@ -73,16 +98,19 @@ public class CountryListController extends BaseController {
         Country selectedCountry = countryTable.getSelectionModel().getSelectedItem();
 
         if (selectedCountry == null) {
-            log.warn("Pokušaj brisanja bez odabrane zemlje.");
+            log.warn("Deletion attempted, but no country selected.");
             return;
         }
 
         Thread.startVirtualThread(() -> {
             try {
                 countryService.delete(selectedCountry.code());
-                Platform.runLater(() -> log.info("Zemlja {} uspješno obrisana.", selectedCountry.name()));
+                Platform.runLater(() -> {
+                    countryObservableList.remove(selectedCountry);
+                    log.info("Country {} deleted successfully.", selectedCountry.name());
+                });
             } catch (Exception e) {
-                Platform.runLater(() -> log.error("Greška pri brisanju zemlje.", e));
+                Platform.runLater(() -> log.error("Greška pri brisanju države.", e));
             }
         });
     }

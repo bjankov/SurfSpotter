@@ -1,5 +1,7 @@
 package hr.algebra.surfspot.model;
 
+import java.util.Objects;
+
 public class SurfingSchool {
     private Long id;
     private String name;
@@ -69,5 +71,17 @@ public class SurfingSchool {
     @Override
     public String toString() {
         return this.name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        SurfingSchool that = (SurfingSchool) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

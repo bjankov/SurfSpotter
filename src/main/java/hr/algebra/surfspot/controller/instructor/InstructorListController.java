@@ -5,18 +5,23 @@ import hr.algebra.surfspot.controller.BaseController;
 import hr.algebra.surfspot.model.Instructor;
 import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.service.InstructorService;
+import hr.algebra.surfspot.service.SurfingSchoolService;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import org.controlsfx.control.CheckComboBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-
-import static javafx.collections.FXCollections.observableArrayList;
 
 public class InstructorListController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(InstructorListController.class);
@@ -26,32 +31,66 @@ public class InstructorListController extends BaseController {
     @FXML private TableColumn<Instructor, String> lastNameColumn;
     @FXML private TableColumn<Instructor, String> schoolColumn;
 
+    @FXML private TextField instructorSearchField;
+    @FXML private CheckComboBox<SurfingSchool> schoolComboBox;
+
     private final InstructorService instructorService;
+    private final SurfingSchoolService surfingSchoolService;
     private final SceneNavigator sceneNavigator;
 
-    public InstructorListController(InstructorService instructorService, SceneNavigator sceneNavigator) {
+    private final ObservableList<Instructor> instructorObservableList = FXCollections.observableArrayList();
+    private FilteredList<Instructor> filteredInstructors;
+
+    public InstructorListController(InstructorService instructorService, SurfingSchoolService surfingSchoolService, SceneNavigator sceneNavigator) {
         this.instructorService = instructorService;
+        this.surfingSchoolService = surfingSchoolService;
         this.sceneNavigator = sceneNavigator;
     }
 
     @FXML
     public void initialize() {
+        filteredInstructors = new FilteredList<>(instructorObservableList, _ -> true);
+        instructorTable.setItems(filteredInstructors);
+
         firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
         lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastName"));
         schoolColumn.setCellValueFactory(cellData -> {
             SurfingSchool school = cellData.getValue().getSchool();
             return new SimpleStringProperty(school != null ? school.getName() : "Nema škole");
         });
-        loadInstructors();
+
+        instructorSearchField.textProperty().addListener((_, _, _) -> updateFilters());
+
+        schoolComboBox.getItems().addAll(surfingSchoolService.findAll());
+
+        schoolComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<SurfingSchool>) _ -> updateFilters());
+
+        loadInitialData();
     }
 
-    private void loadInstructors() {
-        Thread.startVirtualThread( () -> {
+    private void updateFilters() {
+        String searchText = instructorSearchField.getText() == null ? "" : instructorSearchField.getText().toLowerCase().trim();
+        List<SurfingSchool> selectedSchools = schoolComboBox.getCheckModel().getCheckedItems();
+
+        filteredInstructors.setPredicate(instructor -> {
+            if (!searchText.isEmpty()) {
+                String fullName = (instructor.getFirstName() + " " + instructor.getLastName()).toLowerCase();
+                if (!fullName.contains(searchText)) {
+                    return false;
+                }
+            }
+
+            return selectedSchools.isEmpty() || selectedSchools.contains(instructor.getSchool());
+        });
+    }
+
+    private void loadInitialData() {
+        Thread.startVirtualThread(() -> {
             try {
-                List<Instructor> instructors = this.instructorService.findAll();
+                List<Instructor> instructors = instructorService.findAll();
 
                 Platform.runLater(() -> {
-                    instructorTable.setItems(observableArrayList(instructors));
+                    instructorObservableList.setAll(instructors);
                     log.info("Loaded {} instructors", instructors.size());
                 });
             } catch (Exception ex) {
@@ -89,11 +128,19 @@ public class InstructorListController extends BaseController {
         Thread.startVirtualThread(() -> {
             try {
                 instructorService.delete(selectedInstructor.getId());
-                Platform.runLater(() -> log.info("Deleted instructor with ID: {}", selectedInstructor.getId()));
+                Platform.runLater(() -> {
+                    instructorObservableList.remove(selectedInstructor);
+                    log.info("Deleted instructor with ID: {}", selectedInstructor.getId());
+                });
             } catch (Exception e) {
                 Platform.runLater(() -> log.warn("Failed to delete instructor with ID: {}", selectedInstructor.getId(), e));
             }
         });
     }
 
+    @FXML
+    private void handleClearFilters() {
+        instructorSearchField.clear();
+        schoolComboBox.getCheckModel().clearChecks();
+    }
 }

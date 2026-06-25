@@ -38,7 +38,7 @@ public class ControllerFactory {
                 new MainLayoutController(navigator, session));
 
         controllerFactories.put(InstructorListController.class, () ->
-                new InstructorListController(services.getInstructorService(), navigator));
+                new InstructorListController(services.getInstructorService(), services.getSurfingSchoolService(), navigator));
 
         controllerFactories.put(InstructorFormController.class, () ->
                 new InstructorFormController(services.getInstructorService(), services.getSurfingSchoolService(), navigator));
@@ -56,7 +56,7 @@ public class ControllerFactory {
                 new SurfingSchoolFormController(services.getSurfingSchoolService(), services.getSurfSpotService(), navigator));
 
         controllerFactories.put(CoastListController.class, () ->
-                new CoastListController(services.getCoastService(), navigator));
+                new CoastListController(services.getCoastService(), services.getCountryService(), navigator));
 
         controllerFactories.put(CoastFormController.class, () ->
                 new CoastFormController(services.getCoastService(), services.getCountryService(), navigator));

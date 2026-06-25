@@ -39,11 +39,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.DoublePredicate;
-
-import static java.util.Collections.disjoint;
-import static javafx.collections.FXCollections.observableArrayList;
 
 public class SurfSpotListController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(SurfSpotListController.class);
@@ -75,7 +73,7 @@ public class SurfSpotListController extends BaseController {
     @FXML private CheckComboBox<Coast> coastComboBox;
     @FXML private CheckComboBox<Country> countryComboBox;
 
-    private final ObservableList<SurfSpot> masterSpotData = FXCollections.observableArrayList();
+    private final ObservableList<SurfSpot> spotObservableList = FXCollections.observableArrayList();
     private FilteredList<SurfSpot> filteredSpots;
 
     private SurfSpot draggedSpot;
@@ -98,13 +96,13 @@ public class SurfSpotListController extends BaseController {
         locationColumn.setCellValueFactory(new PropertyValueFactory<>("location"));
         difficultyColumn.setCellValueFactory(new PropertyValueFactory<>("difficultyDisplayValue"));
 
-        filteredSpots = new FilteredList<>(masterSpotData, _ -> true);
+        filteredSpots = new FilteredList<>(spotObservableList, _ -> true);
         SortedList<SurfSpot> sortedData = new SortedList<>(filteredSpots);
         sortedData.comparatorProperty().bind(surfSpotTable.comparatorProperty());
         surfSpotTable.setItems(sortedData);
 
         setupFilterListeners();
-        loadSurfSpots();
+        loadInitialData();
 
         surfSpotTable.getSelectionModel().selectedItemProperty().addListener(
                 (_, _, newVal) -> populateDetails(newVal)
@@ -173,60 +171,40 @@ public class SurfSpotListController extends BaseController {
             public Month fromString(String string) { return null; }
         });
 
-        spotSearchField.textProperty().addListener((_, _, _) -> applyFilters());
-        difficultyComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<DifficultyLevel>) _ -> applyFilters());
-        waveTypeComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<WaveType>) _ -> applyFilters());
+        addListeners();
 
-        minWaveHeightField.textProperty().addListener((_, _, _) -> applyFilters());
-        maxWaveHeightField.textProperty().addListener((_, _, _) -> applyFilters());
-
-        seasonComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<Month>) _ -> applyFilters());
-        coastComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<Coast>) _ -> applyFilters());
-        countryComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<Country>) _ -> applyFilters());
     }
 
-    private void applyFilters() {
-        filteredSpots.setPredicate(spot -> {
+    private void addListeners() {
+        spotSearchField.textProperty().addListener((_, _, _) -> updateFilters());
+        difficultyComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<DifficultyLevel>) _ -> updateFilters());
+        waveTypeComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<WaveType>) _ -> updateFilters());
 
-            String searchText = spotSearchField.getText();
-            if (searchText != null && !searchText.isBlank()) {
-                return spot.getName().toLowerCase().contains(searchText.toLowerCase().trim());
-            }
+        minWaveHeightField.textProperty().addListener((_, _, _) -> updateFilters());
+        maxWaveHeightField.textProperty().addListener((_, _, _) -> updateFilters());
 
-            ObservableList<DifficultyLevel> difficulties = difficultyComboBox.getCheckModel().getCheckedItems();
-            if (!difficulties.isEmpty() && !difficulties.contains(spot.getDifficulty())) {
-                return false;
-            }
+        seasonComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<Month>) _ -> updateFilters());
+        coastComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<Coast>) _ -> updateFilters());
+        countryComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<Country>) _ -> updateFilters());
+    }
 
-            ObservableList<WaveType> waveTypes = waveTypeComboBox.getCheckModel().getCheckedItems();
-            if (!waveTypes.isEmpty() && !waveTypes.contains(spot.getWaveType())) {
-                return false;
-            }
+    private void updateFilters() {
+        String searchText = spotSearchField.getText() == null ? "" : spotSearchField.getText().toLowerCase().trim();
+        List<DifficultyLevel> selectedDifficulties = difficultyComboBox.getCheckModel().getCheckedItems();
+        List<WaveType> selectedWaveTypes = waveTypeComboBox.getCheckModel().getCheckedItems();
+        List<Month> selectedMonths = seasonComboBox.getCheckModel().getCheckedItems();
+        List<Coast> selectedCoasts = coastComboBox.getCheckModel().getCheckedItems();
+        List<Country> selectedCountries = countryComboBox.getCheckModel().getCheckedItems();
 
-            Double avgHeight = spot.getWaveHeight();
-            if (avgHeight != null) {
-                if (!isValidWaveHeightFilter(minWaveHeightField, min -> avgHeight < min)) return false;
-                if (!isValidWaveHeightFilter(maxWaveHeightField, max -> avgHeight > max)) return false;
-            }
-
-            ObservableList<Month> months = seasonComboBox.getCheckModel().getCheckedItems();
-            if (!months.isEmpty() && disjoint(months, spot.getBestSeason())) {
-                return false;
-            }
-
-            ObservableList<Coast> coasts = coastComboBox.getCheckModel().getCheckedItems();
-            if (!coasts.isEmpty() && !coasts.contains(spot.getCoast())) {
-                return false;
-            }
-
-            ObservableList<Country> countries = countryComboBox.getCheckModel().getCheckedItems();
-            if (!countries.isEmpty()) {
-                Country spotCountry = (spot.getCoast() != null) ? spot.getCoast().getCountry() : null;
-                return countries.contains(spotCountry);
-            }
-
-            return true;
-        });
+        filteredSpots.setPredicate(spot ->
+                matchesSearch(spot, searchText) &&
+                        matchesDifficulty(spot, selectedDifficulties) &&
+                        matchesWaveType(spot, selectedWaveTypes) &&
+                        matchesWaveHeight(spot) &&
+                        matchesSeason(spot, selectedMonths) &&
+                        matchesCoast(spot, selectedCoasts) &&
+                        matchesCountry(spot, selectedCountries)
+        );
     }
 
     @FXML
@@ -241,12 +219,12 @@ public class SurfSpotListController extends BaseController {
         countryComboBox.getCheckModel().clearChecks();
     }
 
-    private void loadSurfSpots() {
+    private void loadInitialData() {
         Thread.startVirtualThread(() -> {
             try {
-                List<SurfSpot> surfSpots = this.surfSpotService.findAll();
+                List<SurfSpot> surfSpots = surfSpotService.findAll();
                 Platform.runLater(() -> {
-                    masterSpotData.setAll(surfSpots);
+                    spotObservableList.setAll(surfSpots);
                     log.info("Loaded {} surf spots", surfSpots.size());
                 });
             } catch (Exception e) {
@@ -261,41 +239,95 @@ public class SurfSpotListController extends BaseController {
             return;
         }
 
+        cancelPendingDetailsTask();
+
+        pendingDetailThread = Thread.startVirtualThread(() -> loadDetailsAsync(spot));
+    }
+
+    private void cancelPendingDetailsTask() {
         if (pendingDetailThread != null && pendingDetailThread.isAlive()) {
             pendingDetailThread.interrupt();
         }
+    }
 
-        pendingDetailThread = Thread.startVirtualThread(() -> {
-            try {
-                SurfSpot loaded = surfSpotService.findById(spot.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Nije pronađeno..."));
+    private void loadDetailsAsync(SurfSpot spot) {
+        Thread thisThread = Thread.currentThread();
+        try {
+            SurfSpot loaded = surfSpotService.findById(spot.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Nije pronađeno..."));
 
-                if (Thread.currentThread().isInterrupted()) {
-                    throw new InterruptedException();
-                }
+            if (thisThread.isInterrupted()) {
+                return;
+            }
 
-                Platform.runLater(() -> {
-                    String coastName = (loaded.getLocation() != null && loaded.getLocation().getCoast() != null)
-                            ? loaded.getLocation().getCoast().getName() : "?";
+            displayLoadedDetails(loaded, thisThread);
 
-                    locationLabel.setText(String.format("%s, %s", coastName, loaded.getCountryName()));
-                    coordinatesLabel.setText(loaded.getLocation().getCoordinates().toString());
-                    waveDetailsLabel.setText(loaded.getWaveDetails().toString());
-                    windDetailsLabel.setText(loaded.getWindDirectionDegrees() != null ? loaded.getFormattedWindDetails() : "Nije unesen");
-                    seasonLabel.setText(loaded.getBestSeason() != null && !loaded.getBestSeason().isEmpty() ? loaded.getFormattedBestSeason() : "Nije određena");
+        } catch (Exception e) {
+            handleLoadError(e, spot.getName());
+        }
+    }
 
-                    instructorListView.setItems(loaded.getInstructors() != null ? observableArrayList(loaded.getInstructors()) : FXCollections.emptyObservableList());
+    private void displayLoadedDetails(SurfSpot loaded, Thread thisThread) {
+        String locationText = formatLocationText(loaded);
+        String coordinatesText = getCoordinatesText(loaded);
+        String waveText = getWaveText(loaded);
+        String windText = getWindText(loaded);
+        String seasonText = getSeasonText(loaded);
+        ObservableList<Instructor> instructors = getInstructorsList(loaded);
 
-                    loadSpotImage(loaded.getImagePath());
-                });
-
-            } catch (InterruptedException _) {
-                log.debug("Detail load cancelled for: {}", spot.getName());
-                Thread.currentThread().interrupt();
-            } catch (Exception e) {
-                Platform.runLater(() -> log.error("Failed to load spot details", e));
+        Platform.runLater(() -> {
+            if (pendingDetailThread == thisThread) {
+                applyDetailsToUi(locationText, coordinatesText, waveText, windText, seasonText, instructors, loaded.getImagePath());
             }
         });
+    }
+
+    private void applyDetailsToUi(String location, String coordinates, String wave, String wind, String season, ObservableList<Instructor> instructors, String imagePath) {
+        locationLabel.setText(location);
+        coordinatesLabel.setText(coordinates);
+        waveDetailsLabel.setText(wave);
+        windDetailsLabel.setText(wind);
+        seasonLabel.setText(season);
+        instructorListView.setItems(instructors);
+        loadSpotImage(imagePath);
+    }
+
+    private void handleLoadError(Exception e, String spotName) {
+        if (e instanceof InterruptedException || Thread.currentThread().isInterrupted()) {
+            log.debug("Detail load cancelled for: {}", spotName);
+        } else {
+            Platform.runLater(() -> log.error("Failed to load spot details", e));
+        }
+    }
+
+    private String formatLocationText(SurfSpot loaded) {
+        String coastName = (loaded.getLocation() != null && loaded.getLocation().getCoast() != null)
+                ? loaded.getLocation().getCoast().getName() : "?";
+        return String.format("%s, %s", coastName, loaded.getCountryName());
+    }
+
+    private String getCoordinatesText(SurfSpot loaded) {
+        return (loaded.getLocation() != null && loaded.getLocation().getCoordinates() != null)
+                ? loaded.getLocation().getCoordinates().toString() : "-";
+    }
+
+    private String getWaveText(SurfSpot loaded) {
+        return loaded.getWaveDetails() != null ? loaded.getWaveDetails().toString() : "-";
+    }
+
+    private String getWindText(SurfSpot loaded) {
+        return loaded.getWindDirectionDegrees() != null ? loaded.getFormattedWindDetails() : "Nije unesen";
+    }
+
+    private String getSeasonText(SurfSpot loaded) {
+        return (loaded.getBestSeason() != null && !loaded.getBestSeason().isEmpty())
+                ? loaded.getFormattedBestSeason() : "Nije određena";
+    }
+
+    private ObservableList<Instructor> getInstructorsList(SurfSpot loaded) {
+        return loaded.getInstructors() != null
+                ? FXCollections.observableArrayList(loaded.getInstructors())
+                : FXCollections.emptyObservableList();
     }
 
     private void clearDetails() {
@@ -496,7 +528,7 @@ public class SurfSpotListController extends BaseController {
 
         task.setOnSucceeded(_ -> {
             log.info("Deleted surf spot: {}", selectedSpot.getName());
-            loadSurfSpots();
+            loadInitialData();
         });
 
         task.setOnFailed(_ -> log.error("Failed to delete surf spot", task.getException()));
@@ -554,5 +586,41 @@ public class SurfSpotListController extends BaseController {
         }
 
         return true;
+    }
+
+    private boolean matchesSearch(SurfSpot spot, String searchText) {
+        if (searchText.isEmpty()) return true;
+        return spot.getName() != null && spot.getName().toLowerCase().contains(searchText);
+    }
+
+    private boolean matchesDifficulty(SurfSpot spot, List<DifficultyLevel> selectedDifficulties) {
+        return selectedDifficulties.isEmpty() || selectedDifficulties.contains(spot.getDifficulty());
+    }
+
+    private boolean matchesWaveType(SurfSpot spot, List<WaveType> selectedWaveTypes) {
+        return selectedWaveTypes.isEmpty() || selectedWaveTypes.contains(spot.getWaveType());
+    }
+
+    private boolean matchesWaveHeight(SurfSpot spot) {
+        Double avgHeight = spot.getWaveHeight();
+        if (avgHeight == null) return true;
+
+        if (!isValidWaveHeightFilter(minWaveHeightField, min -> avgHeight < min)) return false;
+        return isValidWaveHeightFilter(maxWaveHeightField, max -> avgHeight > max);
+    }
+
+    private boolean matchesSeason(SurfSpot spot, List<Month> selectedMonths) {
+        return selectedMonths.isEmpty() || !Collections.disjoint(selectedMonths, spot.getBestSeason());
+    }
+
+    private boolean matchesCoast(SurfSpot spot, List<Coast> selectedCoasts) {
+        return selectedCoasts.isEmpty() || selectedCoasts.contains(spot.getCoast());
+    }
+
+    private boolean matchesCountry(SurfSpot spot, List<Country> selectedCountries) {
+        if (selectedCountries.isEmpty()) return true;
+
+        Country spotCountry = (spot.getCoast() != null) ? spot.getCoast().getCountry() : null;
+        return selectedCountries.contains(spotCountry);
     }
 }

@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
@@ -14,18 +15,22 @@
         <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
     </padding>
 
-                      <HBox alignment="CENTER_LEFT" spacing="10.0">
+    <HBox alignment="CENTER_LEFT" spacing="10.0">
         <Label text="Škole surfanja " textFill="#2c3e50">
             <font>
                 <Font name="System Bold" size="24.0" />
             </font>
         </Label>
 
-                          <Region HBox.hgrow="ALWAYS" />
+        <Region HBox.hgrow="ALWAYS" />
 
-                          <Button mnemonicParsing="false" onAction="#handleAdd" style="-fx-background-color: #2ecc71; -fx-text-fill: white;" text="Dodaj" />
+        <Button mnemonicParsing="false" onAction="#handleAdd" style="-fx-background-color: #2ecc71; -fx-text-fill: white;" text="Dodaj" />
         <Button mnemonicParsing="false" onAction="#handleEdit" style="-fx-background-color: #3498db; -fx-text-fill: white;" text="Uredi" />
         <Button mnemonicParsing="false" onAction="#handleDelete" style="-fx-background-color: #e74c3c; -fx-text-fill: white;" text="Obriši" />
+    </HBox>
+    <HBox alignment="CENTER_LEFT" spacing="10.0">
+        <Label text="Pretraga:"/>
+        <TextField fx:id="schoolSearchField" promptText="Unesite ime škole"/>
     </HBox>
     <HBox alignment="CENTER" maxHeight="5000.0" maxWidth="5000.0" VBox.vgrow="ALWAYS">
         <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">

@@ -1,6 +1,9 @@
 package hr.algebra.surfspot.model;
 
 import hr.algebra.surfspot.exception.ValidationException;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 public record Country (String code, String name){
     public Country {
@@ -14,7 +17,20 @@ public record Country (String code, String name){
     }
 
     @Override
+    @NotNull
     public String toString() {
         return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Country country = (Country) o;
+        return Objects.equals(code, country.code);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(code);
     }
 }
