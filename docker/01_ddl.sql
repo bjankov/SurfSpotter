@@ -40,9 +40,9 @@ CREATE TABLE surf_spots
     latitude       DECIMAL(9, 6) NOT NULL,
     longitude      DECIMAL(9, 6) NOT NULL,
     coast_id       BIGINT        NOT NULL,
-    wave_type      TEXT          NOT NULL,
+    wave_type      TEXT,
     wave_height    DECIMAL,
-    difficulty     TEXT,
+    difficulty     TEXT          NOT NULL,
     wind_direction INT
         CHECK ( wind_direction >= 0 AND wind_direction < 360),
     image_path     VARCHAR(255),

@@ -17,7 +17,6 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -101,7 +100,8 @@ public class SurfSpotListController extends BaseController {
         sortedData.comparatorProperty().bind(surfSpotTable.comparatorProperty());
         surfSpotTable.setItems(sortedData);
 
-        setupFilterListeners();
+        setupFilterControls();
+        addFilterListeners();
         loadInitialData();
 
         surfSpotTable.getSelectionModel().selectedItemProperty().addListener(
@@ -109,37 +109,30 @@ public class SurfSpotListController extends BaseController {
         );
 
         mainSplitPane.getItems().remove(itineraryPanel);
-
         setupDragAndDrop();
         clearDetails();
     }
 
-    private void setupFilterListeners() {
+    private void setupFilterControls() {
         difficultyComboBox.getItems().addAll(DifficultyLevel.values());
         difficultyComboBox.setConverter(new StringConverter<>() {
             @Override
             public String toString(DifficultyLevel level) {
                 return level == null ? "" : level.getDisplayValue();
             }
-
             @Override
-            public DifficultyLevel fromString(String string) {
-                return null;
-            }
+            public DifficultyLevel fromString(String string) { return null; }
         });
+
         waveTypeComboBox.getItems().addAll(WaveType.values());
         waveTypeComboBox.setConverter(new StringConverter<>() {
             @Override
             public String toString(WaveType type) {
                 return type == null ? "" : type.getDisplayValue();
             }
-
             @Override
-            public WaveType fromString(String string) {
-                return null;
-            }
+            public WaveType fromString(String string) { return null; }
         });
-        coastComboBox.getItems().addAll(coastService.findAll());
 
         coastComboBox.setConverter(new StringConverter<>() {
             @Override
@@ -149,8 +142,6 @@ public class SurfSpotListController extends BaseController {
             @Override
             public Coast fromString(String string) { return null; }
         });
-
-        countryComboBox.getItems().addAll(countryService.findAll());
 
         countryComboBox.setConverter(new StringConverter<>() {
             @Override
@@ -170,19 +161,14 @@ public class SurfSpotListController extends BaseController {
             @Override
             public Month fromString(String string) { return null; }
         });
-
-        addListeners();
-
     }
 
-    private void addListeners() {
+    private void addFilterListeners() {
         spotSearchField.textProperty().addListener((_, _, _) -> updateFilters());
         difficultyComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<DifficultyLevel>) _ -> updateFilters());
         waveTypeComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<WaveType>) _ -> updateFilters());
-
         minWaveHeightField.textProperty().addListener((_, _, _) -> updateFilters());
         maxWaveHeightField.textProperty().addListener((_, _, _) -> updateFilters());
-
         seasonComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<Month>) _ -> updateFilters());
         coastComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<Coast>) _ -> updateFilters());
         countryComboBox.getCheckModel().getCheckedItems().addListener((ListChangeListener<Country>) _ -> updateFilters());
@@ -223,12 +209,17 @@ public class SurfSpotListController extends BaseController {
         Thread.startVirtualThread(() -> {
             try {
                 List<SurfSpot> surfSpots = surfSpotService.findAll();
+                List<Coast> coasts = coastService.findAll();
+                List<Country> countries = countryService.findAll();
                 Platform.runLater(() -> {
                     spotObservableList.setAll(surfSpots);
-                    log.info("Loaded {} surf spots", surfSpots.size());
+                    coastComboBox.getItems().setAll(coasts);
+                    countryComboBox.getItems().setAll(countries);
+                    log.info("Loaded {} surf spots, {} coasts, {} countries", surfSpots.size(), coasts.size(), countries.size());
                 });
             } catch (Exception e) {
-                Platform.runLater(() -> log.error("Failed to load surf spots", e));
+                log.error("Failed to load initial data", e);
+                Platform.runLater(() -> showError("Došlo je do pogreške prilikom učitavanja podataka."));
             }
         });
     }
@@ -518,22 +509,18 @@ public class SurfSpotListController extends BaseController {
             return;
         }
 
-        Task<Void> task = new Task<>() {
-            @Override
-            protected Void call() {
-                surfSpotService.delete(selectedSpot.getId());
-                return null;
-            }
-        };
-
-        task.setOnSucceeded(_ -> {
-            log.info("Deleted surf spot: {}", selectedSpot.getName());
-            loadInitialData();
-        });
-
-        task.setOnFailed(_ -> log.error("Failed to delete surf spot", task.getException()));
-
-        Thread.startVirtualThread(task);
+        if (showConfirmation("Jeste li sigurni da želite izbrisati odabrano mjesto za surfanje?")) {
+            Thread.startVirtualThread(() -> {
+                try {
+                    surfSpotService.delete(selectedSpot.getId());
+                    log.info("Deleted surf spot: {}", selectedSpot.getName());
+                    Platform.runLater(() -> spotObservableList.remove(selectedSpot));
+                } catch (Exception e) {
+                    log.error("Failed to delete surf spot", e);
+                    Platform.runLater(() -> showError("Došlo je do pogreške prilikom brisanja mjesta za surfanje."));
+                }
+            });
+        }
     }
 
     @FXML

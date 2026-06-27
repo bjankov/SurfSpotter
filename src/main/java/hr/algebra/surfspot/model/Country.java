@@ -16,6 +16,10 @@ public record Country (String code, String name){
         code = code.toUpperCase();
     }
 
+    public Country withName(String name) {
+        return new Country(code, name);
+    }
+
     @Override
     @NotNull
     public String toString() {

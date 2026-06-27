@@ -6,6 +6,8 @@ import hr.algebra.surfspot.model.SurfSpot;
 import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.service.SurfSpotService;
 import hr.algebra.surfspot.service.SurfingSchoolService;
+import hr.algebra.surfspot.util.DisplayConstants;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import org.slf4j.Logger;
@@ -58,28 +60,38 @@ public class SurfingSchoolFormController extends BaseController {
     @FXML
     private void handleSave() {
         if (nameField.getText().isBlank()) {
-            log.warn("Pokušaj spremanja s praznim poljima.");
+            log.warn("Surfing school save attempted, but not all required data supplied");
+            showWarning(DisplayConstants.REQUIRE_MANDATORY_DATA);
             return;
         }
 
-        try {
-            SurfingSchool savedSchool;
-            if (currentSurfingSchool == null) {
-                SurfingSchool newSurfingSchool = SurfingSchool.builder()
-                        .name(nameField.getText())
-                        .build();
-                savedSchool = surfingSchoolService.save(newSurfingSchool);
-            } else {
-                currentSurfingSchool.setName(nameField.getText().trim());
-                savedSchool = surfingSchoolService.update(currentSurfingSchool);
+        String name = nameField.getText().trim();
+
+        Thread.startVirtualThread(() -> {
+            try {
+                SurfingSchool savedSchool;
+                if (currentSurfingSchool == null) {
+                    SurfingSchool newSurfingSchool = SurfingSchool.builder()
+                            .name(name)
+                            .build();
+                    savedSchool = surfingSchoolService.save(newSurfingSchool);
+                } else {
+                    SurfingSchool updatedSurfingSchool = SurfingSchool.builder()
+                                .from(currentSurfingSchool)
+                                .name(name)
+                                .build();
+
+                    savedSchool = surfingSchoolService.update(updatedSurfingSchool);
+                }
+
+                surfingSchoolService.updateSurfSpots(savedSchool.getId(), List.copyOf(selectedSurfSpotIds));
+
+                Platform.runLater(sceneNavigator::navigateToSurfingSchoolList);
+            } catch (Exception e) {
+                log.error("An error occurred when attempted to save surfing school", e);
+                Platform.runLater(() -> showError("Došlo je do greške prilikom spremanja škole surfanja."));
             }
-
-            surfingSchoolService.updateSurfSpots(savedSchool.getId(), List.copyOf(selectedSurfSpotIds));
-
-            sceneNavigator.navigateToSurfingSchoolList();
-        } catch (Exception e) {
-            log.error("Neuspjelo spremanje surfing schoole", e);
-        }
+        });
     }
 
     @FXML

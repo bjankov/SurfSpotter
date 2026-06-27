@@ -37,12 +37,12 @@
             <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
          <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
         </rowConstraints>
-        <Label text="Ime:" GridPane.rowIndex="0" />
+        <Label text="Ime*" GridPane.rowIndex="0" />
         <TextField fx:id="firstNameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-        <Label text="Prezime:" GridPane.rowIndex="1" />
+        <Label text="Prezime*" GridPane.rowIndex="1" />
         <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-      <Label text="Skola:" GridPane.rowIndex="2" />
+      <Label text="Škola*" GridPane.rowIndex="2" />
       <ComboBox fx:id="schoolComboBox" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
     </GridPane>
 

@@ -12,9 +12,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.controlsfx.control.CheckComboBox;
 import org.slf4j.Logger;
@@ -81,10 +79,11 @@ public class CoastListController extends BaseController {
                 Platform.runLater(() -> {
                     countryComboBox.getItems().setAll(countries);
                     coastObservableList.setAll(coasts);
-                    log.info("Loaded {} countries and {} coasts", countries.size(), coasts.size());
                 });
+                log.info("Loaded {} countries and {} coasts", countries.size(), coasts.size());
             } catch (Exception e) {
-                Platform.runLater(() -> log.error("Failed to load initial data", e));
+                log.error("Failed to load initial coast data", e);
+                Platform.runLater(() -> showError("Došlo je do pogreške prilikom učitavanja podataka o obalama."));
             }
         });
     }
@@ -102,7 +101,8 @@ public class CoastListController extends BaseController {
             log.info("Editing coast: {}", selectedCoast.getId());
             sceneNavigator.navigateToCoastForm(selectedCoast);
         } else {
-            log.warn("Edit clicked but no coast selected");
+            log.warn("Edit attempted, but no coast selected");
+            showWarning("Označite obalu koju želite uređivati.");
         }
     }
 
@@ -111,21 +111,23 @@ public class CoastListController extends BaseController {
         Coast selectedCoast = coastTable.getSelectionModel().getSelectedItem();
 
         if (selectedCoast == null) {
-            log.warn("Pokušaj brisanja bez odabrane obale.");
+            log.warn("Deletion attempted, but no coast seected");
+            showWarning("Označite obalu koju želite obrisati.");
             return;
         }
 
-        Thread.startVirtualThread(() -> {
-            try {
-                coastService.delete(selectedCoast.getId());
-                Platform.runLater(() -> {
-                    coastObservableList.remove(selectedCoast);
+        if (showConfirmation("Jeste li sigurni da želite izbrisati odabranu obalu?")) {
+            Thread.startVirtualThread(() -> {
+                try {
+                    coastService.delete(selectedCoast.getId());
                     log.info("Deleted coast with ID: {}", selectedCoast.getId());
-                });
-            } catch (Exception e) {
-                log.error("Failed to delete coast with ID: {}", selectedCoast.getId(), e);
-            }
-        });
+                    Platform.runLater(() -> coastObservableList.remove(selectedCoast));
+                } catch (Exception e) {
+                    log.error("Failed to delete coast with ID: {}", selectedCoast.getId(), e);
+                    Platform.runLater(() -> showError("Došlo je do greške prilikom brisanja obale."));
+                }
+            });
+        }
     }
 
     @FXML

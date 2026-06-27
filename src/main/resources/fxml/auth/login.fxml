@@ -7,17 +7,16 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" xmlns="http://javafx.com/javafx/25"
-      xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.surfspot.controller.auth.LoginController">
-   <Label text="Prijava"/>
+<VBox alignment="CENTER" spacing="10.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.surfspot.controller.auth.LoginController">
+   <Label text="Prijava" />
 
-   <TextField fx:id="usernameField" promptText="korisnicko ime ili email"/>
+   <TextField fx:id="usernameField" promptText="korisničko ime ili email" />
 
-   <PasswordField fx:id="passwordField" promptText="lozinka"/>
+   <PasswordField fx:id="passwordField" promptText="lozinka" />
 
-   <Button defaultButton="true" onAction="#handleLogin" text="PRIJAVA"/>
+   <Button defaultButton="true" onAction="#handleLogin" text="PRIJAVA" />
 
-   <Label text="Nemaš korisnickki račun?"/>
+   <Label text="Nemaš korisnički račun?" />
 
-   <Hyperlink onAction="#handleRegisterLink" text="Kreiraj korisnički račun"/>
+   <Hyperlink onAction="#handleRegisterLink" text="Kreiraj korisnički račun" />
 </VBox>

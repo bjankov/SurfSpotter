@@ -6,6 +6,8 @@ import hr.algebra.surfspot.model.Instructor;
 import hr.algebra.surfspot.model.SurfingSchool;
 import hr.algebra.surfspot.service.InstructorService;
 import hr.algebra.surfspot.service.SurfingSchoolService;
+import hr.algebra.surfspot.util.DisplayConstants;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -20,10 +22,14 @@ import java.util.List;
 public class InstructorFormController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(InstructorFormController.class);
 
-    @FXML private Label formTitleLabel;
-    @FXML private TextField firstNameField;
-    @FXML private TextField lastNameField;
-    @FXML private ComboBox<SurfingSchool> schoolComboBox;
+    @FXML
+    private Label formTitleLabel;
+    @FXML
+    private TextField firstNameField;
+    @FXML
+    private TextField lastNameField;
+    @FXML
+    private ComboBox<SurfingSchool> schoolComboBox;
 
     private final InstructorService instructorService;
     private final SurfingSchoolService schoolService;
@@ -40,12 +46,12 @@ public class InstructorFormController extends BaseController {
     public void setInstructor(Instructor instructor) {
         this.currentInstructor = instructor;
         if (instructor != null) {
-            formTitleLabel.setText("Uredi instruktora");
+            formTitleLabel.setText("Uredi instruktora surfanja");
             firstNameField.setText(instructor.getFirstName());
             lastNameField.setText(instructor.getLastName());
             schoolComboBox.setValue(instructor.getSchool());
         } else {
-            formTitleLabel.setText("Novi instruktor");
+            formTitleLabel.setText("Novi instruktor surfanja");
             firstNameField.clear();
             lastNameField.clear();
             schoolComboBox.setValue(null);
@@ -75,29 +81,39 @@ public class InstructorFormController extends BaseController {
         SurfingSchool selectedSchool = schoolComboBox.getSelectionModel().getSelectedItem();
 
         if (firstNameField.getText().isBlank() || lastNameField.getText().isBlank()) {
-            log.warn("Pokušaj spremanja s praznim poljima.");
+            log.warn("Instructor save attempted, but not all required data supplied");
+            showWarning(DisplayConstants.REQUIRE_MANDATORY_DATA);
             return;
         }
 
-        try {
-            if (currentInstructor == null) {
-                Instructor newInst = Instructor.builder()
-                        .firstName(firstNameField.getText().trim())
-                        .lastName(lastNameField.getText().trim())
-                        .school(selectedSchool)
-                        .build();
-                instructorService.save(newInst);
-            } else {
-                currentInstructor.setFirstName(firstNameField.getText().trim());
-                currentInstructor.setLastName(lastNameField.getText().trim());
-                currentInstructor.setSchool(selectedSchool);
+        String firstName = firstNameField.getText().trim();
+        String lastName = lastNameField.getText().trim();
 
-                instructorService.update(currentInstructor);
+        Thread.startVirtualThread(() -> {
+            try {
+                if (currentInstructor == null) {
+                    Instructor newInstructor = Instructor.builder()
+                            .firstName(firstName)
+                            .lastName(lastName)
+                            .school(selectedSchool)
+                            .build();
+                    instructorService.save(newInstructor);
+                } else {
+                    Instructor updatedInstructor = Instructor.builder()
+                            .from(currentInstructor)
+                            .firstName(firstName)
+                            .lastName(lastName)
+                            .school(selectedSchool)
+                            .build();
+
+                    instructorService.update(updatedInstructor);
+                }
+                Platform.runLater(sceneNavigator::navigateToInstructorList);
+            } catch (Exception e) {
+                log.error("An error occurred when attempted to save instructor", e);
+                Platform.runLater(() -> showError("Došlo je do greške prilikom spremanja instruktora."));
             }
-            sceneNavigator.navigateToInstructorList();
-        } catch (Exception e) {
-            log.error("Neuspjelo spremanje instruktora", e);
-        }
+        });
     }
 
     @FXML

@@ -21,11 +21,15 @@ import java.util.List;
 public class CountryListController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(CountryListController.class);
 
-    @FXML private TableView<Country> countryTable;
-    @FXML private TableColumn<Country, String> codeColumn;
-    @FXML private TableColumn<Country, String> nameColumn;
+    @FXML
+    private TableView<Country> countryTable;
+    @FXML
+    private TableColumn<Country, String> codeColumn;
+    @FXML
+    private TableColumn<Country, String> nameColumn;
 
-    @FXML private TextField countrySearchBox;
+    @FXML
+    private TextField countrySearchBox;
 
     private final CountryService countryService;
     private final SceneNavigator sceneNavigator;
@@ -33,7 +37,7 @@ public class CountryListController extends BaseController {
     private final ObservableList<Country> countryObservableList = FXCollections.observableArrayList();
     private FilteredList<Country> filteredCountries;
 
-    public CountryListController(CountryService countryService , SceneNavigator sceneNavigator) {
+    public CountryListController(CountryService countryService, SceneNavigator sceneNavigator) {
         this.countryService = countryService;
         this.sceneNavigator = sceneNavigator;
     }
@@ -71,7 +75,8 @@ public class CountryListController extends BaseController {
                     log.info("Loaded {} countries into table", countries.size());
                 });
             } catch (Exception e) {
-                Platform.runLater(() -> log.error("Failed to load countries from service", e));
+                log.error("Failed to load countries from service", e);
+                Platform.runLater(() -> showError("Došlo je do pogreške prilikom učitavanja država."));
             }
         });
     }
@@ -90,6 +95,7 @@ public class CountryListController extends BaseController {
             sceneNavigator.navigateToCountryForm(selectedCountry);
         } else {
             log.warn("Edit clicked but no country selected");
+            showWarning("Označite državu koju želite obrisati.");
         }
     }
 
@@ -102,16 +108,17 @@ public class CountryListController extends BaseController {
             return;
         }
 
-        Thread.startVirtualThread(() -> {
-            try {
-                countryService.delete(selectedCountry.code());
-                Platform.runLater(() -> {
-                    countryObservableList.remove(selectedCountry);
+        if (showConfirmation("Jeste li sigurni da želite izbrisati odabranu državu?")) {
+            Thread.startVirtualThread(() -> {
+                try {
+                    countryService.delete(selectedCountry.code());
+                    Platform.runLater(() -> countryObservableList.remove(selectedCountry));
                     log.info("Country {} deleted successfully.", selectedCountry.name());
-                });
-            } catch (Exception e) {
-                Platform.runLater(() -> log.error("Greška pri brisanju države.", e));
-            }
-        });
+                } catch (Exception e) {
+                    log.error("Failed to delete country with ID: {}", selectedCountry.code(), e);
+                    Platform.runLater(() -> showError("Došlo je do pogreške prilikom brisanja države."));
+                }
+            });
+        }
     }
 }

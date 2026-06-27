@@ -1,13 +1,15 @@
 <configuration>
-    <appender name="CONSOLE"
-              class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss} %-5level
-                %logger{36} - %msg%n
-            </pattern>
+            <pattern>%d{HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
+
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>500</queueSize> <discardingThreshold>0</discardingThreshold> <appender-ref ref="CONSOLE" />
+    </appender>
+
     <root level="DEBUG">
-        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ASYNC_CONSOLE"/>
     </root>
 </configuration>

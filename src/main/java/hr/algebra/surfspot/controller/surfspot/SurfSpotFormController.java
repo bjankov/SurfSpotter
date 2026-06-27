@@ -2,10 +2,12 @@ package hr.algebra.surfspot.controller.surfspot;
 
 import hr.algebra.surfspot.context.SceneNavigator;
 import hr.algebra.surfspot.controller.BaseController;
+import hr.algebra.surfspot.exception.ValidationException;
 import hr.algebra.surfspot.model.*;
 import hr.algebra.surfspot.service.CoastService;
 import hr.algebra.surfspot.service.SurfSpotService;
 import hr.algebra.surfspot.util.ImageStorage;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -51,11 +53,8 @@ public class SurfSpotFormController extends BaseController {
     }
 
     public void initialize() {
-        List<Coast> coasts = coastService.findAll();
-        coastComboBox.setItems(FXCollections.observableArrayList(coasts));
-
         waveTypeComboBox.setItems(FXCollections.observableArrayList(WaveType.values()));
-        waveTypeComboBox.setConverter(new  StringConverter<>() {
+        waveTypeComboBox.setConverter(new StringConverter<>() {
             @Override
             public String toString(WaveType waveType) {
                 return (waveType != null) ? waveType.getDisplayValue() : "";
@@ -68,7 +67,7 @@ public class SurfSpotFormController extends BaseController {
         });
 
         difficultyComboBox.setItems(FXCollections.observableArrayList(DifficultyLevel.values()));
-        difficultyComboBox.setConverter(new  StringConverter<>() {
+        difficultyComboBox.setConverter(new StringConverter<>() {
             @Override
             public String toString(DifficultyLevel difficultyLevel) {
                 return (difficultyLevel != null) ? difficultyLevel.getDisplayValue() : "";
@@ -81,6 +80,19 @@ public class SurfSpotFormController extends BaseController {
         });
 
         setupSeasonMenu();
+        loadCoasts();
+    }
+
+    private void loadCoasts() {
+        Thread.startVirtualThread(() -> {
+            try {
+                List<Coast> coasts = coastService.findAll();
+                Platform.runLater(() -> coastComboBox.setItems(FXCollections.observableArrayList(coasts)));
+            } catch (Exception e) {
+                log.error("Failed to load coasts", e);
+                Platform.runLater(() -> showError("Došlo je do pogreške prilikom učitavanja obala."));
+            }
+        });
     }
 
     public void setSurfSpot(SurfSpot spot) {
@@ -156,32 +168,96 @@ public class SurfSpotFormController extends BaseController {
 
     @FXML
     private void handleSave() {
-        if (nameField.getText().isBlank() || coastComboBox.getValue() == null) {
-            log.warn("Validation failed: Name or Coast is missing.");
-            return;
-        }
+        String name = nameField.getText().trim();
+        Coast coast = coastComboBox.getValue();
+        DifficultyLevel difficulty = difficultyComboBox.getValue();
+        String windDirectionText = windDirectionField.getText().trim();
+        String latitudeText = latitudeField.getText().trim();
+        String longitudeText = longitudeField.getText().trim();
+        String waveHeightText = waveHeightField.getText().trim();
 
+        if (!validateInputs(name, coast, difficulty, windDirectionText, latitudeText, longitudeText, waveHeightText)) return;
+
+        BigDecimal latitude = new BigDecimal(latitudeText);
+        BigDecimal longitude = new BigDecimal(longitudeText);
+        Double waveHeight = waveHeightText.isBlank() ? null : Double.parseDouble(waveHeightText);
+        Integer windDirection = windDirectionText.isBlank() ? null : Integer.parseInt(windDirectionText);
+
+        Thread.startVirtualThread(() -> {
+            try {
+                SurfSpot spot = SurfSpot.builder()
+                        .id(currentSurfSpot != null ? currentSurfSpot.getId() : null)
+                        .name(name)
+                        .location(buildLocation(latitude, longitude, coast))
+                        .waveDetails(buildWaveDetails(waveHeight))
+                        .difficulty(difficulty)
+                        .windDirectionDegrees(windDirection)
+                        .bestSeason(selectedMonths.isEmpty() ? EnumSet.noneOf(Month.class) : EnumSet.copyOf(selectedMonths))
+                        .imagePath(resolveImagePath())
+                        .build();
+                surfSpotService.save(spot);
+                log.info("Surf spot {} successfully saved.", spot.getName());
+                Platform.runLater(sceneNavigator::navigateToSurfSpotList);
+            } catch (ValidationException e) {
+                log.warn("Validation failed when saving surf spot: {}", e.getMessage());
+                Platform.runLater(() -> showError(e.getMessage()));
+            } catch (Exception e) {
+                log.error("Failed to save surf spot", e);
+                Platform.runLater(() -> showError("Došlo je do greške prilikom spremanja mjesta za surfanje."));
+            }
+        });
+    }
+
+    private boolean validateInputs(String name, Coast coast, DifficultyLevel difficulty,
+                                   String windDirection, String latitude, String longitude, String waveHeight) {
+        if (name.isBlank()) {
+            showWarning("Naziv mjesta za surfanje je obavezan.");
+            return false;
+        }
+        if (coast == null) {
+            showWarning("Odaberite obalu.");
+            return false;
+        }
+        if (difficulty == null) {
+            showWarning("Odaberite razinu težine.");
+            return false;
+        }
+        if (latitude.isBlank() || longitude.isBlank()) {
+            showWarning("Koordinate su obavezne.");
+            return false;
+        }
         try {
-            SurfSpot spot = SurfSpot.builder()
-                    .id(currentSurfSpot != null ? currentSurfSpot.getId() : null)
-                    .name(nameField.getText().trim())
-                    .location(buildLocation())
-                    .waveDetails(buildWaveDetails())
-                    .difficulty(difficultyComboBox.getValue())
-                    .windDirectionDegrees(Integer.parseInt(windDirectionField.getText().trim()))
-                    .bestSeason(selectedMonths.isEmpty() ? EnumSet.noneOf(Month.class) : EnumSet.copyOf(selectedMonths))
-                    .imagePath(resolveImagePath())
-                    .build();
-
-            surfSpotService.save(spot);
-            log.info("Surf spot {} successfully saved.", spot.getName());
-            handleBack();
-
-        } catch (NumberFormatException e) {
-            log.error("Validation failed: Invalid number format in coordinates, height, or wind direction.", e);
-        } catch (Exception e) {
-            log.error("Failed to save surf spot", e);
+            new BigDecimal(latitude);
+            new BigDecimal(longitude);
+        } catch (NumberFormatException _) {
+            showWarning("Koordinate moraju biti decimalni brojevi.");
+            return false;
         }
+        if (!windDirection.isBlank()) {
+            try {
+                Integer.parseInt(windDirection);
+            } catch (NumberFormatException _) {
+                showWarning("Smjer vjetra mora biti cijeli broj.");
+                return false;
+            }
+        }
+        if (!waveHeight.isBlank()) {
+            try {
+                Double.parseDouble(waveHeight);
+            } catch (NumberFormatException _) {
+                showWarning("Visina valova mora biti decimalni broj.");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private Location buildLocation(BigDecimal latitude, BigDecimal longitude, Coast coast) {
+        return new Location(new Coordinates(latitude, longitude), coast);
+    }
+
+    private WaveDetails buildWaveDetails(Double waveHeight) {
+        return new WaveDetails(waveTypeComboBox.getValue(), waveHeight);
     }
 
     private String resolveImagePath() {
@@ -194,19 +270,6 @@ public class SurfSpotFormController extends BaseController {
             log.error("Failed to save image, keeping existing path", e);
             return currentSurfSpot != null ? currentSurfSpot.getImagePath() : null;
         }
-    }
-
-    private Location buildLocation() {
-        BigDecimal lat = new BigDecimal(latitudeField.getText().trim());
-        BigDecimal lon = new BigDecimal(longitudeField.getText().trim());
-        return new Location(new Coordinates(lat, lon), coastComboBox.getValue());
-    }
-
-    private WaveDetails buildWaveDetails() {
-        return new WaveDetails(
-                waveTypeComboBox.getValue(),
-                Double.parseDouble(waveHeightField.getText().trim())
-        );
     }
 
     @FXML

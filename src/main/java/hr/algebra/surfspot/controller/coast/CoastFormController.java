@@ -6,6 +6,8 @@ import hr.algebra.surfspot.model.Coast;
 import hr.algebra.surfspot.model.Country;
 import hr.algebra.surfspot.service.CoastService;
 import hr.algebra.surfspot.service.CountryService;
+import hr.algebra.surfspot.util.DisplayConstants;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -14,6 +16,8 @@ import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class CoastFormController extends BaseController {
     private static final Logger log = LoggerFactory.getLogger(CoastFormController.class);
@@ -34,7 +38,15 @@ public class CoastFormController extends BaseController {
     }
 
     public void initialize() {
-        countryComboBox.setItems(FXCollections.observableArrayList(countryService.findAll()));
+        Thread.startVirtualThread(() -> {
+            try {
+                List<Country> countries = countryService.findAll();
+                Platform.runLater(() -> countryComboBox.setItems(FXCollections.observableArrayList(countries)));
+            } catch (Exception e) {
+                Platform.runLater(() -> log.error("Došlo je do pogreške prilikom učitavanja država.", e));
+                log.error("An error occurred during country loading in CoastForm");
+            }
+        });
 
         countryComboBox.setConverter(new StringConverter<>() {
             @Override
@@ -61,29 +73,38 @@ public class CoastFormController extends BaseController {
     @FXML
     private void handleSave() {
         if (nameField.getText().isBlank() || countryComboBox.getValue() == null) {
-            log.warn("Pokušaj spremanja s praznim poljima ili neodabranom državom.");
+            log.warn("Coast save attempted, but not all required data supplied");
+            showWarning(DisplayConstants.REQUIRE_MANDATORY_DATA);
             return;
         }
 
-        try {
-            Country selectedCountry = countryComboBox.getValue();
+        String name = nameField.getText().trim();
+        Country selectedCountry = countryComboBox.getValue();
 
-            if (currentCoast == null) {
-                Coast newCoast = Coast.builder()
-                        .name(nameField.getText().trim())
-                        .country(selectedCountry)
-                        .build();
-                coastService.save(newCoast);
-            } else {
-                currentCoast.setName(nameField.getText().trim());
-                currentCoast.setCountry(selectedCountry);
-                coastService.update(currentCoast);
+        Thread.startVirtualThread(() -> {
+            try {
+                if (currentCoast == null) {
+                    Coast newCoast = Coast.builder()
+                            .name(name)
+                            .country(selectedCountry)
+                            .build();
+                    coastService.save(newCoast);
+                } else {
+                    Coast updatedCoast = Coast.builder()
+                            .from(currentCoast)
+                            .name(name)
+                            .country(selectedCountry)
+                            .build();
+                    coastService.update(updatedCoast);
+                }
+
+                Platform.runLater(sceneNavigator::navigateToCoastList);
+
+            } catch (Exception e) {
+                log.error("An error occurred when attempted to save coast", e);
+                Platform.runLater(() -> showError("Došlo je do greške prilikom spremanja obale."));
             }
-
-            sceneNavigator.navigateToCoastList();
-        } catch (Exception e) {
-            log.error("Neuspjelo spremanje obale", e);
-        }
+        });
     }
 
     @FXML

@@ -89,12 +89,12 @@ public class InstructorListController extends BaseController {
             try {
                 List<Instructor> instructors = instructorService.findAll();
 
-                Platform.runLater(() -> {
-                    instructorObservableList.setAll(instructors);
-                    log.info("Loaded {} instructors", instructors.size());
-                });
-            } catch (Exception ex) {
-                Platform.runLater(() -> log.error("Failed to load instructors", ex));
+                Platform.runLater(() -> instructorObservableList.setAll(instructors));
+
+                log.info("Loaded {} instructors", instructors.size());
+            } catch (Exception e) {
+                log.error("Failed to load inital instructor data", e);
+                Platform.runLater(() -> showError("Došlo je do pogreške prilikom učitavanja podataka."));
             }
         });
     }
@@ -112,7 +112,8 @@ public class InstructorListController extends BaseController {
             log.info("Editing instructor: {}", selectedInstructor.getId());
             sceneNavigator.navigateToInstructorForm(selectedInstructor);
         } else {
-            log.warn("Edit clicked but no instructor selected");
+            log.warn("Edit attempted, but no instructor selected");
+            showWarning("Označite instruktora surfanja kojeg želite uređivati.");
         }
     }
 
@@ -121,21 +122,24 @@ public class InstructorListController extends BaseController {
         Instructor selectedInstructor = instructorTable.getSelectionModel().getSelectedItem();
 
         if (selectedInstructor == null) {
-            log.warn("Pokušaj brisanja bez odabranog instruktora.");
+            log.warn("Deletion attempted, but no instructor selected");
+            showWarning("Označite obalu koju želite obrisati.");
             return;
         }
 
-        Thread.startVirtualThread(() -> {
-            try {
-                instructorService.delete(selectedInstructor.getId());
-                Platform.runLater(() -> {
-                    instructorObservableList.remove(selectedInstructor);
-                    log.info("Deleted instructor with ID: {}", selectedInstructor.getId());
-                });
-            } catch (Exception e) {
-                Platform.runLater(() -> log.warn("Failed to delete instructor with ID: {}", selectedInstructor.getId(), e));
-            }
-        });
+        if (showConfirmation("Jeste li sigurni da želite izbrisati odabranog instruktora?"))
+            Thread.startVirtualThread(() -> {
+                try {
+                    instructorService.delete(selectedInstructor.getId());
+                    Platform.runLater(() -> {
+                        instructorObservableList.remove(selectedInstructor);
+                        log.info("Deleted instructor with ID: {}", selectedInstructor.getId());
+                    });
+                } catch (Exception e) {
+                    log.error("Failed to delete instructor with ID: {}", selectedInstructor.getId(), e);
+                    Platform.runLater(() -> showError("Došlo je do greške prilikom brisanja instruktora."));
+                }
+            });
     }
 
     @FXML
