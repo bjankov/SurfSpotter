@@ -19,6 +19,10 @@ public abstract class BaseController {
         showAlert(Alert.AlertType.WARNING, "Upozorenje", message);
     }
 
+    protected void showSuccess(String message) {
+        showAlert(Alert.AlertType.INFORMATION, "Uspjeh", message);
+    }
+
     protected boolean showConfirmation(String message) {
         return showAlert(Alert.AlertType.CONFIRMATION, "Potvrdi", message)
                 .filter(buttonType -> buttonType == ButtonType.OK)

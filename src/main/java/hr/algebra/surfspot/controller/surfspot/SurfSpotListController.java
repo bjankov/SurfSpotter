@@ -546,9 +546,10 @@ public class SurfSpotListController extends BaseController {
                 xmlMapper.writer()
                         .withRootName("PlanPutovanja")
                         .writeValue(file, itineraryListView.getItems());
-                Platform.runLater(() -> log.info("Itinerary exported to: {}", file.getAbsolutePath()));
+                log.info("Itinerary exported to: {}", file.getAbsolutePath());
             } catch (Exception e) {
-                Platform.runLater(() -> log.error("Export failed", e));
+                log.error("Export failed", e);
+                Platform.runLater(() -> showSuccess("Plan putovanja uspjesno izvezen."));
             }
         });
     }
