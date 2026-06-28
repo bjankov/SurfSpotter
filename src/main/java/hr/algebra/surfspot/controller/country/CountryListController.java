@@ -9,6 +9,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -45,7 +46,9 @@ public class CountryListController extends BaseController {
     @FXML
     public void initialize() {
         filteredCountries = new FilteredList<>(countryObservableList, _ -> true);
-        countryTable.setItems(filteredCountries);
+        SortedList<Country> countrySortedList = new SortedList<>(filteredCountries);
+        countrySortedList.comparatorProperty().bind(countryTable.comparatorProperty());
+        countryTable.setItems(countrySortedList);
 
         codeColumn.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().code()));
         nameColumn.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().name()));

@@ -11,6 +11,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -46,7 +47,9 @@ public class CoastListController extends BaseController {
     @FXML
     public void initialize() {
         filteredCoasts = new FilteredList<>(coastObservableList, _ -> true);
-        coastTable.setItems(filteredCoasts);
+        SortedList<Coast> coastSortedList = new SortedList<>(filteredCoasts);
+        coastSortedList.comparatorProperty().bind(coastTable.comparatorProperty());
+        coastTable.setItems(coastSortedList);
 
         coastNameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
         coastCountryColumn.setCellValueFactory(new PropertyValueFactory<>("countryName"));

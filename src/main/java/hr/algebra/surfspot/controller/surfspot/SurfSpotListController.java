@@ -96,9 +96,9 @@ public class SurfSpotListController extends BaseController {
         difficultyColumn.setCellValueFactory(new PropertyValueFactory<>("difficultyDisplayValue"));
 
         filteredSpots = new FilteredList<>(spotObservableList, _ -> true);
-        SortedList<SurfSpot> sortedData = new SortedList<>(filteredSpots);
-        sortedData.comparatorProperty().bind(surfSpotTable.comparatorProperty());
-        surfSpotTable.setItems(sortedData);
+        SortedList<SurfSpot> spotSortedList = new SortedList<>(filteredSpots);
+        spotSortedList.comparatorProperty().bind(surfSpotTable.comparatorProperty());
+        surfSpotTable.setItems(spotSortedList);
 
         setupFilterControls();
         addFilterListeners();

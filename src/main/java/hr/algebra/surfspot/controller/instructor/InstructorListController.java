@@ -12,6 +12,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -50,7 +51,9 @@ public class InstructorListController extends BaseController {
     @FXML
     public void initialize() {
         filteredInstructors = new FilteredList<>(instructorObservableList, _ -> true);
-        instructorTable.setItems(filteredInstructors);
+        SortedList<Instructor> instructorSortedList = new SortedList<>(filteredInstructors);
+        instructorSortedList.comparatorProperty().bind(instructorTable.comparatorProperty());
+        instructorTable.setItems(instructorSortedList);
 
         firstNameColumn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
         lastNameColumn.setCellValueFactory(new PropertyValueFactory<>("lastName"));

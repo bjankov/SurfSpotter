@@ -12,6 +12,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -51,7 +52,9 @@ public class UserListController extends BaseController {
     @FXML
     public void initialize() {
         filteredUsers = new FilteredList<>(userObservableList, _ -> true);
-        userTable.setItems(filteredUsers);
+        SortedList<User> userSortedList = new SortedList<>(filteredUsers);
+        userSortedList.comparatorProperty().bind(userTable.comparatorProperty());
+        userTable.setItems(userSortedList);
 
         usernameColumn.setCellValueFactory(new PropertyValueFactory<>("username"));
         emailColumn.setCellValueFactory(new PropertyValueFactory<>("email"));
