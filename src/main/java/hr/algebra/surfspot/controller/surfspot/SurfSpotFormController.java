@@ -218,10 +218,6 @@ public class SurfSpotFormController extends BaseController {
             showWarning("Odaberite obalu.");
             return false;
         }
-        if (difficulty == null) {
-            showWarning("Odaberite razinu težine.");
-            return false;
-        }
         if (latitude.isBlank() || longitude.isBlank()) {
             showWarning("Koordinate su obavezne.");
             return false;
@@ -231,6 +227,10 @@ public class SurfSpotFormController extends BaseController {
             new BigDecimal(longitude);
         } catch (NumberFormatException _) {
             showWarning("Koordinate moraju biti decimalni brojevi.");
+            return false;
+        }
+        if (difficulty == null) {
+            showWarning("Odaberite razinu težine.");
             return false;
         }
         if (!windDirection.isBlank()) {

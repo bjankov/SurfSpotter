@@ -42,7 +42,7 @@
 
         <Label text="Prezime*" GridPane.rowIndex="1" />
         <TextField fx:id="lastNameField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-      <Label text="Škola*" GridPane.rowIndex="2" />
+      <Label text="Škola" GridPane.rowIndex="2" />
       <ComboBox fx:id="schoolComboBox" prefWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
     </GridPane>
 

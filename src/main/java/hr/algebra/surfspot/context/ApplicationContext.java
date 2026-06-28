@@ -10,17 +10,15 @@ public class ApplicationContext {
     private final SceneNavigator navigator;
     private Stage primaryStage;
 
-    private final RepositoryFactory repositories;
-    private final ServiceFactory services;
-    private final ControllerFactory controllers;
+  private final ControllerFactory controllers;
 
     public ApplicationContext() {
         this.session = new UserSession();
         this.navigator = new SceneNavigator(this);
 
         DataSource dataSource = DataSourceFactory.createDataSource();
-        this.repositories = new RepositoryFactory(dataSource);
-        this.services = new ServiceFactory(repositories);
+      RepositoryFactory repositories = new RepositoryFactory(dataSource);
+      ServiceFactory services = new ServiceFactory(repositories);
         this.controllers = new ControllerFactory(services, session, navigator);
     }
 
@@ -28,10 +26,6 @@ public class ApplicationContext {
         return controllers.getController(controllerClass);
     }
 
-    public RepositoryFactory getRepositories() { return repositories; }
-    public ServiceFactory getServices() { return services; }
-
-    public UserSession getSession() { return session; }
     public SceneNavigator getSceneNavigator() { return navigator; }
 
     public boolean isAuthenticated() {

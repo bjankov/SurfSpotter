@@ -242,23 +242,18 @@ public class SurfSpotListController extends BaseController {
     }
 
     private void loadDetailsAsync(SurfSpot spot) {
-        Thread thisThread = Thread.currentThread();
         try {
             SurfSpot loaded = surfSpotService.findById(spot.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Nije pronađeno..."));
+                                             .orElseThrow(() -> new ResourceNotFoundException("Nije pronađeno..."));
 
-            if (thisThread.isInterrupted()) {
-                return;
-            }
-
-            displayLoadedDetails(loaded, thisThread);
+            displayLoadedDetails(loaded);
 
         } catch (Exception e) {
             handleLoadError(e, spot.getName());
         }
     }
 
-    private void displayLoadedDetails(SurfSpot loaded, Thread thisThread) {
+    private void displayLoadedDetails(SurfSpot loaded) {
         String locationText = formatLocationText(loaded);
         String coordinatesText = getCoordinatesText(loaded);
         String waveText = getWaveText(loaded);
@@ -266,8 +261,10 @@ public class SurfSpotListController extends BaseController {
         String seasonText = getSeasonText(loaded);
         ObservableList<Instructor> instructors = getInstructorsList(loaded);
 
+        Thread callingThread = Thread.currentThread();
+
         Platform.runLater(() -> {
-            if (pendingDetailThread == thisThread) {
+            if (callingThread == pendingDetailThread) {
                 applyDetailsToUi(locationText, coordinatesText, waveText, windText, seasonText, instructors, loaded.getImagePath());
             }
         });

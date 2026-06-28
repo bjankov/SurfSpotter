@@ -74,8 +74,8 @@ public class InstructorListController extends BaseController {
 
         filteredInstructors.setPredicate(instructor -> {
             if (!searchText.isEmpty()) {
-                String fullName = (instructor.getFirstName() + " " + instructor.getLastName()).toLowerCase();
-                if (!fullName.contains(searchText)) {
+                String instructorData = (instructor.getFirstName() + " " + instructor.getLastName() + instructor.getSchool().getName()).toLowerCase();
+                if (!instructorData.contains(searchText)) {
                     return false;
                 }
             }
@@ -93,7 +93,7 @@ public class InstructorListController extends BaseController {
 
                 log.info("Loaded {} instructors", instructors.size());
             } catch (Exception e) {
-                log.error("Failed to load inital instructor data", e);
+                log.error("Failed to load initial instructor data", e);
                 Platform.runLater(() -> showError("Došlo je do pogreške prilikom učitavanja podataka."));
             }
         });
