@@ -111,6 +111,10 @@ Alternativno imate opciju pokretanja preko Mavena:
 mvn clean javafx:run
 ```
 
+Podaci za prijavu kao admin:
+Korisničko ime: ``admin``
+Lozinka: ``admin``
+
 ---
 
 ## Zaustavljanje baze podataka
