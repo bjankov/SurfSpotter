@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.DoublePredicate;
@@ -541,8 +542,7 @@ public class SurfSpotListController extends BaseController {
                         .enable(MapperFeature.PROPAGATE_TRANSIENT_MARKER)
                         .build();
                 xmlMapper.writer()
-                        .withRootName("PlanPutovanja")
-                        .writeValue(file, itineraryListView.getItems());
+                        .writeValue(file, new Itinerary(new ArrayList<>(itineraryListView.getItems())));
                 log.info("Itinerary exported to: {}", file.getAbsolutePath());
             } catch (Exception e) {
                 log.error("Export failed", e);
