@@ -70,11 +70,11 @@ public class SceneNavigator {
     }
 
     public void navigateToSurfSpotList() {
-        navigateTo("/fxml/surf_spot/surf_spot_list.fxml", "Greška pri učitavanju liste surf spotova");
+        navigateTo("/fxml/surf_spot/surf_spot_list.fxml", "Greška pri učitavanju liste mjesta za surfanje");
     }
 
     public void navigateToSurfSpotForm(SurfSpot spot) {
-        navigateToForm("/fxml/surf_spot/surf_spot_form.fxml", "Greška pri otvaranju forme surf spota",
+        navigateToForm("/fxml/surf_spot/surf_spot_form.fxml", "Greška pri otvaranju forme mjesta za surfanje",
                 (SurfSpotFormController c) -> c.setSurfSpot(spot));
     }
 
@@ -92,7 +92,7 @@ public class SceneNavigator {
     }
 
     public void navigateToSurfingSchoolForm(SurfingSchool school) {
-        navigateToForm("/fxml/surfing_school/surfing_school_form.fxml", "Greška pri otvaranju forme skole",
+        navigateToForm("/fxml/surfing_school/surfing_school_form.fxml", "Greška pri otvaranju forme škole",
                 (SurfingSchoolFormController c) -> c.setSurfingSchool(school));
     }
 
@@ -115,11 +115,11 @@ public class SceneNavigator {
     }
 
     public void navigateToCountryList() {
-        navigateTo("/fxml/country/country_list.fxml", "Greška pri učitavanju liste drzava");
+        navigateTo("/fxml/country/country_list.fxml", "Greška pri učitavanju liste država");
     }
 
     public void navigateToCountryForm(Country country) {
-        navigateToForm("/fxml/country/country_form.fxml", "Greška pri otvaranju forme drzave",
+        navigateToForm("/fxml/country/country_form.fxml", "Greška pri otvaranju forme države",
                 (CountryFormController c) -> c.setCountry(country));
     }
 
